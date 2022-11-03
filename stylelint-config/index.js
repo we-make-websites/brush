@@ -1,3 +1,9 @@
+/**
+ * Stylelint Config
+ * -----------------------------------------------------------------------------
+ * We Make Websites stylelint configuration.
+ *
+ */
 const merge = require('merge')
 
 module.exports = {
