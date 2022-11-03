@@ -1,0 +1,611 @@
+/**
+ * API: Classes
+ * -----------------------------------------------------------------------------
+ * Functions to convert tokens into classes and build.
+ *
+ */
+const getDesignConfig = require('../helpers/get-design-config')
+const config = getDesignConfig()
+
+/**
+ * Find tokens by key and push formatted class object into object.
+ * @param {Array} tokens - tokens.json file.
+ * @param {Object} variables - Converted variables object.
+ * @returns {Object}
+ */
+function findTokens(tokens, variables) {
+  const classes = {}
+
+  /**
+   * Go through classes in config.
+   */
+  config.classes.forEach((type) => {
+
+    /**
+     * Create array in classes object for type.
+     */
+    if (!classes[type]) {
+      classes[type] = []
+    }
+
+    /**
+     * Iterate over type object to create array of formatted objects.
+     */
+    iterateObject({ classes, object: tokens, type, variables })
+  })
+
+  /**
+   * Return object.
+   */
+  return classes
+}
+
+/**
+ * Iterate over object to find entries of a certain type.
+ * @param {Array} classes - Formatted classes array.
+ * @param {Object} object - Object to iterate over.
+ * @param {String} [parent] - If object is nested, its parent's key.
+ * @param {String} type - Type to find.
+ * @param {Object} variables - Converted variables object.
+ */
+function iterateObject({ classes, object, parent, type, variables }) {
+  Object.entries(object).forEach(([name, value]) => {
+    if (!value.type) {
+      iterateObject({ classes, object: value, parent: name, type, variables })
+      return
+    }
+
+    if (value.type !== type) {
+      return
+    }
+
+    classes[type].push(formatClass({ name, parent, type, value, variables }))
+  })
+}
+
+/**
+ * Format token into class object.
+ * - Use existing variables for properties where possible.
+ * @param {String} name - Object key (e.g. 'xs').
+ * @param {Object} value - Object values.
+ * @param {String} [parent] - If object is nested, its parent's key.
+ * @param {String} type - Type of class.
+ * @param {Object} variables - Converted variables object.
+ * @returns {Object}
+ */
+function formatClass({
+  name: className,
+  parent = false,
+  type,
+  value: valueObject,
+  variables,
+}) {
+  let properties = formatProperties(valueObject.value, variables)
+  properties = properties.sort((a, b) => a.property.localeCompare(b.property))
+
+  return {
+    className: convertStringToClassName(className, parent, type),
+    description: valueObject.description,
+    properties,
+  }
+}
+
+/**
+ * Format class declaration properties.
+ * @param {Object} value - Token properties.
+ * @param {Object} variables - Converted variables object.
+ * @returns {Array}
+ */
+function formatProperties(value, variables) {
+
+  /**
+   * OriginalProperty: fontFamily, textCase etc.
+   * Alias: {font-family.sans}, {text-case.none} etc.
+   */
+  return Object.entries(value).map(([originalProperty, alias]) => {
+    const formattedAlias = alias
+      .replace(/[{}]/g, '')
+      .replace('$', '')
+      .split('.')
+
+    const [type, name] = formattedAlias
+
+    /**
+     * Exclude if variable isn't in variable configs.
+     * - To do this we must first find what it was originally called.
+     */
+    let nonRenamedType = type
+
+    Object.entries(config.renameVariable).forEach(([originalType, renamedType]) => {
+      if (renamedType !== type) {
+        return
+      }
+
+      nonRenamedType = originalType
+    })
+
+    if (
+      !config.variablesByName.includes(nonRenamedType) &&
+      !config.variablesByType.includes(nonRenamedType)
+    ) {
+      return false
+    }
+
+    const property = config.renameVariable[originalProperty]
+      ? config.renameVariable[originalProperty]
+      : convertStringToHandle(originalProperty)
+
+    /**
+     * Find variables object.
+     */
+    const variableObject = variables[property]?.find((object) => {
+      return object.name === name
+    })
+
+    if (!variableObject) {
+      return false
+    }
+
+    /**
+     * Use value of CSS variable instead of variable itself if set in config.
+     * - Otherwise use CSS variable.
+     * - `text-transform: none` is automatically ignored
+     */
+    const cssValue = config.replaceVariableWithValue.includes(property)
+      ? variableObject.value
+      : `var(${variableObject.variable})`
+
+    /**
+     * Don't return if config excludes property of certain value.
+     */
+    if (config.excludedPropertyValues?.includes(`${property}: ${cssValue}`)) {
+      return false
+    }
+
+    return {
+      property,
+      value: cssValue,
+      variable: variableObject,
+    }
+  }).filter(Boolean)
+}
+
+/**
+ * Build classes stylesheet content.
+ * @param {Object} classes - Converted classes object.yarn
+ * @param {Object} variables - Converted variables object.
+ * @param {Object} stylesheet - Stylesheet object.
+ * @returns {String}
+ */
+function buildStyles(classes, variables, stylesheet) {
+  let content = '/**\n * Base: Classes\n * -----------------------------------------------------------------------------\n * Automatically generated by `design` command, do not edit.\n *\n */\n'
+  content += '// stylelint-disable\n\n'
+
+  /**
+   * Add html, body to classes based on config.
+   */
+  if (
+    classes[config.defaultsType] &&
+    classes[config.defaultsType][0].className !== config.special.htmlBody
+  ) {
+    const bodyObject = classes[config.defaultsType].find((object) => {
+      return object.description === config.defaults.body
+    })
+
+    /**
+     * Find base scale variable.
+     */
+    const baseScale = variables[config.special.baseScale.split('.')[0]][0]
+
+    /**
+     * Replace font size property with base scale variable.
+     */
+    const fontSize = bodyObject.properties.find((property) => {
+      return property.property === config.special.fontSize
+    })
+
+    const fontSizeCopy = { ...fontSize }
+    fontSizeCopy.value = `var(${baseScale.variable})`
+    fontSizeCopy.variable = baseScale
+
+    /**
+     * Update properties array with new font size object.
+     */
+    const properties = bodyObject.properties.map((property) => {
+      if (property.property === config.special.fontSize) {
+        return fontSizeCopy
+      }
+
+      return property
+    })
+
+    /**
+     * Add html, body class.
+     */
+    classes[config.defaultsType].unshift({
+      className: config.special.htmlBody,
+      description: bodyObject.description,
+      properties,
+    })
+  }
+
+  /**
+   * Build CSS declarations.
+   */
+  Object.entries(classes).forEach(([key, value], index) => {
+    if (isExcludedAndNotIncluded(key, stylesheet)) {
+      return
+    }
+
+    content += buildCssDeclarations({ key, stylesheet, value })
+
+    if (index !== (Object.entries(classes).length - 1)) {
+      content += '\n'
+    }
+  })
+
+  /**
+   * Add brand colour classes.
+   */
+  if (stylesheet.handle === 'classes' && config.brandColours) {
+    content += buildBrandColours(variables)
+  }
+
+  /**
+   * Return CSS content.
+   */
+  return content
+}
+
+/**
+ * Build CSS declaration objects.
+ * - Go through each value, e.g. 'text-body-m' and its properties.
+ * @param {String} key - Type of class, e.g. 'text'.
+ * @param {Array} value - Array of objects containing class, properties etc.
+ * @param {Object} stylesheet - Stylesheet object.
+ * @returns {String}
+ */
+function buildCssDeclarations({ key, stylesheet, value }) {
+  let content = `// ${convertCamelCaseToTitleCase(key)}\n`
+
+  value.forEach(({ className, description, properties }, valueIndex) => {
+    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet)) {
+      return
+    }
+
+    /**
+     * Set class names.
+     * - Adds element if class name has been specified in config.
+     */
+    let formattedClassName = className.includes(',')
+      ? className
+      : `.${className}`
+
+    /**
+     * Add extra line to space declarations if not first.
+     */
+    if (valueIndex !== 0) {
+      content += '\n'
+    }
+
+    /**
+     * Find if description contains default string.
+     */
+    const defaultObject = Object.keys(config.defaults).find((defaultKey) => {
+      return defaultKey === description
+    })
+
+    /**
+     * Update class name if default object, and not html, body.
+     */
+    if (
+      defaultObject === 'body' &&
+      formattedClassName !== config.special.htmlBody
+    ) {
+      formattedClassName = `p, ${formattedClassName}`
+
+    } else if (defaultObject === 'link') {
+      formattedClassName = `a, ${formattedClassName}`
+    }
+
+    /**
+     * If setting html, body styles then override default mixin's font-size to
+     * use --scale-base variable.
+     * - This CSS variable is in pixels as we need to set the base font size so
+     *   that the REM units have the right scale.
+     */
+    let htmlBodyFontSize = false
+
+    if (formattedClassName === config.special.htmlBody) {
+      const fontSizeProperty = properties.find((object) => {
+        return object.property === config.special.fontSize
+      })
+
+      htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
+    }
+
+    /**
+     * Output based on stylesheet handle.
+     */
+    switch (stylesheet.handle) {
+      case 'classes-critical':
+        content += `${formattedClassName} {\n`
+
+        if (defaultObject) {
+          content += `  @include defaults-${description};\n`
+
+          if (htmlBodyFontSize) {
+            content += htmlBodyFontSize
+          }
+
+          content += '}\n'
+          return
+        }
+
+        content += buildCssDeclarationBlock(properties)
+        break
+
+      case 'classes-mixins':
+        if (className.includes(',')) {
+          return
+        }
+
+        content += `@mixin ${className} {\n`
+        content += buildCssDeclarationBlock(properties)
+
+        /**
+         * Re-use mixin as default mixin based on descriptions.
+         */
+        Object.entries(config.defaults).forEach(([defaultName, defaultDescription]) => {
+          if (description !== defaultDescription) {
+            return
+          }
+
+          content += `\n@mixin defaults-${defaultName} {\n`
+          content += `  @include ${className};\n`
+          content += `}\n`
+        })
+
+        break
+
+      default:
+        if (className.includes(',')) {
+          content += `${formattedClassName} {\n`
+          content += buildCssDeclarationBlock(properties)
+          return
+        }
+
+        content += `${formattedClassName} {\n`
+        content += `  @include ${className};\n\n`
+
+        if (config.textTabletBreakpoint) {
+          content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
+          content += `    &-tablet.${className}-tablet {\n`
+          content += `      @include ${className};\n`
+          content += `    }\n`
+          content += `  }\n\n`
+        }
+
+        content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
+        content += `    &-desktop.${className}-desktop {\n`
+        content += `      @include ${className};\n`
+        content += `    }\n`
+        content += `  }\n`
+        content += `}\n`
+
+        break
+    }
+  })
+
+  /**
+   * Return stylesheet.
+   */
+  return content
+}
+
+/**
+ * Build individual declaration block for each class/mixin.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildCssDeclarationBlock(properties) {
+  let content = ''
+
+  properties.forEach(({ property: cssProperty, value: cssValue }) => {
+    content += `  ${cssProperty}: ${cssValue};\n`
+  })
+
+  content += '}\n'
+
+  return content
+}
+
+/**
+ * Build brand colour classes.
+ * @param {Object} variables - Converted variables object.
+ * @returns {String}
+ */
+function buildBrandColours(variables) {
+  let content = '\n// Brand colors\n'
+  content += outputBrandColours('background', variables)
+  content += '\n'
+  content += outputBrandColours('text', variables)
+  return content
+}
+
+/**
+ * Outputs the classes.
+ * @param {String} type - `background` or `text`.
+ * @param {Object} variables - Converted variables object.
+ * @returns {String}
+ */
+function outputBrandColours(type, variables) {
+  const property = type === 'background' ? 'background-color' : 'color'
+
+  let content = ''
+
+  content += `.${type}-color {\n`
+
+  variables.color.forEach(({ variable }, index) => {
+    const string = variable.replace(config.cssPrefix, '')
+
+    const excluded = config.brandExcludedColours.find((excludedColours) => {
+      return string.includes(excludedColours)
+    })
+
+    if (excluded) {
+      return
+    }
+
+    if (index !== 0) {
+      content += '\n'
+    }
+
+    content += `  &#{&}--${string.replace('color-', '')} {\n`
+    content += `    ${property}: var(${variable});\n`
+    content += '  }\n'
+  })
+
+  content += '}\n'
+
+  return content
+}
+
+/**
+ * Utils
+ * -----------------------------------------------------------------------------
+ * Utility functions.
+ *
+ */
+
+/**
+ * Convert string into a class name.
+ * - Converts to kebab-case.
+ * - Updates ordinal.
+ * - Adds prefix.
+ * @param {String} string - String to convert.
+ * @param {String|Boolean} [parent] - String parent to combine.
+ * @param {String} type - Type of class.
+ * @returns {String}
+ */
+function convertStringToClassName(string, parent = false, type) {
+  let className = convertStringToHandle(convertOrdinal(string), parent)
+  const parts = className.split(config.delimiter)
+
+  if (type === config.defaultsType && parts.length) {
+    const prefix = 'text'
+
+    if (parts[0] !== prefix) {
+      className = `${prefix}${config.delimiter}${className}`
+    }
+  }
+
+  return className
+}
+
+/**
+ * Convert a string into handle (kebab-case).
+ * @param {String} string - String to convert.
+ * @param {String|Boolean} [parent] - String parent to combine.
+ * @returns {String}
+ */
+function convertStringToHandle(string, parent = false) {
+  let handle = string && string.replaceAll('+', 'Plus')
+
+  handle = handle
+    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
+    .map((part) => part.toLowerCase())
+    .join(config.delimiter)
+
+  if (!parent) {
+    return handle
+  }
+
+  const parentHandle = parent
+    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
+    .map((part) => part.toLowerCase())
+    .join(config.delimiter)
+
+  return `${parentHandle}${config.delimiter}${handle}`
+}
+
+/**
+ * Convert ordinal to correct naming convention.
+ * - E.g. XXXL -> 3XL.
+ * - Matches existing casing.
+ * @param {String} string - Original string.
+ * @returns {String}
+ */
+function convertOrdinal(string) {
+  const match = string?.match(/x+/giu)
+
+  if (!string || !match || match[0]?.length < 2) {
+    return string
+  }
+
+  const length = match[0].length
+  const xCharacter = match[0].slice(0, 1)
+
+  return string.replace(match[0], `${length}${xCharacter}`)
+}
+
+/**
+ * Converts a camelCase to Title Case.
+ * @param {String} string - String to convert.
+ * @return {String}
+ */
+function convertCamelCaseToTitleCase(string) {
+  let titleCase = string
+    .trim()
+    .replace(/(?<capitals>[A-Z])/g, ' $<capitals>')
+
+  titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1)
+
+  return titleCase.trim()
+}
+
+/**
+ * Checks if key is excluded and not included.
+ * - Can target specific values, e.g. 'text.text-body-m'.
+ * - Used to determine if current key shouldn't be rendered.
+ * - Returns true if key is excluded or is not included.
+ * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
+ * in format `[key].[className]`, e.g. 'text.text-body-m'.
+ * @param {Object} stylesheet - Stylesheet object.
+ * @returns {Boolean}
+ */
+function isExcludedAndNotIncluded(key, stylesheet) {
+  if (stylesheet.include.length) {
+    const included = stylesheet.include.some((item) => {
+      const test = item.includes('.') && !key.includes('.')
+        ? item.split('.')[0]
+        : item
+
+      return test === key
+    })
+
+    return !included
+  }
+
+  if (stylesheet.exclude.length) {
+    const excluded = stylesheet.exclude.some((item) => {
+      const test = item.includes('.') && !key.includes('.')
+        ? item.split('.')[1]
+        : item
+
+      return test === key
+    })
+
+    return excluded
+  }
+
+  return false
+}
+
+/**
+ * Export API.
+ */
+module.exports = {
+  buildStyles,
+  findTokens,
+}

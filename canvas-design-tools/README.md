@@ -1,6 +1,6 @@
-# 🧩 Canvas Component Tools
+# 🎨 Canvas Design Tools
 
-Canvas Component Tools for automating the creation of component files.
+Canvas Designs Tools for converting _tokens.json_ into variables and classes.
 
 ## 📅 Changelog
 
