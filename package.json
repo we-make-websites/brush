@@ -7,7 +7,6 @@
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "17.2.0",
-    "@we-make-websites/branch-naming-check": "3.0.0",
     "@we-make-websites/eslint-config": "3.2.0-module",
     "eslint": "8.26.0",
     "husky": "8.0.1",
