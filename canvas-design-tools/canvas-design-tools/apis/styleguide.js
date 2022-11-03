@@ -77,8 +77,8 @@ function loadTemplates(templatesToLoad) {
       const localTemplates = {}
 
       for (const template of templatesToLoad) {
-        const internalFilepath = path.join(Paths.templates.internal, `${template}.ejs`)
-        const projectFilepath = path.join(Paths.templates.project, `${template}.ejs`)
+        const internalFilepath = path.join(Paths.templates.internal, `styleguide-${template}.ejs`)
+        const projectFilepath = path.join(Paths.templates.project, `styleguide-${template}.ejs`)
 
         const templatePath = fs.existsSync(projectFilepath)
           ? projectFilepath
