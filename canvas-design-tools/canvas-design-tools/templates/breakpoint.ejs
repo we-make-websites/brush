@@ -1,0 +1,16 @@
+/**
+ * Config: Breakpoints
+ * -----------------------------------------------------------------------------
+ * Global configuration for consistent values for media queries in scripts.
+ * - WarningMessage.
+ *
+ */
+// eslint-disable
+
+export const values = {
+  <%= repeat %><%= name %>: <%= value %>,
+}
+
+export default {
+  <%= repeat %><%= name %>: `${values.<%= name %>}<%= unit %>`,
+}
