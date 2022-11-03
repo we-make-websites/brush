@@ -1,0 +1,26 @@
+{
+  "name": "@we-make-websites/eslint-config",
+  "version": "3.2.0",
+  "description": "We Make Website's eslint rules and config",
+  "repository": "https://github.com/we-make-websites/eslint-config",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "devDependencies": {
+    "eslint": "8.25.0"
+  },
+  "dependencies": {
+    "@babel/eslint-parser": "7.19.1",
+    "@babel/eslint-plugin": "7.19.1",
+    "eslint-plugin-vue": "9.6.0",
+    "merge": "2.1.1"
+  },
+  "peerDependencies": {
+    "@babel/core": "7.15.8",
+    "eslint": "8.7.0"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.14.0"
+  }
+}
