@@ -6,11 +6,11 @@
  */
 const fs = require('fs-extra')
 const path = require('path')
-const Paths = require('@we-make-websites/basis/basis/helpers/paths')
 
 const variableApi = require('../apis/variables')
 
 const getDesignConfig = require('../helpers/get-design-config')
+const Paths = require('../helpers/paths')
 
 const config = getDesignConfig()
 let templates = {}

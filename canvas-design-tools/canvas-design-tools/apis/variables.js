@@ -6,12 +6,12 @@
  */
 const fs = require('fs-extra')
 const path = require('path')
-const Paths = require('@we-make-websites/basis/basis/helpers/paths')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
 const getDesignConfig = require('../helpers/get-design-config')
 const hexRgb = require('../helpers/hex-rgb')
+const Paths = require('../helpers/paths')
 
 /**
  * Set variables.
