@@ -1,4 +1,4 @@
-# 📚 Basis Schema Docs Changelog
+# 📅 Basis Schema Docs Changelog
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 

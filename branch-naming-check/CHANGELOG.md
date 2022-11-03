@@ -1,4 +1,4 @@
-# 📅 Changelog
+# 📅 Branch Naming Check Changelog
 
 ## 3.0.0 - 2022-10-19
 * Added support for Canvas config to set support for kebab-case or camelCase

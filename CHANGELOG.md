@@ -1,4 +1,4 @@
-# 📅 Changelog
+# 📅 Brush Changelog
 
 Brush uses [semantic versioning](https://semver.org/).
 
