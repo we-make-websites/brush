@@ -652,8 +652,14 @@ async function buildScripts(variables) {
 function getScriptTemplate(type, variables) {
   return new Promise(async(resolve, reject) => {
     try {
-      const filepath = path.join(Paths.canvas.templates.design, `${type}.ejs`)
-      let template = await fs.readFile(filepath, 'utf-8')
+      const internalFilepath = path.join(Paths.templates.internal, `${type}.ejs`)
+      const projectFilepath = path.join(Paths.templates.project, `${type}.ejs`)
+
+      const templatePath = fs.existsSync(projectFilepath)
+        ? projectFilepath
+        : internalFilepath
+
+      let template = await fs.readFile(templatePath, 'utf-8')
 
       if (!variables[type]) {
         resolve(template)

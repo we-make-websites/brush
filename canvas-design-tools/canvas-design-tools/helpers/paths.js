@@ -17,22 +17,25 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  * @returns {Object}
  */
 module.exports = {
-  components: {
-    async: path.resolve(rootFolder, 'src', 'components', 'async'),
-    global: path.resolve(rootFolder, 'src', 'components', 'global'),
-  },
   config: {
     internal: path.resolve(packageFolder, 'helpers', 'design-config.js'),
     project: path.resolve(rootFolder, 'canvas', 'helpers', 'design-config.js'),
   },
+  icons: path.resolve(rootFolder, 'src', 'icons'),
   scripts: {
-    imports: path.resolve(rootFolder, 'src', 'scripts', 'core', 'canvas-imports.js'),
+    config: path.resolve(rootFolder, 'src', 'scripts', 'config'),
   },
   styles: {
-    theme: path.resolve(rootFolder, 'src', 'styles', 'layout', 'theme.scss'),
+    base: path.resolve(rootFolder, 'src', 'styles', 'base'),
+    config: path.resolve(rootFolder, 'src', 'styles', 'config'),
+  },
+  storybook: {
+    assets: path.resolve(rootFolder, '.storybook', 'assets'),
+    stories: path.resolve(rootFolder, '.storybook', 'stories'),
   },
   templates: {
     internal: path.resolve(packageFolder, 'templates'),
-    project: path.resolve(rootFolder, 'canvas', 'templates', 'component'),
+    project: path.resolve(rootFolder, 'canvas', 'templates', 'design'),
   },
+  tokens: path.resolve(rootFolder, 'tokens.json'),
 }

@@ -36,7 +36,7 @@ async function init() {
   /**
    * Load tokens file.
    */
-  let tokens = await fs.readFile(Paths.canvas.tokens, 'utf-8')
+  let tokens = await fs.readFile(Paths.tokens, 'utf-8')
   tokens = JSON.parse(tokens)
 
   /**

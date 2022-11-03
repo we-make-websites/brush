@@ -77,11 +77,15 @@ function loadTemplates(templatesToLoad) {
       const localTemplates = {}
 
       for (const template of templatesToLoad) {
+        const internalFilepath = path.join(Paths.templates.internal, `${template}.ejs`)
+        const projectFilepath = path.join(Paths.templates.project, `${template}.ejs`)
+
+        const templatePath = fs.existsSync(projectFilepath)
+          ? projectFilepath
+          : internalFilepath
+
         // eslint-disable-next-line no-await-in-loop
-        let contents = await fs.readFile(
-          path.join(Paths.canvas.templates.design, `styleguide-${template}.ejs`),
-          'utf-8',
-        )
+        let contents = await fs.readFile(templatePath, 'utf-8')
 
         contents = contents.replace(
           'WarningMessage',
