@@ -1,6 +1,6 @@
-# 📚 Canvas Library Tools
+# 🧩 Canvas Component Tools
 
-Canvas Library Tools for automating the installation of Library components.
+Canvas Component Tools for automating the creation of component files.
 
 ## 📅 Changelog
 

@@ -1,4 +1,4 @@
-# 📚 Canvas Component Tools Changelog
+# 📅 Canvas Component Tools Changelog
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
