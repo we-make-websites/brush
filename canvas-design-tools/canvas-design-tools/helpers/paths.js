@@ -19,7 +19,7 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
 module.exports = {
   config: {
     internal: path.resolve(packageFolder, 'helpers', 'design-config.js'),
-    project: path.resolve(rootFolder, 'canvas', 'helpers', 'design-config.js'),
+    project: path.resolve(rootFolder, 'canvas', 'design-config.js'),
   },
   icons: path.resolve(rootFolder, 'src', 'icons'),
   scripts: {
