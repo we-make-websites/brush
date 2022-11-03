@@ -1,0 +1,34 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Section: <%= name %> (<%= handle %>)
+------------------------------------------------------------------------------
+{% endcomment %}
+<section
+  aria-labelledby="section-title-{{ section.id }}"<%= customContent %>
+>
+  <<%= handle %>
+    v-show="getComponentVisible('<%= handle %>')"
+    v-cloak
+    :liquid="{
+      sectionId: {{ section.id | json | escape }}
+    }"
+  ></<%= handle %>>
+
+  {% comment %}
+  -----------------------------------------------------------------------------
+    Loading state.
+  -----------------------------------------------------------------------------
+  {% endcomment %}
+  <div v-if="!getComponentActive('<%= handle %>')">
+    <div class="<%= handle %> is-loading liquid">
+      <h2
+        id="section-title-{{ section.id }}"
+        class="<%= handle %>__title"
+      >
+        title_goes_here
+      </h2>
+    </div>
+  </div>
+</section>
+
+{% schema '<%= handle %>' %}

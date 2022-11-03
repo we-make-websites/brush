@@ -1,0 +1,38 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Section: <%= name %> (<%= handle %>)
+------------------------------------------------------------------------------
+{% endcomment %}
+{{ 'component.<%= handle %>.css' | asset_url | stylesheet_tag }}
+
+<section
+  aria-labelledby="section-title-{{ section.id }}"
+  data-component-handle="<%= handle %>"
+  data-component-type="<%= load %>"<%= customContent %>
+>
+  <<%= handle %>
+    v-if="getComponentVisible('<%= handle %>')"
+    v-cloak
+    :liquid="{
+      sectionId: {{ section.id | json | escape }}
+    }"
+  ></<%= handle %>>
+
+  {% comment %}
+  -----------------------------------------------------------------------------
+    Loading state.
+  -----------------------------------------------------------------------------
+  {% endcomment %}
+  <div v-if="!getComponentActive('<%= handle %>')">
+    <div class="<%= handle %> is-loading critical-component-clear liquid">
+      <h2
+        id="section-title-{{ section.id }}"
+        class="<%= handle %>__title"
+      >
+        title_goes_here
+      </h2>
+    </div>
+  </div>
+</section>
+
+{% schema '<%= handle %>' %}

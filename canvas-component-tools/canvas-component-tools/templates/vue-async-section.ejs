@@ -1,0 +1,51 @@
+<template>
+  <div class="<%= handle %> critical-component-clear">
+    <h2
+      :id="`section-title-${liquid.sectionId}`"
+      class="<%= handle %>__title"
+      v-text="$string('404.title')"
+    />
+  </div>
+</template>
+
+<script>
+
+/**
+ * Vue: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * <%= description %>
+ *
+ * @param {String} liquid.sectionId - Section's Liquid ID.
+ *
+ */
+export default {
+  name: '<%= pascalCase %>',
+
+  props: {
+    liquid: {
+      type: Object,
+      default: () => ({
+        sectionId: '',
+      }),
+    },
+  },
+
+  data() {
+    return {
+
+    }
+  },
+
+  mounted() {
+    // Not empty
+  },
+
+  methods: {
+    // Not empty
+  },
+}
+</script>
+
+<style lang="scss">
+@import './<%= handle %>';
+</style>
