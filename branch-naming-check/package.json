@@ -1,0 +1,23 @@
+{
+  "name": "@we-make-websites/branch-naming-check",
+  "version": "3.0.0",
+  "description": "Enforce We Make Website's branch naming conventions.",
+  "homepage": "https://github.com/we-make-websites/branch-naming-check#readme",
+  "repository": "https://github.com/we-make-websites/branch-naming-check.git",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "main": "./branch-naming-check/index.js",
+  "bin": {
+    "branch-naming-check": "./branch-naming-check/index.js"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@we-make-websites/tannoy": "1.12.0",
+    "fs-extra": "10.1.0",
+    "path": "0.12.7"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.17.0"
+  }
+}

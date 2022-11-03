@@ -1,0 +1,32 @@
+{
+  "name": "@we-make-websites/canvas-library-tools",
+  "version": "2.1.0",
+  "description": "Canvas Library tools for automating the installation of Library components.",
+  "repository": "https://bitbucket.org/we-make-websites/canvas-library-tools",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "bin": {
+    "library-install": "./canvas-library-tools/commands/install.js"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "17.1.2",
+    "@we-make-websites/branch-naming-check": "2.1.0",
+    "@we-make-websites/eslint-config": "3.1.0-module",
+    "eslint": "8.24.0",
+    "husky": "8.0.1",
+    "lint-staged": "13.0.3"
+  },
+  "dependencies": {
+    "@we-make-websites/tannoy": "1.12.0",
+    "enquirer": "2.3.6",
+    "fs-extra": "10.1.0",
+    "nodegit": "0.28.0-alpha.17",
+    "open": "8.4.0",
+    "path": "0.12.7",
+    "yargs": "17.6.0"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.17.0"
+  }
+}
