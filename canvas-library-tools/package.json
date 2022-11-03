@@ -2,7 +2,7 @@
   "name": "@we-make-websites/canvas-library-tools",
   "version": "2.1.0",
   "description": "Canvas Library tools for automating the installation of Library components.",
-  "repository": "https://bitbucket.org/we-make-websites/canvas-library-tools",
+  "repository": "https://bitbucket.org/we-make-websites/brush/src/master/canvas-library-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
