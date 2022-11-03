@@ -10,13 +10,14 @@ const Paths = require('@we-make-websites/basis/basis/helpers/paths')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
-const config = require('../helpers/design-config')
+const getDesignConfig = require('../helpers/get-design-config')
 const hexRgb = require('../helpers/hex-rgb')
 
 /**
  * Set variables.
  */
 const argv = yargs(hideBin(process.argv)).argv
+const config = getDesignConfig()
 let baseScale = 16
 
 /**

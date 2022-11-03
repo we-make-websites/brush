@@ -8,9 +8,11 @@ const fs = require('fs-extra')
 const path = require('path')
 const Paths = require('@we-make-websites/basis/basis/helpers/paths')
 
-const config = require('../helpers/design-config')
 const variableApi = require('../apis/variables')
 
+const getDesignConfig = require('../helpers/get-design-config')
+
+const config = getDesignConfig()
 let templates = {}
 
 /**

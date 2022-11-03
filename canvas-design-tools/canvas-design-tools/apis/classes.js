@@ -4,7 +4,8 @@
  * Functions to convert tokens into classes and build.
  *
  */
-const config = require('../helpers/design-config')
+const getDesignConfig = require('../helpers/get-design-config')
+const config = getDesignConfig()
 
 /**
  * Find tokens by key and push formatted class object into object.

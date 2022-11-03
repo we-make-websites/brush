@@ -13,14 +13,15 @@ const Paths = require('./paths')
  * @returns {Object|Boolean}
  */
 module.exports = () => {
-  if (
-    process.env.CANVAS !== 'true' ||
-    !fs.existsSync(Paths.config)
-  ) {
+  const configPath = fs.existsSync(Paths.config.project)
+    ? Paths.config.project
+    : Paths.config.internal
+
+  if (!fs.existsSync(configPath)) {
     return false
   }
 
-  const config = require(Paths.config)
+  const config = require(configPath)
 
   if (!config) {
     return false

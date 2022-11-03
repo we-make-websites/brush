@@ -21,7 +21,10 @@ module.exports = {
     async: path.resolve(rootFolder, 'src', 'components', 'async'),
     global: path.resolve(rootFolder, 'src', 'components', 'global'),
   },
-  config: path.resolve(rootFolder, 'canvas.config.js'),
+  config: {
+    internal: path.resolve(packageFolder, 'helpers', 'design-config.js'),
+    project: path.resolve(rootFolder, 'canvas', 'helpers', 'design-config.js'),
+  },
   scripts: {
     imports: path.resolve(rootFolder, 'src', 'scripts', 'core', 'canvas-imports.js'),
   },

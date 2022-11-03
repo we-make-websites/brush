@@ -16,13 +16,14 @@ const classApi = require('../apis/classes')
 const styleguideApi = require('../apis/styleguide')
 const variableApi = require('../apis/variables')
 
-const config = require('../helpers/design-config')
+const getDesignConfig = require('../helpers/get-design-config')
 const Paths = require('../helpers/paths')
 
 /**
  * Set variables.
  */
 const argv = yargs(hideBin(process.argv)).argv
+const config = getDesignConfig()
 
 /**
  * Initialises the design functionality.
