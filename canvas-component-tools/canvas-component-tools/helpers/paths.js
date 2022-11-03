@@ -10,6 +10,7 @@ const path = require('path')
  * Set variables.
  */
 const rootFolder = path.resolve(path.dirname('./'))
+const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-websites', 'canvas-component-tools', 'canvas-component-tools')
 
 /**
  * Export.
@@ -27,5 +28,8 @@ module.exports = {
   styles: {
     theme: path.resolve(rootFolder, 'src', 'styles', 'layout', 'theme.scss'),
   },
-  templates: path.resolve(rootFolder, 'canvas', 'templates', 'component'),
+  templates: {
+    internal: path.resolve(packageFolder, 'templates'),
+    project: path.resolve(rootFolder, 'canvas', 'templates', 'component'),
+  },
 }

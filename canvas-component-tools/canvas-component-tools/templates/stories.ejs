@@ -1,0 +1,59 @@
+/**
+ * Storybook: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * Configure storybook controls and stories.
+ *
+ */
+import <%= pascalCase %> from './<%= handle %>'
+
+/**
+ * Write component description for docs tab.
+ */
+const component = `
+  <%= description %>
+`
+
+/**
+ * Export storybook configuration.
+ */
+export default {
+  title: '<%= folderTitleCase %>/<%= nameTitleCase %>',
+  component: <%= pascalCase %>,
+  args: {
+    // Add args
+  },
+  decorators: [
+    () => ({
+      template: `
+        <div class="story-center container">
+          <div class="story-full-width component-section">
+            <story />
+          </div>
+        </div>
+      `,
+    }),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        component,
+      },
+    },
+  },
+}
+
+/**
+ * Setup shared template.
+ */
+const Template = (args) => ({
+  components: { <%= pascalCase %> },
+  setup() {
+    return { args }
+  },
+  template: '<<%= handle %> v-bind="args" />',
+})
+
+/**
+ * Primary story.
+ */
+export const Primary = Template.bind({})

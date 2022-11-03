@@ -19,13 +19,18 @@ const Paths = require('../helpers/paths')
 function getComponentTemplate(component, filename) {
   return new Promise(async(resolve, reject) => {
     try {
-      const filepath = path.join(Paths.templates, `${filename}.ejs`)
+      const internalFilepath = path.join(Paths.templates.internal, `${filename}.ejs`)
+      const projectFilepath = path.join(Paths.templates.project, `${filename}.ejs`)
 
-      if (!fs.existsSync(filepath)) {
+      const templatePath = fs.existsSync(projectFilepath)
+        ? projectFilepath
+        : internalFilepath
+
+      if (!fs.existsSync(templatePath)) {
         resolve('')
       }
 
-      let template = await fs.readFile(filepath, 'utf-8')
+      let template = await fs.readFile(templatePath, 'utf-8')
 
       /**
        * Load Canvas config.

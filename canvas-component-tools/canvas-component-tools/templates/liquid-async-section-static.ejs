@@ -1,0 +1,23 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Section: <%= name %> (<%= handle %>)
+  - Static section.
+------------------------------------------------------------------------------
+{% endcomment %}
+{{ 'component.<%= handle %>.css' | asset_url | stylesheet_tag }}
+
+<section
+  aria-labelledby="section-title-{{ section.id }}"
+  data-component-handle="<%= handle %>"<%= customContent %>
+>
+  <div class="<%= handle %> critical-component-clear liquid">
+    <h2
+      id="section-title-{{ section.id }}"
+      class="<%= handle %>__title"
+    >
+      title_goes_here
+    </h2>
+  </div>
+</section>
+
+{% schema '<%= handle %>' %}
