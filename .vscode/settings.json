@@ -1,0 +1,31 @@
+{
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true
+  },
+  "editor.formatOnSave": false,
+  "editor.rulers": [80],
+  "editor.tabSize": 2,
+  "files.associations": {
+    "*.scss.liquid": "scss",
+    "*.js.liquid": "javascript"
+  },
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "html.validate.scripts": false,
+  "html.validate.styles": false,
+  "search.exclude": {
+		"**/canvas/**": true
+	},
+  "stylelint.validate": ["css", "scss"],
+	"shopifyLiquid.disableWindowsWarning": true,
+  "shopifyLiquid.formatterDevPreview": false,
+	"themeCheck.checkOnChange": false,
+	"themeCheck.checkOnOpen": false,
+	"themeCheck.checkOnSave": false,
+	"themeCheck.onlySingleFileChecks": true,
+  "workbench.editor.enablePreviewFromQuickOpen": false
+}

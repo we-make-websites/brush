@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "GraphQL.vscode-graphql",
+    "GraphQL.vscode-graphql-syntax",
+    "redhat.vscode-yaml",
+    "Shopify.theme-check-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "stylelint.vscode-stylelint",
+    "vincaslt.highlight-matching-tag",
+    "Vue.volar",
+    "wix.vscode-import-cost"
+  ]
+}

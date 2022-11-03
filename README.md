@@ -2,6 +2,10 @@
 
 Brush is a collection tools used in Basis and Canvas.
 
+Each tool is contained in its own folder and handled separately from the rest.
+
+Linting is shared across all tools.
+
 ## 📅 Changelog
 
 See *CHANGELOG.md* for a history of changes.
