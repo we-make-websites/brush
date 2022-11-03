@@ -19,9 +19,6 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "^16.14.0"
-  },
-  "lint-staged": {
-    "*.js": "eslint"
+    "node": "^16.17.0"
   }
 }

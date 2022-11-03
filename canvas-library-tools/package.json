@@ -28,11 +28,5 @@
   "engineStrict": true,
   "engines": {
     "node": "^16.17.0"
-  },
-  "lint-staged": {
-    "*.js": "eslint"
-  },
-  "scripts": {
-    "debug": "node ./canvas-library-tools/commands/install.js --debug"
   }
 }

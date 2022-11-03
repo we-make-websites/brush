@@ -15,5 +15,9 @@
     "@we-make-websites/tannoy": "1.12.0",
     "fs-extra": "10.1.0",
     "path": "0.12.7"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.17.0"
   }
 }
