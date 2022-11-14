@@ -1,8 +1,9 @@
 # 📅 Eslint Config Changelog
 
-## 3.3.0 - 2022-110-14
+## 3.3.1 - 2022-110-14
 
 * Added `no-new-native-nonconstructor` and `no-empty-static-block` rules
+* Fixing bad npm publish
 
 ## 3.2.0 - 2022-10-19
 
