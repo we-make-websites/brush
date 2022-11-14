@@ -83,6 +83,7 @@ module.exports = {
     },
   ],
   'no-empty-function': 'error',
+  'no-empty-static-block': 'error',
   'no-eq-null': 'off',
   'no-eval': 'error',
   'no-extend-native': 'error',

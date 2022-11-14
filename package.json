@@ -8,7 +8,7 @@
   "devDependencies": {
     "@commitlint/cli": "17.2.0",
     "@we-make-websites/eslint-config": "3.2.0-module",
-    "eslint": "8.26.0",
+    "eslint": "8.27.0",
     "husky": "8.0.1",
     "lint-staged": "13.0.3"
   },
