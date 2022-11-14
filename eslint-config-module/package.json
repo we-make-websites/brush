@@ -1,8 +1,8 @@
 {
   "name": "@we-make-websites/eslint-config",
-  "version": "3.2.0",
+  "version": "3.2.0-module",
   "description": "We Make Website's eslint rules and config",
-  "repository": "https://bitbucket.org/we-make-websites/brush/src/master/eslint-config",
+  "repository": "https://github.com/we-make-websites/eslint-config",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
@@ -10,17 +10,17 @@
     "eslint": "8.25.0"
   },
   "dependencies": {
-    "@babel/eslint-parser": "7.19.1",
-    "@babel/eslint-plugin": "7.19.1",
     "eslint-plugin-vue": "9.6.0",
     "merge": "2.1.1"
   },
   "peerDependencies": {
-    "@babel/core": "7.15.8",
     "eslint": "8.25.0"
   },
   "engineStrict": true,
   "engines": {
     "node": "^16.17.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
