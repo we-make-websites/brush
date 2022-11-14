@@ -9,14 +9,7 @@
     "storybook-build": "./canvas-storybook-tools/commands/build.js",
     "storybook-watch": "./canvas-storybook-tools/commands/watch.js"
   },
-  "devDependencies": {
-    "@commitlint/cli": "17.1.2",
-    "@we-make-websites/branch-naming-check": "3.0.0",
-    "@we-make-websites/eslint-config": "3.2.0-module",
-    "eslint": "8.24.0",
-    "husky": "8.0.1",
-    "lint-staged": "13.0.3"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@storybook/addon-a11y": "6.5.13",
     "@storybook/addon-controls": "6.5.13",
