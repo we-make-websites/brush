@@ -2,6 +2,7 @@
 
 ## 3.5.0 - 2022-110-14
 
+* Added custom error messages to 'disallowed' rules
 * Added `stylelint` to `peerDependencies`
 
 ## 3.4.0 - 2022-09-29
