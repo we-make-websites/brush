@@ -1,10 +1,24 @@
 /* eslint-disable max-len */
 
+const message = (rule) => {
+  switch (rule) {
+    case 'hsl':
+    case 'hsla':
+      return `Do not use "${rule}", instead use "rgb" or "rgba"`
+    case 'rotate':
+    case 'scale':
+    case 'translate':
+      return `Do not use the "${rule}" function with "transform", instead use its individual property`
+  }
+
+  return 'Error'
+}
+
 module.exports = {
   // Specify a list of disallowed functions.
   'function-disallowed-list': [
-    ['hsl', 'hsla'],
-    { message: 'Use only rgb or hex values' },
+    ['hsl', 'hsla', 'rotate', 'scale', 'translate'],
+    { message },
   ],
   // Disallow an unspaced operator within calc functions.
   'function-calc-no-unspaced-operator': true,

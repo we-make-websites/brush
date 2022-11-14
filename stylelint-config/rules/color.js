@@ -6,7 +6,11 @@ module.exports = {
   // Require (where possible) or disallow named colors.
   'color-named': 'never',
   // Disallow hex colors.
-  'color-no-hex': true,
+  'color-no-hex': [
+    true, {
+      message: 'Do not use hexadecimal values, instead use "rgb" or "rgba"',
+    },
+  ],
   // Disallow invalid hex colors.
   'color-no-invalid-hex': true,
 }
