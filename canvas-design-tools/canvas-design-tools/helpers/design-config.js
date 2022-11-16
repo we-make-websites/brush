@@ -166,8 +166,10 @@ module.exports = {
     'letter-spacing': spacingOrdinals,
     'line-height': spacingOrdinals,
     margin: screenOrdinals,
+    sizeOrdinals,
     spacing: sizeOrdinals,
     timing: timingOrdinals,
+    typography: ['heading', 'body', 'button', 'label', 'utility'],
   },
 
   /**
