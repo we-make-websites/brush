@@ -39,6 +39,20 @@ function findVariables(tokens) {
   }
 
   /**
+   * Add baseline line height if it doesn't exist in line height object.
+   */
+  if (
+    config.special.lineHeight &&
+    tokens[config.special.lineHeight] &&
+    !tokens[config.special.lineHeight].baseline
+  ) {
+    tokens[config.special.lineHeight].baseline = {
+      value: '100%',
+      type: 'lineHeights',
+    }
+  }
+
+  /**
    * Find variables by name and type.
    */
   config.variablesByName.forEach((name) => findVariableByName(name, tokens, variables))
