@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/brush",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A collection of Basis and Canvas tools.",
   "repository": "https://bitbucket.org/we-make-websites/brush",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -8,7 +8,7 @@
   "devDependencies": {
     "@commitlint/cli": "17.2.0",
     "@we-make-websites/eslint-config": "3.2.0-module",
-    "eslint": "8.26.0",
+    "eslint": "8.27.0",
     "husky": "8.0.1",
     "lint-staged": "13.0.3"
   },

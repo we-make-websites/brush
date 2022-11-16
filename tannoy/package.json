@@ -6,14 +6,7 @@
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "tannoy/index.js",
-  "devDependencies": {
-    "@commitlint/cli": "17.1.2",
-    "@we-make-websites/branch-naming-check": "2.1.0",
-    "@we-make-websites/eslint-config": "3.1.0-module",
-    "eslint": "8.24.0",
-    "husky": "8.0.1",
-    "lint-staged": "13.0.3"
-  },
+  "devDependencies": {},
   "dependencies": {
     "console-clear": "1.1.1"
   },
