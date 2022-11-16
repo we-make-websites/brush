@@ -261,8 +261,8 @@ function buildStyles(classes, variables, stylesheet) {
  * Build CSS declaration objects.
  * - Go through each value, e.g. 'text-body-m' and its properties.
  * @param {String} key - Type of class, e.g. 'text'.
- * @param {Array} value - Array of objects containing class, properties etc.
  * @param {Object} stylesheet - Stylesheet object.
+ * @param {Array} value - Array of objects containing class, properties etc.
  * @returns {String}
  */
 function buildCssDeclarations({ key, stylesheet, value }) {
@@ -704,6 +704,26 @@ function isExcludedAndNotIncluded(key, stylesheet) {
     })
 
     return excluded
+  }
+
+  /**
+   * If critical stylesheet and matches default class name or html, body then
+   * include in stylesheet render.
+   * - Only check when in format `[key].[className]`.
+   */
+  if (key.includes('.') && stylesheet.handle === 'classes-critical') {
+    const included = Object.entries(config.defaults).some(([defaultName, defaultClassName]) => {
+      if (defaultName === 'button') {
+        return false
+      }
+
+      return (
+        `${config.defaultsType}.${config.special.htmlBody}` === key ||
+        `${config.defaultsType}.${defaultClassName}` === key
+      )
+    })
+
+    return !included
   }
 
   return false
