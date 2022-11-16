@@ -173,6 +173,18 @@ module.exports = {
    */
 
   /**
+   * Set default typography to be used for body text, links, and buttons.
+   * - Body sets styles for the html, body and .rte elements.
+   * - Button sets styles for default btn and Shopify challenge buttons.
+   * - Link sets styles for a elements.
+   */
+  defaults: {
+    body: 'text-body-m',
+    button: 'text-utility-button',
+    link: 'text-body-m-link',
+  },
+
+  /**
    * Set fallback font stacks if not set by designer in token's description.
    * - Use name of font family CSS variable as key and font stack as value.
    */
@@ -294,7 +306,7 @@ module.exports = {
 
   /**
    * ---------------------------------------------------------------------------
-   * . Configure file settings
+   * 8. Configure file settings
    * - You will rarely need to edit these.
    * ---------------------------------------------------------------------------
    */
@@ -326,11 +338,7 @@ module.exports = {
     classes: [
       {
         exclude: [],
-        include: [
-          'typography.html, body',
-          'typography.text-body-m',
-          'typography.text-body-m-link',
-        ],
+        include: [],
         name: 'Critical',
         handle: 'classes-critical',
         path: Paths.styles.base,
@@ -394,17 +402,6 @@ module.exports = {
    * String is prefixed to the start of a variable's CSS variable name.
    */
   cssPrefix: '--',
-
-  /**
-   * Define defaults which are values which have certain descriptions
-   * - Body sets styles for the html, body and .rte elements.
-   * - Button sets styles for default btn and Shopify challenge buttons.
-   */
-  defaults: {
-    body: 'body',
-    button: 'button',
-    link: 'link',
-  },
 
   /**
    * Defaults type.

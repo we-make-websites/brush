@@ -344,20 +344,30 @@ function buildCriticalStyles({ className, properties }) {
   }
 
   /**
+   * Keep track of which defaults have been rendered.
+   */
+  const defaults = []
+
+  /**
    * Go through each default and see if it's in the class.
    * - Output each default if it exists.
    */
-  Object.entries(config.defaults).forEach(([defaultName, defaultClassname]) => {
-    if (!hasDefaultClass(className, defaultClassname)) {
+  Object.entries(config.defaults).forEach(([defaultName, defaultClassName]) => {
+    if (
+      !hasDefaultClass(className, defaultClassName) ||
+      defaults.includes(defaultClassName)
+    ) {
       return
     }
 
     if (hasDefaultClass(className, config.defaults.link)) {
       formattedClassName = `a, ${formattedClassName}`
+      defaults.push(config.defaults.link)
     }
 
     if (hasDefaultClass(className, config.defaults.body)) {
       formattedClassName = `p, ${formattedClassName}`
+      defaults.push(config.defaults.body)
     }
 
     content += buildCriticalDefaultDeclaration({
@@ -426,9 +436,16 @@ function buildMixinStyles({ className, properties }) {
 
   /**
    * Re-use mixin as default mixin based on class names.
+   * - Don't render defaults-link mixin if it's the same as defaults-body.
    */
   Object.entries(config.defaults).forEach(([defaultName, defaultClassName]) => {
-    if (!hasDefaultClass(className, defaultClassName)) {
+    if (
+      !hasDefaultClass(className, defaultClassName) ||
+      (
+        config.defaults.body === config.defaults.link &&
+        defaultName === 'link'
+      )
+    ) {
       return
     }
 
@@ -465,16 +482,16 @@ function buildDefaultStyles({ className, properties }) {
   })
 
   /**
-     * Update class name if default object, and not html, body.
-     */
-  if (
-    hasDefaultClass(defaultObject, config.defaults.body) &&
-    formattedClassName !== config.special.htmlBody
-  ) {
-    formattedClassName = `p, ${formattedClassName}`
+   * Update class name if default object, and not html, body.
+   */
+  if (formattedClassName !== config.special.htmlBody) {
+    if (hasDefaultClass(defaultObject, config.defaults.link)) {
+      formattedClassName = `a, ${formattedClassName}`
+    }
 
-  } else if (hasDefaultClass(defaultObject, config.defaults.link)) {
-    formattedClassName = `a, ${formattedClassName}`
+    if (hasDefaultClass(defaultObject, config.defaults.body)) {
+      formattedClassName = `p, ${formattedClassName}`
+    }
   }
 
   /**
