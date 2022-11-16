@@ -189,7 +189,7 @@ function buildStyles(classes, variables, stylesheet) {
     classes[config.defaultsType][0].className !== config.special.htmlBody
   ) {
     const bodyObject = classes[config.defaultsType].find((object) => {
-      return object.description === config.defaults.body
+      return object.description?.includes(config.defaults.body)
     })
 
     /**
@@ -274,14 +274,6 @@ function buildCssDeclarations({ key, stylesheet, value }) {
     }
 
     /**
-     * Set class names.
-     * - Adds element if class name has been specified in config.
-     */
-    let formattedClassName = className.includes(',')
-      ? className
-      : `.${className}`
-
-    /**
      * Add extra line to space declarations if not first.
      */
     if (valueIndex !== 0) {
@@ -289,23 +281,77 @@ function buildCssDeclarations({ key, stylesheet, value }) {
     }
 
     /**
-     * Find if description contains default string.
+     * Output based on stylesheet handle.
      */
-    const defaultObject = Object.keys(config.defaults).find((defaultKey) => {
-      return defaultKey === description
-    })
+    switch (stylesheet.handle) {
+      case 'classes-critical':
+        content += buildCriticalStyles({ className, description, properties })
+        break
+
+      case 'classes-mixins':
+        content += buildMixinStyles({ className, description, properties })
+        break
+
+      default:
+        content += buildDefaultStyles({ className, description, properties })
+        break
+    }
+  })
+
+  /**
+   * Return stylesheet.
+   */
+  return content
+}
+
+/**
+ * Build critical stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {String} description - Text style's description.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildCriticalStyles({ className, description, properties }) {
+  let content = ''
+
+  let formattedClassName = className.includes(',')
+    ? className
+    : `.${className}`
+
+  /**
+   * Find if description contains default string.
+   */
+  const defaultObject = Object.values(config.defaults).find((defaultDescription) => {
+    return descriptionHasDefault(description, defaultDescription)
+  })
+
+  /**
+   * Build critical styles regardless of default description.
+   */
+  if (!defaultObject) {
+    content += `${formattedClassName} {\n`
+    content += buildCssDeclarationBlock(properties)
+    return content
+  }
+
+  /**
+   * Go through each default and see if it's in the description.
+   * - Output each default if it exists.
+   */
+  Object.entries(config.defaults).forEach(([defaultName, defaultDescription]) => {
+    if (!descriptionHasDefault(description, defaultDescription)) {
+      return
+    }
 
     /**
      * Update class name if default object, and not html, body.
      */
-    if (
-      defaultObject === 'body' &&
-      formattedClassName !== config.special.htmlBody
-    ) {
-      formattedClassName = `p, ${formattedClassName}`
-
-    } else if (defaultObject === 'link') {
-      formattedClassName = `a, ${formattedClassName}`
+    if (formattedClassName !== config.special.htmlBody) {
+      if (descriptionHasDefault(description, config.defaults.body)) {
+        formattedClassName = `p, ${formattedClassName}`
+      } else if (descriptionHasDefault(description, config.defaults.link)) {
+        formattedClassName = `a, ${formattedClassName}`
+      }
     }
 
     /**
@@ -324,82 +370,120 @@ function buildCssDeclarations({ key, stylesheet, value }) {
       htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
     }
 
-    /**
-     * Output based on stylesheet handle.
-     */
-    switch (stylesheet.handle) {
-      case 'classes-critical':
-        content += `${formattedClassName} {\n`
+    content += `${formattedClassName} {\n`
+    content += `  @include defaults-${defaultName};\n`
 
-        if (defaultObject) {
-          content += `  @include defaults-${description};\n`
-
-          if (htmlBodyFontSize) {
-            content += htmlBodyFontSize
-          }
-
-          content += '}\n'
-          return
-        }
-
-        content += buildCssDeclarationBlock(properties)
-        break
-
-      case 'classes-mixins':
-        if (className.includes(',')) {
-          return
-        }
-
-        content += `@mixin ${className} {\n`
-        content += buildCssDeclarationBlock(properties)
-
-        /**
-         * Re-use mixin as default mixin based on descriptions.
-         */
-        Object.entries(config.defaults).forEach(([defaultName, defaultDescription]) => {
-          if (description !== defaultDescription) {
-            return
-          }
-
-          content += `\n@mixin defaults-${defaultName} {\n`
-          content += `  @include ${className};\n`
-          content += `}\n`
-        })
-
-        break
-
-      default:
-        if (className.includes(',')) {
-          content += `${formattedClassName} {\n`
-          content += buildCssDeclarationBlock(properties)
-          return
-        }
-
-        content += `${formattedClassName} {\n`
-        content += `  @include ${className};\n\n`
-
-        if (config.textTabletBreakpoint) {
-          content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-          content += `    &-tablet.${className}-tablet {\n`
-          content += `      @include ${className};\n`
-          content += `    }\n`
-          content += `  }\n\n`
-        }
-
-        content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-        content += `    &-desktop.${className}-desktop {\n`
-        content += `      @include ${className};\n`
-        content += `    }\n`
-        content += `  }\n`
-        content += `}\n`
-
-        break
+    if (htmlBodyFontSize) {
+      content += htmlBodyFontSize
     }
+
+    content += '}\n'
+  })
+
+  return content
+}
+
+/**
+ * Build mixins stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {String} description - Text style's description.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildMixinStyles({ className, description, properties }) {
+  let content = ''
+
+  if (className.includes(',')) {
+    return content
+  }
+
+  content += `@mixin ${className} {\n`
+  content += buildCssDeclarationBlock(properties)
+
+  /**
+   * Re-use mixin as default mixin based on descriptions.
+   */
+  Object.entries(config.defaults).forEach(([defaultName, defaultDescription]) => {
+    if (!descriptionHasDefault(description, defaultDescription)) {
+      return
+    }
+
+    content += `\n@mixin defaults-${defaultName} {\n`
+    content += `  @include ${className};\n`
+    content += `}\n`
+  })
+
+  return content
+}
+
+/**
+ * Build default stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {String} description - Text style's description.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildDefaultStyles({ className, description, properties }) {
+  let content = ''
+
+  /**
+   * Set class names.
+   * - Adds element if class name has been specified in config.
+   */
+  let formattedClassName = className.includes(',')
+    ? className
+    : `.${className}`
+
+  /**
+   * Find if description contains default string.
+   */
+  const defaultObject = Object.keys(config.defaults).find((defaultKey) => {
+    return description?.includes(defaultKey)
   })
 
   /**
-   * Return stylesheet.
+     * Update class name if default object, and not html, body.
+     */
+  if (
+    defaultObject?.includes(config.defaults.body) &&
+    formattedClassName !== config.special.htmlBody
+  ) {
+    formattedClassName = `p, ${formattedClassName}`
+
+  } else if (defaultObject?.includes(config.defaults.link)) {
+    formattedClassName = `a, ${formattedClassName}`
+  }
+
+  /**
+   * Output no responsive styles if it contains a comma in class name.
    */
+  if (className.includes(',')) {
+    content += `${formattedClassName} {\n`
+    content += buildCssDeclarationBlock(properties)
+    return content
+  }
+
+  /**
+   * Use mixins.
+   */
+  content += `${formattedClassName} {\n`
+  content += `  @include ${className};\n\n`
+
+  if (config.textTabletBreakpoint) {
+    content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
+    content += `    &-tablet.${className}-tablet {\n`
+    content += `      @include ${className};\n`
+    content += `    }\n`
+    content += `  }\n\n`
+  }
+
+  content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
+  content += `    &-desktop.${className}-desktop {\n`
+  content += `      @include ${className};\n`
+  content += `    }\n`
+  content += `  }\n`
+  content += `}\n`
+
   return content
 }
 
@@ -600,6 +684,21 @@ function isExcludedAndNotIncluded(key, stylesheet) {
   }
 
   return false
+}
+
+/**
+ * Tests if description has exact match of default string.
+ * @param {String} description - Token description.
+ * @param {String} configDefault - Default to check if it's in the description.
+ * @returns {Boolean}
+ */
+function descriptionHasDefault(description, configDefault) {
+  if (!description) {
+    return false
+  }
+
+  const regex = new RegExp(`(?<!\\w)${configDefault}(?!\\w)`, 'm')
+  return regex.test(description)
 }
 
 /**
