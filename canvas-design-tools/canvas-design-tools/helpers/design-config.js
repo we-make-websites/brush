@@ -454,5 +454,6 @@ module.exports = {
     fontSize: 'font-size',
     fontWeight: 'font-weight',
     htmlBody: 'html, body',
+    lineHeight: 'line-height',
   },
 }
