@@ -64,7 +64,9 @@ module.exports = {
     'layer',
     'margin',
     'max-content-width',
+    'paragraphIndent',
     'scale',
+    'text-indent',
     'timing',
   ],
 
@@ -98,6 +100,7 @@ module.exports = {
     fontWeights: 'font-weight',
     letterSpacing: 'letter-spacing',
     lineHeights: 'line-height',
+    paragraphIndent: 'text-indent',
     textCase: 'text-transform',
     textDecoration: 'text-decoration',
   },
@@ -133,6 +136,7 @@ module.exports = {
     'max-content-width': 'rem',
     scale: 'px',
     spacing: 'rem',
+    'text-indent': 'px',
     timing: 's',
   },
 

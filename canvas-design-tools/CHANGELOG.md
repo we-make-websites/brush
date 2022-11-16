@@ -2,6 +2,10 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 1.1.1 - 2022-11-17
+
+* Fixed default config not support paragraph indent tokens
+
 ## 1.1.0 - 2022-11-16
 
 * Added support for default styles using the same class
