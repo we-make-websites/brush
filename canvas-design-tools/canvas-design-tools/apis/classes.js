@@ -35,6 +35,46 @@ function findTokens(tokens, variables) {
   })
 
   /**
+   * Sort typography into sorting order.
+   */
+  if (classes.typography && config.sorting.typography) {
+    const groupSorting = Object.keys(config.sorting.typography)
+
+    classes.typography = classes.typography.sort((a, b) => {
+      const aGroup = a.className.replace('text-', '').split('-')[0]
+      const bGroup = b.className.replace('text-', '').split('-')[0]
+
+      const aSize = a.className.replace('text-', '').split('-')[1]
+      const bSize = b.className.replace('text-', '').split('-')[1]
+
+      const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
+
+      /**
+       * If groups are equal then sort by size.
+       */
+      if (groupSort === 0) {
+        const sizeSorting = config.sorting.typography[aGroup]
+        const aSizeSort = sizeSorting.indexOf(aSize)
+        const bSizeSort = sizeSorting.indexOf(bSize)
+
+        /**
+         * If either don't exist in sizeSorting then sort alphabetically.
+         */
+        if (aSizeSort < 0 && bSizeSort < 0) {
+          return aSize.localeCompare(bSize)
+        }
+
+        return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
+      }
+
+      /**
+       * Sort group.
+       */
+      return groupSort
+    })
+  }
+
+  /**
    * Return object.
    */
   return classes

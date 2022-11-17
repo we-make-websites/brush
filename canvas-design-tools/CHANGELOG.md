@@ -2,6 +2,13 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 1.2.0 - 2022-11-17
+
+* Added support for all previous project locations of _design.config.js_
+* Updated so that typography classes are sorted based on `sorting` config
+* Fixed default config not supporting paragraph indent tokens
+* Fixed design config trying to use Basis paths helper
+
 ## 1.1.0 - 2022-11-16
 
 * Added support for default styles using the same class

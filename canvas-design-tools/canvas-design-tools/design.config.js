@@ -5,13 +5,14 @@
  *
  */
 /* eslint-disable array-bracket-newline */
-const Paths = require('@we-make-websites/basis/basis/helpers/paths')
+const Paths = require('./helpers/paths')
 
 /**
  * Ordinal sorting orders.
  */
 const screenOrdinals = ['mobile', 'tablet', 'desktop']
 const sizeOrdinals = ['4xs', '3xs', '2xs', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl', '10xl']
+const sizeOrdinalsReverse = [...sizeOrdinals].reverse()
 const spacingOrdinals = ['tightest', 'tighter', 'tight', 'baseline', 'normal', 'loose', 'looser', 'loosest']
 const timingOrdinals = ['quickest', 'quicker', 'quick', 'normal', 'slow', 'slower', 'slowest', 'message']
 
@@ -64,7 +65,9 @@ module.exports = {
     'layer',
     'margin',
     'max-content-width',
+    'paragraphIndent',
     'scale',
+    'text-indent',
     'timing',
   ],
 
@@ -98,6 +101,7 @@ module.exports = {
     fontWeights: 'font-weight',
     letterSpacing: 'letter-spacing',
     lineHeights: 'line-height',
+    paragraphIndent: 'text-indent',
     textCase: 'text-transform',
     textDecoration: 'text-decoration',
   },
@@ -127,12 +131,13 @@ module.exports = {
     form: 'px',
     gutter: 'rem',
     header: 'px',
-    icon: 'rem',
+    icon: 'px',
     'letter-spacing': 'px',
     margin: 'rem',
     'max-content-width': 'rem',
     scale: 'px',
     spacing: 'rem',
+    'text-indent': 'px',
     timing: 's',
   },
 
@@ -164,6 +169,13 @@ module.exports = {
     margin: screenOrdinals,
     spacing: sizeOrdinals,
     timing: timingOrdinals,
+    typography: {
+      heading: sizeOrdinalsReverse,
+      body: [...sizeOrdinalsReverse, 'label'],
+      button: sizeOrdinalsReverse,
+      label: sizeOrdinalsReverse,
+      utility: sizeOrdinalsReverse,
+    },
   },
 
   /**

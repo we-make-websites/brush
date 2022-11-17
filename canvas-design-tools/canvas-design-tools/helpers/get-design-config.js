@@ -13,8 +13,12 @@ const Paths = require('./paths')
  * @returns {Object|Boolean}
  */
 module.exports = () => {
-  const configPath = fs.existsSync(Paths.config.project)
-    ? Paths.config.project
+  const projectPath = Object.values(Paths.config.project).find((configPath) => {
+    return fs.existsSync(configPath)
+  })
+
+  const configPath = projectPath
+    ? projectPath
     : Paths.config.internal
 
   if (!fs.existsSync(configPath)) {
