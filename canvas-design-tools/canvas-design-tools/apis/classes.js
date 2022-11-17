@@ -38,9 +38,7 @@ function findTokens(tokens, variables) {
    * Sort typography into sorting order.
    */
   if (classes.typography && config.sorting.typography) {
-    const groupSorting = config.sorting.typography
-    let sizeSorting = config.sorting.sizeOrdinals || config.sorting.spacing
-    sizeSorting = sizeSorting.reverse()
+    const groupSorting = Object.keys(config.sorting.typography)
 
     classes.typography = classes.typography.sort((a, b) => {
       const aGroup = a.className.replace('text-', '').split('-')[0]
@@ -55,6 +53,7 @@ function findTokens(tokens, variables) {
        * If groups are equal then sort by size.
        */
       if (groupSort === 0) {
+        const sizeSorting = config.sorting.typography[aGroup]
         const aSizeSort = sizeSorting.indexOf(aSize)
         const bSizeSort = sizeSorting.indexOf(bSize)
 

@@ -12,6 +12,7 @@ const Paths = require('@we-make-websites/basis/basis/helpers/paths')
  */
 const screenOrdinals = ['mobile', 'tablet', 'desktop']
 const sizeOrdinals = ['4xs', '3xs', '2xs', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl', '10xl']
+const sizeOrdinalsReverse = [...sizeOrdinals].reverse()
 const spacingOrdinals = ['tightest', 'tighter', 'tight', 'baseline', 'normal', 'loose', 'looser', 'loosest']
 const timingOrdinals = ['quickest', 'quicker', 'quick', 'normal', 'slow', 'slower', 'slowest', 'message']
 
@@ -166,10 +167,15 @@ module.exports = {
     'letter-spacing': spacingOrdinals,
     'line-height': spacingOrdinals,
     margin: screenOrdinals,
-    sizeOrdinals,
     spacing: sizeOrdinals,
     timing: timingOrdinals,
-    typography: ['heading', 'body', 'button', 'label', 'utility'],
+    typography: {
+      heading: sizeOrdinalsReverse,
+      body: [...sizeOrdinalsReverse, 'label'],
+      button: sizeOrdinalsReverse,
+      label: sizeOrdinalsReverse,
+      utility: sizeOrdinalsReverse,
+    },
   },
 
   /**
