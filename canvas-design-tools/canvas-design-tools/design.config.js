@@ -5,7 +5,7 @@
  *
  */
 /* eslint-disable array-bracket-newline */
-const Paths = require('@we-make-websites/basis/basis/helpers/paths')
+const Paths = require('./helpers/paths')
 
 /**
  * Ordinal sorting orders.
@@ -131,7 +131,7 @@ module.exports = {
     form: 'px',
     gutter: 'rem',
     header: 'px',
-    icon: 'rem',
+    icon: 'px',
     'letter-spacing': 'px',
     margin: 'rem',
     'max-content-width': 'rem',
