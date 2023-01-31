@@ -24,11 +24,13 @@ const Paths = require('../helpers/paths')
  */
 const argv = yargs(hideBin(process.argv)).argv
 const config = getDesignConfig()
+let version = '{{canvas version}}'
 
 /**
  * Initialises the design functionality.
  */
 async function init() {
+  version = getPackageVersion()
   logBanner()
   const start = performance.now()
   const designPaths = getPaths()
@@ -275,12 +277,27 @@ function outputMessaging({ fileMessages, start, storybookFileMessages }) {
  */
 
 /**
+ * Get design tools package version.
+ * @returns {String}
+ */
+function getPackageVersion() {
+  const packagePath = path.resolve('node_modules', '@we-make-websites/canvas-design-tools/package.json')
+
+  if (!fs.existsSync(packagePath)) {
+    return '{{canvas version}}'
+  }
+
+  const toolPackage = require(packagePath)
+  return toolPackage.version
+}
+
+/**
  * Log banner to console.
  */
 function logBanner() {
   Tny.message([
-    Tny.colour('bgCyan', 'Canvas generate v{{canvas version}}'),
-    Tny.colour('bgCyan', 'Design command'),
+    Tny.colour('bgCyan', `Canvas design tools v${version}`),
+    Tny.colour('bgCyan', 'Convert command'),
   ], { empty: argv.clear !== false })
 }
 
