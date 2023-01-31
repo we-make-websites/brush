@@ -2,6 +2,12 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 1.3.0 - 2023-01-31
+
+* Updated command to output version of the tool instead of Canvas
+* Updated dependencies
+* Fixed token names starting with numbers causing issues in breakpoints and mq-breakpoints templates
+
 ## 1.2.0 - 2022-11-17
 
 * Added support for all previous project locations of _design.config.js_
