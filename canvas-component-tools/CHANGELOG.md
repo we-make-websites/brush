@@ -5,6 +5,8 @@ Canvas Component Tools uses [semantic versioning](https://semver.org/).
 ## 1.1.0 - 2022-31-01
 
 * Updated template titles to not use 404 title to avoid confusion
+* Updated command to output version of the tool instead of Canvas
+* Fixed path to `getCanvasConfig()` helper function
 
 ## 1.0.0 - 2022-11-03
 

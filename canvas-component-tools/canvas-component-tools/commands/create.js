@@ -39,13 +39,15 @@ const component = {
   template: 'dynamic',
 }
 
-let processError = false
 let complete = false
+let processError = false
+let version = '{{canvas version}}'
 
 /**
  * Initialises the create functionality.
  */
 async function init() {
+  version = getPackageVersion()
   logBanner()
 
   /**
@@ -67,16 +69,6 @@ async function init() {
 
   formatAnswers()
   buildComponent()
-}
-
-/**
- * Log banner to console.
- */
-function logBanner() {
-  Tny.message([
-    Tny.colour('bgCyan', 'Canvas generate v{{canvas version}}'),
-    Tny.colour('bgCyan', 'Component command'),
-  ], { empty: true })
 }
 
 /**
@@ -669,6 +661,38 @@ async function buildComponent() {
       { before: true },
     )
   }
+}
+
+/**
+ * Utilities
+ * -----------------------------------------------------------------------------
+ * Utility classes to above functions.
+ *
+ */
+
+/**
+ * Get design tools package version.
+ * @returns {String}
+ */
+function getPackageVersion() {
+  const packagePath = path.resolve('node_modules', '@we-make-websites/canvas-component-tools/package.json')
+
+  if (!fs.existsSync(packagePath)) {
+    return '{{canvas version}}'
+  }
+
+  const toolPackage = require(packagePath)
+  return toolPackage.version
+}
+
+/**
+ * Log banner to console.
+ */
+function logBanner() {
+  Tny.message([
+    Tny.colour('bgCyan', `Canvas component tools v${version}`),
+    Tny.colour('bgCyan', 'Create command'),
+  ], { empty: true })
 }
 
 /**
