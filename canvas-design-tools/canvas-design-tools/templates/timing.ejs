@@ -1,0 +1,16 @@
+/**
+ * Config: Timings
+ * -----------------------------------------------------------------------------
+ * Global configuration for consistent values for timing durations.
+ * - WarningMessage.
+ *
+ */
+// eslint-disable
+
+export const values = {
+  <%= repeat %><%= name %>: <%= value %>,
+}
+
+export default {
+  <%= repeat %><%= name %>: values.<%= name %> * 1000,
+}

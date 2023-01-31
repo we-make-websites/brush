@@ -1,0 +1,454 @@
+/**
+ * Storybook: Styleguide styles
+ * -----------------------------------------------------------------------------
+ * Custom styles for styleguide story.
+ * - WarningMessage.
+ *
+ */
+// stylelint-disable block-closing-brace-newline-before, block-opening-brace-newline-after, block-opening-brace-newline-before, declaration-no-important, order/order, rule-empty-line-before, unit-disallowed-list
+
+@import '../../src/styles/config/configuration';
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+$size: 45px;
+
+:root {
+  --sb-styleguide-animation: rgb(128, 0, 255);
+  --sb-styleguide-border: rgb(230, 233, 236);
+  --sb-styleguide-light: rgb(170, 170, 170);
+  --sb-styleguide-token: rgb(229, 92, 172);
+  --sb-styleguide-token-border: rgba(229, 92, 172, 0.25);
+  --sb-styleguide-element: 70px;
+  --sb-group-table-title: 26%;
+}
+
+/**
+ * Generic helper classes.
+ */
+.sb-grid-layout {
+  display: grid;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  gap: 1rem 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+  margin-block: 1.5rem 1rem !important;
+}
+
+.sb-value {
+  border: 0;
+  color: var(--sb-primary) !important;
+  display: block;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-decoration: none;
+}
+
+.sb-token {
+  color: var(--sb-styleguide-token) !important;
+  font-family: 'Roboto Mono', monospace !important;
+}
+
+p.sb-tooltip {
+  background-color: var(--sb-styleguide-border);
+  font-size: 12px !important;
+  margin-block: 1.75rem 1.25rem !important;
+  padding: 0.5rem 0.75rem;
+
+  .sb-token {
+    font-size: 12px !important;
+  }
+}
+
+abbr.sb-value {
+  cursor: help;
+}
+
+@keyframes easing-animation {
+  from {
+    scale: 0;
+  }
+
+  to {
+    scale: 1;
+  }
+}
+
+/**
+ * Tables.
+ */
+.sb-group-table {
+  $parent: &;
+  margin-block-start: 3rem !important;
+  width: 100%;
+
+  tr {
+    background-color: transparent !important;
+    border: 0 !important;
+  }
+
+  td {
+    border: 0 !important;
+    padding: 0 !important;
+  }
+
+  tr#{$parent}__row {
+    border-bottom: 1px solid var(--sb-styleguide-border) !important;
+
+    &:first-child {
+      border-top: 1px solid var(--sb-styleguide-border) !important;
+    }
+  }
+
+  td#{$parent}__title {
+    line-height: 1.2 !important;
+    padding-block-end: 1.5rem !important;
+    padding-block-start: 1.5rem !important;
+    vertical-align: top;
+  }
+
+  td#{$parent}__properties {
+    padding-block-end: 1rem !important;
+    padding-block-start: 1rem !important;
+  }
+}
+
+.sb-property-table {
+  $parent: &;
+  width: 100%;
+
+  tr {
+    border-bottom: 1px solid var(--sb-styleguide-border) !important;
+
+    &:last-child {
+      border-bottom: 0 !important;
+    }
+  }
+
+  td {
+    font-weight: 400 !important;
+    line-height: 1.2 !important;
+    padding: 0.5rem 0.75rem !important;
+
+    span,
+    abbr {
+      font-size: 12px !important;
+      line-height: 1.2 !important;
+      text-decoration: none;
+    }
+
+    abbr {
+      cursor: help;
+    }
+  }
+
+  td#{$parent}__value {
+    color: var(--sb-styleguide-light) !important;
+    font-size: 12px !important;
+  }
+}
+
+/**
+ * Animation.
+ */
+.sb-animation {
+<%= animation-object %>
+  $parent: &;
+  grid-template-columns: 1fr 4fr;
+
+  &__input {
+    @include visually-hidden;
+
+    &:checked {
+      + #{$parent}__label::before {
+        scale: 1;
+      }
+    }
+  }
+
+  &__label {
+    border: 1px solid var(--sb-styleguide-border);
+    border-radius: 4px;
+    height: var(--sb-styleguide-element);
+    // Countering uneven margin above and below element
+    // Can't use display inherit as it adds internal white border around pseudo
+    margin-block-end: -3px;
+    overflow: hidden;
+    position: relative;
+    width: var(--sb-styleguide-element);
+
+    &::before {
+      background-color: var(--sb-styleguide-animation);
+      border-radius: 4px;
+      content: '';
+      display: block;
+      height: 100%;
+      left: 0;
+      position: absolute;
+      scale: 0.1;
+      top: 0;
+      width: 100%;
+    }
+
+<%= animation-each %>
+  }
+
+  .sb-property-table td span#{$parent}__token {
+    display: block;
+    font-size: 14px !important;
+    margin-block-end: 0.25rem;
+  }
+
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-property-table__row td {
+    width: 38%;
+
+    &:first-child {
+      width: 24%;
+    }
+  }
+}
+
+/**
+ * Box shadow.
+ */
+.sb-box-shadow {
+  $box-shadows: (<%= boxShadow %>);
+  $parent: &;
+
+  &__swatch {
+    background-color: rgb(255, 255, 255);
+    border-radius: 4px;
+    height: var(--sb-styleguide-element);
+    width: var(--sb-styleguide-element);
+
+    @each $class, $value in $box-shadows {
+      &#{&}--#{$class} {
+        box-shadow: $value;
+      }
+    }
+  }
+}
+
+/**
+ * Color.
+ */
+.sb-color {
+  $colours: (<%= colours %>);
+  $gradients: (<%= gradients %>);
+  $parent: &;
+  row-gap: 2rem;
+
+  &__swatch-container {
+    border: 1px solid var(--sb-styleguide-border);
+    border-radius: 4px;
+    height: var(--sb-styleguide-element);
+    overflow: hidden;
+    position: relative;
+    width: var(--sb-styleguide-element);
+  }
+
+  &__swatch {
+    height: 100%;
+    left: 0;
+    min-width: 100%;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    @each $class, $value in $colours {
+      &#{&}--#{$class} {
+        background-color: $value;
+      }
+    }
+
+    @each $class, $value in $gradients {
+      &#{&}--#{$class} {
+        background-image: $value;
+      }
+    }
+  }
+
+  &__swatch-background {
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 90 90"%3E%3Cpath fill="%23C4C4C4" d="M0 0h15v15H0V0ZM0 30h15v15H0V30ZM0 60h15v15H0V60ZM30 0h15v15H30V0ZM30 30h15v15H30V30ZM30 60h15v15H30V60ZM60 0h15v15H60V0ZM60 30h15v15H60V30ZM60 60h15v15H60V60ZM15 15h15v15H15V15ZM15 45h15v15H15V45ZM15 75h15v15H15V75ZM45 15h15v15H45V15ZM45 45h15v15H45V45ZM45 75h15v15H45V75ZM75 15h15v15H75V15ZM75 45h15v15H75V45ZM75 75h15v15H75V75Z"/%3E%3C/svg%3E');
+    background-position: 0 0;
+    background-size: 100% 100%;
+    height: 100%;
+    left: 0;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  abbr#{$parent}__value {
+    cursor: help;
+    text-decoration: none;
+  }
+
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-color__swatch-cell {
+    width: var(--sb-styleguide-element);
+  }
+
+  .sb-property-table__variable {
+    width: 45%;
+  }
+}
+
+/**
+ * Forms.
+ */
+.sb-forms {
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-property-table__value {
+    width: 40%;
+  }
+}
+
+/**
+ * Grid.
+ */
+.sb-grid {
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-property-table__variable {
+    width: 50%;
+  }
+
+  .sb-property-table__value {
+    width: 25%;
+
+    &.sb-property-table__value--half {
+      width: 50%;
+    }
+  }
+}
+
+/**
+ * Icons.
+ */
+.sb-icons {
+  $object: (<%= icon-sizes %>);
+  $parent: &;
+  grid-template-columns: repeat(2, minmax(10px, 1fr));
+
+  &__icons {
+    // Countering uneven margin
+    margin-block-end: -3px !important;
+  }
+
+  &__icon {
+    border: 1px solid var(--sb-styleguide-token-border);
+    cursor: help;
+    display: inline-block;
+    position: relative;
+
+    .icon {
+      left: 0;
+      position: absolute;
+      top: 0;
+    }
+
+    &:not(:last-child) {
+      margin-inline-end: 1rem;
+    }
+
+    @each $class, $value in $object {
+      &#{&}--#{$class} {
+        height: calc($value + 2px);
+        width: calc($value + 2px);
+      }
+
+      &#{&}--#{$class} .icon {
+        height: $value;
+        width: $value;
+      }
+    }
+  }
+
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-property-table__value {
+    width: 45%;
+  }
+
+  .sb-property-table__variable {
+    width: 55%;
+  }
+}
+
+/**
+ * Misc.
+ */
+.sb-misc {
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+
+  .sb-property-table__variable {
+    width: 50%;
+  }
+
+  .sb-property-table__value {
+    width: 25%;
+
+    &.sb-property-table__value--half {
+      width: 50%;
+    }
+  }
+}
+
+/**
+ * Spacing.
+ */
+.sb-spacing {
+<%= spacing-object %>
+
+  &__element {
+    background-color: var(--sb-styleguide-token);
+
+<%= spacing-each %>
+  }
+
+  .sb-group-table__title {
+    width: var(--sb-group-table-title);
+  }
+}
+
+/**
+ * Typography.
+ */
+.sb-typography {
+  &__title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__class {
+    font-size: 14px !important;
+    margin-block-end: 0.75rem !important;
+  }
+
+  &__style {
+    border: 1px solid var(--sb-styleguide-token-border);
+    width: fit-content;
+<%= typography %>
+  }
+
+  &__field {
+    color: var(--sb-styleguide-light) !important;
+    width: 50%;
+  }
+}

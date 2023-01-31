@@ -10,6 +10,8 @@ module.exports = {
   ],
   // Specify pattern of custom properties.
   'custom-property-pattern': null,
+  // Specify a list of allowed properties.
+  'property-allowed-list': null,
   // Specify a list of disallowed properties.
   'property-disallowed-list': [],
   // Specify lowercase or uppercase for properties.
@@ -22,8 +24,6 @@ module.exports = {
       ignoreProperties: ['appearance'],
     },
   ],
-  // Specify a list of allowed properties.
-  'property-allowed-list': null,
   // Disallow redundant values in shorthand properties.
   'shorthand-property-no-redundant-values': true,
 }

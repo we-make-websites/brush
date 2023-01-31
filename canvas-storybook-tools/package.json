@@ -2,21 +2,14 @@
   "name": "@we-make-websites/canvas-storybook-tools",
   "version": "1.9.0",
   "description": "Canvas Storybook tools for building Shopify compatible stories.",
-  "repository": "https://bitbucket.org/we-make-websites/canvas-storybook-tools",
+  "repository": "https://bitbucket.org/we-make-websites/brush/src/master/canvas-storybook-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
     "storybook-build": "./canvas-storybook-tools/commands/build.js",
     "storybook-watch": "./canvas-storybook-tools/commands/watch.js"
   },
-  "devDependencies": {
-    "@commitlint/cli": "17.1.2",
-    "@we-make-websites/branch-naming-check": "3.0.0",
-    "@we-make-websites/eslint-config": "3.2.0-module",
-    "eslint": "8.24.0",
-    "husky": "8.0.1",
-    "lint-staged": "13.0.3"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@storybook/addon-a11y": "6.5.13",
     "@storybook/addon-controls": "6.5.13",
