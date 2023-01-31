@@ -605,7 +605,7 @@ async function buildComponent() {
     }
 
     if (component.liquid === 'section') {
-      templateFilepath.schema = 'schema'
+      templateFilepath.schema = `${component.folder}-schema`
     }
 
     if (component.liquid === 'snippet') {
