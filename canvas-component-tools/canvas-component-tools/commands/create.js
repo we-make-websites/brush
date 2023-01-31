@@ -23,12 +23,9 @@ process.env.CANVAS = JSON.stringify(true)
  * Set default variables object.
  */
 const component = {
+  description: '',
   handle: '',
-  folder: 'async',
-  import: false,
-  liquid: 'section',
-  load: 'scroll',
-  name: '',
+  folder: '',
   formatted: {
     folder: '',
     lowerCase: '',
@@ -36,7 +33,22 @@ const component = {
     titleCase: '',
     type: '',
   },
-  template: 'dynamic',
+  import: false,
+  liquid: '',
+  load: '',
+  name: '',
+  template: '',
+}
+
+const symbols = {
+  description: '📑',
+  folder: '🌍',
+  handle: '📂',
+  import: '🚛',
+  liquid: '💧',
+  load: '⏳',
+  name: '📛',
+  template: '🔳',
 }
 
 let complete = false
@@ -80,7 +92,7 @@ async function askQuestions() {
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
-    await typeQuestion()
+    await folderQuestion()
     await templateQuestion()
     await liquidQuestion()
     await loadQuestion()
@@ -104,7 +116,7 @@ async function nameQuestion() {
       hint: '(Supports letters, numbers, spaces, ampersands, forward-slashes, and hyphens)',
       message: 'Name',
       name: 'answer',
-      prefix: () => '📛',
+      prefix: symbols.name,
       result(answer) {
         return answer
           .trim()
@@ -199,7 +211,7 @@ async function handleQuestion() {
       hint: '(Must be kebab-case, supports letters, numbers, and hyphens)',
       message: 'Handle',
       name: 'answer',
-      prefix: () => '📂',
+      prefix: symbols.handle,
       result(answer) {
         return answer
           .trim()
@@ -273,7 +285,7 @@ async function descriptionQuestion() {
     question = await prompt({
       message: 'Description',
       name: 'answer',
-      prefix: () => '📑',
+      prefix: symbols.description,
       result(answer) {
         return answer.slice(-1) === '.' ? answer : `${answer}.`
       },
@@ -321,20 +333,21 @@ async function descriptionQuestion() {
  * Ask type/folder question.
  * @returns {Promise}
  */
-async function typeQuestion() {
+async function folderQuestion() {
   let question = {}
 
   try {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'async',
-        'global',
+        'Async',
+        'Global',
       ],
+      footer: ({ index }) => footer('folder', index),
       message: 'Type',
       name: 'answer',
       pointer: () => '',
-      prefix: () => '🌍',
+      prefix: symbols.folder,
       result(answer) {
         return answer.toLowerCase()
       },
@@ -376,14 +389,15 @@ async function templateQuestion() {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'dynamic',
-        'limited interactivity',
-        'static',
+        'Dynamic',
+        'Limited interactivity',
+        'Static',
       ],
+      footer: ({ index }) => footer('template', index),
       message: 'Template',
       name: 'answer',
       pointer: () => '',
-      prefix: () => '🔳',
+      prefix: symbols.template,
       result(answer) {
         return answer.toLowerCase().trim().replaceAll(' ', '-')
       },
@@ -410,9 +424,9 @@ async function templateQuestion() {
 async function liquidQuestion() {
   const choices = [
     { role: 'separator' },
-    'section',
+    'Section',
     {
-      name: 'snippet',
+      name: 'Snippet',
       disabled: component.template === 'dynamic'
         ? false
         : '(Only available with dynamic templates)',
@@ -425,9 +439,10 @@ async function liquidQuestion() {
     question = await prompt({
       choices,
       message: 'Liquid type',
+      footer,
       name: 'answer',
       pointer: () => '',
-      prefix: () => '💧',
+      prefix: symbols.liquid,
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -459,19 +474,17 @@ async function loadQuestion() {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'load',
-        'scroll',
-        'trigger',
+        'Load',
+        'Scroll',
+        'Trigger',
       ],
+      footer: ({ index }) => footer('load', index),
       index: 2,
       message: 'Load type',
       name: 'answer',
       pointer: () => '',
-      prefix: () => '⏳',
-      skip:
-        component.folder !== 'async' ||
-        component.template !== 'dynamic' ||
-        component.liquid !== 'section',
+      prefix: symbols.load,
+      skip,
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -505,10 +518,11 @@ async function importQuestion() {
         'Import',
         'Manually import',
       ],
+      footer,
       message: 'Import component files',
       name: 'answer',
       pointer: () => '',
-      prefix: () => '➕',
+      prefix: symbols.import,
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -656,7 +670,8 @@ async function buildComponent() {
     const end = performance.now()
     const messages = [Tny.colour('green', '🚀 Component files created')]
     messages.push(Tny.time(start, end))
-    Tny.message(messages, { before: true })
+    messages.push(footer())
+    Tny.message(messages, { after: false, before: true })
 
   } catch (promiseError) {
     Tny.message(
@@ -699,6 +714,79 @@ function logBanner() {
     Tny.colour('bgCyan', `Canvas component tools v${version}`),
     Tny.colour('bgCyan', 'Create command'),
   ], { empty: true })
+}
+
+/**
+ * Builds footer documentation links.
+ * @param {String} type - Question type.
+ * @param {Number} index - Current index choice.
+ * @returns {String}
+ */
+function footer(type, index) {
+  let message = `\n📚 ${Tny.colour('magenta', 'Documentation')}\n`
+
+  /**
+   * Documentation links.
+   */
+  const links = {
+    folder: {
+      async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
+      global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
+    },
+    load: {
+      load: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
+      scroll: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
+      trigger: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
+    },
+    template: {
+      dynamic: '',
+      'limited-interactivity': 'https://we-make-websites.gitbook.io/canvas/components/other-types/limited-interactivity-components',
+      static: 'https://we-make-websites.gitbook.io/canvas/components/other-types/static-components',
+    },
+  }
+
+  /**
+   * Build documentation links from previous choices.
+   */
+  Object.entries(component).forEach(([key, value]) => {
+    if (key === 'formatted' || !links[key] || !links[key][value]) {
+      return
+    }
+
+    /**
+     * Ignore load type if not applicable.
+     */
+    if (key === 'load' && skip()) {
+      return
+    }
+
+    message += `${symbols[key]} ${links[key][value]}\n`
+  })
+
+  /**
+   * Add current choice's documentation.
+   */
+  if (type && index) {
+    const documentation = Object.values(links[type])[index - 1]
+
+    if (documentation) {
+      message += `${symbols[type]} ${Tny.colour('cyan', documentation)}`
+    }
+  }
+
+  return message
+}
+
+/**
+ * Skip load question?
+ * @returns {Boolean}
+ */
+function skip() {
+  return (
+    (component.folder && component.folder !== 'async') ||
+    (component.template && component.template !== 'dynamic') ||
+    (component.liquid && component.liquid !== 'section')
+  )
 }
 
 /**
