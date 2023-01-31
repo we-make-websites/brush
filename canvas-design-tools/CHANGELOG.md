@@ -2,7 +2,7 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
-## 1.3.0 - 2023-02-16
+## 1.3.0 - 2023-01-31
 
 * Updated command to output version of the tool instead of Canvas
 * Updated dependencies
