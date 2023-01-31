@@ -1,8 +1,8 @@
 {
   "name": "@we-make-websites/canvas-component-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Component command line tool to create components.",
-  "repository": "https://bitbucket.org/we-make-websites/brush/src/master/canvas-component-tools",
+  "repository": "https://bitbucket.org/we-make-websites/canvas-component-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
@@ -12,7 +12,7 @@
   "dependencies": {
     "@we-make-websites/tannoy": "1.12.0",
     "enquirer": "2.3.6",
-    "fs-extra": "10.0.1",
+    "fs-extra": "11.1.0",
     "path": "0.12.7"
   },
   "engineStrict": true,
