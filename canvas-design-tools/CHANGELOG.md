@@ -6,6 +6,7 @@ Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
 * Updated command to output version of the tool instead of Canvas
 * Updated dependencies
+* Fixed token names starting with numbers causing issues in breakpoints and mq-breakpoints templates
 
 ## 1.2.0 - 2022-11-17
 
