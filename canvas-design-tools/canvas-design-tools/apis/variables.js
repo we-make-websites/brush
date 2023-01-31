@@ -694,16 +694,33 @@ function getScriptTemplate(type, variables) {
             const output = array.map((__, index) => {
               const object = variables[type][index]
 
+              let dotNotation = `.${object.name}`
+              let name = object.name
               let unit = object.unit
               let value = object.value
 
+              /**
+               * Include original value and unit if converted.
+               */
               if (object.original) {
                 unit = object.original.unit
                 value = object.original.value
               }
 
+              /**
+               * If name starts with number then wrap in quotations.
+               */
+              if (name.slice(0, 1).match(/\d/g)) {
+                dotNotation = `['${object.name}']`
+                name = `'${object.name}'`
+              }
+
+              /**
+               * Convert template string.
+               */
               const string = $1
-                .replaceAll('<%= name %>', object.name)
+                .replaceAll('<%= dotNotation %>', dotNotation)
+                .replaceAll('<%= name %>', name)
                 .replaceAll('<%= unit %>', unit)
                 .replaceAll('<%= value %>', value)
 
