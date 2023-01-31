@@ -377,6 +377,7 @@ async function templateQuestion() {
       choices: [
         { role: 'separator' },
         'dynamic',
+        'limited interactivity',
         'static',
       ],
       message: 'Template',
@@ -384,7 +385,7 @@ async function templateQuestion() {
       pointer: () => '',
       prefix: () => '🔳',
       result(answer) {
-        return answer.toLowerCase().trim()
+        return answer.toLowerCase().trim().replaceAll(' ', '-')
       },
       type: 'select',
     })
@@ -586,6 +587,11 @@ async function buildComponent() {
       templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}`
       templateFilepath.stories = 'stories'
       templateFilepath.vue = `vue-${component.folder}-${component.liquid}`
+    }
+
+    if (component.template === 'limited-interactivity') {
+      templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-limited-interactivity`
+      templateFilepath.vue = 'vue-limited-interactivity'
     }
 
     if (component.template === 'static') {
