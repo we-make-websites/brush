@@ -4,21 +4,22 @@
  * Get the current branch name to test.
  *
  */
-const fs = require('fs')
-const util = require('util')
-
-const readFile = util.promisify(fs.readFile)
+const fs = require('fs-extra')
 
 /**
  * Read current branch name.
- * @returns {Boolean}
+ * @returns {Promise}
  */
-function currentBranchName() {
-  return readFile(gitHeadPath()).then(data => parseBranchName(data))
+function readCurrentBranchName() {
+  return new Promise(async(resolve) => {
+    const data = await fs.readFile(gitHeadPath(), 'utf-8')
+    const branchName = parseBranchName(data)
+    resolve(branchName)
+  })
 }
 
 /**
- * Load .git HEAD file.
+ * Get .git HEAD filepath.
  * @returns {String}
  */
 function gitHeadPath() {
@@ -33,14 +34,14 @@ function gitHeadPath() {
 
 /**
  * Parse branch name.
- * @param {*} data - Branch data.
- * @returns {Boolean}
+ * @param {String} branch - Branch path data.
+ * @returns {String}
  */
-function parseBranchName(data) {
-  const match = (/ref: refs\/heads\/(?:[^\n]+)/).exec(data.toString())
+function parseBranchName(branch) {
+  const match = (/ref: refs\/heads\/(?<branch>[^\n]+)/g).exec(branch)
   return match ? match[1] : null
 }
 
 module.exports = {
-  currentBranchName,
+  readCurrentBranchName,
 }
