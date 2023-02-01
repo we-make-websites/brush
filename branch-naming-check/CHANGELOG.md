@@ -2,6 +2,8 @@
 
 ## 3.1.0 - 2023-02-01
 
+* Updated command to output version of the tool instead of Canvas
+* Updated structure of command to match other Brush tools
 * Updated dependencies
 
 ## 3.0.0 - 2022-10-19
