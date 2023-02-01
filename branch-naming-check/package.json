@@ -12,7 +12,7 @@
   "devDependencies": {},
   "dependencies": {
     "@we-make-websites/tannoy": "1.12.0",
-    "fs-extra": "10.1.0",
+    "fs-extra": "11.1.0",
     "path": "0.12.7"
   },
   "engineStrict": true,
