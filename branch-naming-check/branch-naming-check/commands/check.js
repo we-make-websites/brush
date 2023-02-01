@@ -16,9 +16,22 @@ const getCanvasConfig = require('../helpers/get-canvas-config')
  * Initialises branch naming check.
  */
 async function init() {
-  const branchName = await branchNameApi.readCurrentBranchName()
   const version = getPackageVersion()
+  const bannerMessage = `Branch naming check v${version}`
   const config = getCanvasConfig()
+  const branchName = await branchNameApi.readCurrentBranchName()
+
+  /**
+   * If no branch name then end early.
+   */
+  if (!branchName) {
+    Tny.message(
+      `${Tny.colour('bgMagenta', bannerMessage)} No branch name provided, skipping check`,
+      { before: true },
+    )
+
+    return
+  }
 
   /**
    * Set match conditions.
@@ -46,8 +59,6 @@ async function init() {
       errorMessage = '[name] supports camelCase or kebab-case'
       pass = defaultBranch || camelCaseBranch || kebabCaseBranch
   }
-
-  const bannerMessage = `Branch naming check v${version}`
 
   /**
    * Test branch name.

@@ -2,6 +2,7 @@
 
 ## 3.1.0 - 2023-02-01
 
+* Added early return if no branch name provided to support commit message updates
 * Updated command to output version of the tool instead of Canvas
 * Updated structure of command to match other Brush tools
 * Updated dependencies
