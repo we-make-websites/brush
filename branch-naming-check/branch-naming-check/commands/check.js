@@ -9,14 +9,14 @@ const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
 
-const { currentBranchName } = require('../helpers/get-current-branch-name')
+const branchNameApi = require('../apis/current-branch-name')
 const getCanvasConfig = require('../helpers/get-canvas-config')
 
 /**
  * Initialises branch naming check.
  */
 async function init() {
-  const branchName = await currentBranchName()
+  const branchName = await branchNameApi.readCurrentBranchName()
   const version = getPackageVersion()
   const config = getCanvasConfig()
 
