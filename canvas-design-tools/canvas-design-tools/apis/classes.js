@@ -379,7 +379,13 @@ function buildCriticalStyles({ className, properties }) {
 
   if (!defaultObject) {
     content += `${formattedClassName} {\n`
-    content += buildCssDeclarationBlock(properties)
+
+    if (className.includes(',')) {
+      content += buildCssDeclarationBlock(properties)
+    } else {
+      content += `  @include ${className};\n}\n`
+    }
+
     return content
   }
 
@@ -733,12 +739,21 @@ function convertCamelCaseToTitleCase(string) {
  * - Can target specific values, e.g. 'text.text-body-m'.
  * - Used to determine if current key shouldn't be rendered.
  * - Returns true if key is excluded or is not included.
+ * - If class is a default class then it cannot be excluded.
  * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
  * in format `[key].[className]`, e.g. 'text.text-body-m'.
  * @param {Object} stylesheet - Stylesheet object.
  * @returns {Boolean}
  */
 function isExcludedAndNotIncluded(key, stylesheet) {
+  const defaultClass = Object.values(config.defaults).some((value) => {
+    return `typography.${value}` === key
+  })
+
+  if (defaultClass || key === 'typography.html, body') {
+    return false
+  }
+
   if (stylesheet.include.length) {
     const included = stylesheet.include.some((item) => {
       const test = item.includes('.') && !key.includes('.')

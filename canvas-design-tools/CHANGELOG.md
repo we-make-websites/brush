@@ -2,6 +2,10 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 1.3.1 - 2023-02-01
+
+* Fixed `include` array setting in critical stylesheet overriding default text classes
+
 ## 1.3.0 - 2023-01-31
 
 * Updated command to output version of the tool instead of Canvas
