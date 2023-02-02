@@ -5,6 +5,7 @@ Canvas Storybook Tools uses [semantic versioning](https://semver.org/).
 ## 1.11.0 - 2023-02-02
 
 * Added icons shortcode plugin to support icon shortcodes in Storybook styles
+* Updated `build` command to output _gift_card.liquid_ file to avoid Shopify deploy errors
 
 ## 1.10.0 - 2023-02-02
 

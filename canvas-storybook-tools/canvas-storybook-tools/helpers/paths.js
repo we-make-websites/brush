@@ -38,6 +38,7 @@ module.exports = {
   packageJson: '../../package.json',
   root: path.resolve(rootFolder, './storybook'),
   templates: {
+    giftCard: path.resolve(rootFolder, './storybook', 'templates', 'gift_card.liquid'),
     index: path.resolve(rootFolder, './storybook', 'templates', 'index.json'),
     root: path.resolve(rootFolder, './storybook', 'templates'),
   },
