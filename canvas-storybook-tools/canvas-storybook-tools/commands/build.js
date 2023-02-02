@@ -12,6 +12,7 @@ const Tny = require('@we-make-websites/tannoy')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
+const getPackageVersion = require('../helpers/get-package-version')
 const getVariablesUpdated = require('../helpers/get-variables-updated')
 const Paths = require('../helpers/paths')
 
@@ -30,6 +31,7 @@ const argv = yargs(hideBin(process.argv)).argv
  * Set global variables.
  */
 let iframeScripts = []
+let version = '{{canvas version}}'
 
 /**
  * Configure compiling spinner frames.
@@ -43,6 +45,7 @@ const frames = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', 
 async function init() {
   const start = performance.now()
   const variablesUpdated = await getVariablesUpdated()
+  version = getPackageVersion()
 
   try {
     logBanner()
@@ -107,7 +110,8 @@ async function init() {
  */
 function logBanner() {
   const messages = [
-    Tny.colour('bgCyan', 'Canvas Storybook Tools v{{storybook version}}'),
+    Tny.colour('bgCyan', `Canvas storybook tools v${version}`),
+    Tny.colour('bgCyan', 'Build command'),
     Tny.colour('bgCyan', 'Running build-storybook --output-dir storybook'),
   ]
 
