@@ -2,6 +2,10 @@
 
 Canvas Storybook Tools uses [semantic versioning](https://semver.org/).
 
+## 1.11.0 - 2023-02-02
+
+* Added icons shortcode plugin to support icon shortcodes in Storybook styles
+
 ## 1.10.0 - 2023-02-02
 
 * Updated messaging
