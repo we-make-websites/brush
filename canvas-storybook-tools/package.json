@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-storybook-tools",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Canvas Storybook tools for building Shopify compatible stories.",
   "repository": "https://bitbucket.org/we-make-websites/brush/src/master/canvas-storybook-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -35,6 +35,8 @@
     "postcss-preset-env": "8.0.1",
     "sass": "1.58.0",
     "sass-loader": "13.2.0",
+    "svg64": "1.2.0",
+    "webpack": "5.75.0",
     "yargs": "17.6.2"
   },
   "engineStrict": true,
