@@ -1,6 +1,6 @@
 # eslint-config
 
-We Make Website's eslint rules and config.
+We Make Website's eslint rules and config for non-Webpack projects.
 
 ## Installation
 
