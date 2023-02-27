@@ -9,6 +9,7 @@ const path = require('path')
 
 const variableApi = require('../apis/variables')
 
+const convertStringToHandle = require('../helpers/convert-string-to-handle')
 const getDesignConfig = require('../helpers/get-design-config')
 const Paths = require('../helpers/paths')
 
@@ -1042,7 +1043,7 @@ function formatName(name, prefix, group = false) {
     formattedName = `${group}${config.delimiter}${formattedName}`
   }
 
-  return variableApi.convertStringToHandle(formattedName)
+  return convertStringToHandle(formattedName, config)
 }
 
 /**
