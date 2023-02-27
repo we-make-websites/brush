@@ -542,11 +542,29 @@ function getSpacingTemplate(variables, stylesheet) {
     }
 
     /**
-     * Output each variable's values.
+     * Output utility classes for mobile.
      */
-    value.forEach((valueObject) => {
-      content += buildSpacingDeclarations(valueObject)
+    value.forEach((valueObject, index) => {
+      const last = index + 1 === value.length
+      content += buildSpacingDeclarations(valueObject, { last })
     })
+
+    /**
+     * Output utility classes for desktop.
+     */
+    content += `\n@include mq($from: ${config.breakpoint.desktop}) {\n`
+
+    value.forEach((valueObject, index) => {
+      const last = index + 1 === value.length
+
+      content += `${buildSpacingDeclarations(valueObject, {
+        last,
+        padding: '  ',
+        suffix: '-desktop',
+      })}`
+    })
+
+    content += `}\n`
   })
 
   return content
@@ -555,16 +573,19 @@ function getSpacingTemplate(variables, stylesheet) {
 /**
  * Build declarations for each spacing variable.
  * @param {Object} variable - Variable object.
+ * @param {Boolean} config.last - Last value in variable.
+ * @param {String} config.padding - Line padding.
+ * @param {String} config.suffix - Class suffix (for responsive classes).
  * @returns {String}
  */
-function buildSpacingDeclarations(variable) {
+function buildSpacingDeclarations(variable, { last, padding = '', suffix = '' } = {}) {
   const classes = [
     { prefix: 'mt', properties: ['margin-block-start'] },
     { prefix: 'mb', properties: ['margin-block-end'] },
-    { prefix: 'my', properties: ['margin-block-start', 'margin-block-end'] },
     { prefix: 'ml', properties: ['margin-inline-end'] },
     { prefix: 'mr', properties: ['margin-inline-end'] },
     { prefix: 'mx', properties: ['margin-inline-start', 'margin-inline-end'] },
+    { prefix: 'my', properties: ['margin-block-start', 'margin-block-end'] },
   ]
 
   const declarations = classes.map((classObject) => {
@@ -572,10 +593,10 @@ function buildSpacingDeclarations(variable) {
       return `${property}: var(${variable.variable});`
     })
 
-    return `.${classObject.prefix}-${variable.name} { ${properties.join(' ')} }\n`
+    return `${padding}.${classObject.prefix}-${variable.name}${suffix} { ${properties.join(' ')} }\n`
   })
 
-  return `${declarations.join('')}\n`
+  return `${declarations.join('')}${last ? '' : '\n'}`
 }
 
 /**
