@@ -14,6 +14,7 @@ const { hideBin } = require('yargs/helpers')
 
 const classApi = require('../apis/classes')
 const styleguideApi = require('../apis/styleguide')
+const utilitiesApi = require('../apis/utilities')
 const variableApi = require('../apis/variables')
 
 const getDesignConfig = require('../helpers/get-design-config')
@@ -56,6 +57,7 @@ async function init() {
   try {
     await writeVariablesStylesheets({ designPaths, fileMessages, variables })
     await writeVariablesScripts(variables)
+    await writeUtilityStylesheets({ designPaths, fileMessages, variables })
     await writeClassesStylesheets({ classes, designPaths, fileMessages, variables })
     await writeStyleguideContent({ classes, storybookFileMessages, variables })
 
@@ -119,6 +121,40 @@ function writeVariablesScripts(variables) {
 
     } catch (error) {
       reject({ error, message: 'Failed to write variables scripts' })
+    }
+  })
+}
+
+/**
+ * Write variables stylesheets.
+ * @param {Object} designPaths - Paths to write files to.
+ * @param {Array} fileMessages - File messages.
+ * @param {Object} variables - Formatted variables.
+ * @returns {Promise}
+ */
+function writeUtilityStylesheets({ designPaths, fileMessages, variables }) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      const queue = []
+
+      for (const stylesheet of config.utilities) {
+        const designPath = designPaths[stylesheet.handle]
+        const action = fs.existsSync(designPath.write) ? 'updated' : 'created'
+
+        queue.push(fs.writeFile(
+          designPath.write,
+          utilitiesApi.buildStyles(variables, stylesheet),
+          'utf-8',
+        ))
+
+        fileMessages.push(`${stylesheet.name} stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
+      }
+
+      await Promise.all(queue)
+      resolve()
+
+    } catch (error) {
+      reject({ error, message: 'Failed to write utilities stylesheets' })
     }
   })
 }
@@ -313,6 +349,13 @@ function getPaths() {
    * Build object for each classes stylesheet.
    */
   for (const stylesheet of config.stylesheets.classes) {
+    designPaths[stylesheet.handle] = buildPathObject(stylesheet)
+  }
+
+  /**
+   * Build object for each utility stylesheet.
+   */
+  for (const stylesheet of config.utilities) {
     designPaths[stylesheet.handle] = buildPathObject(stylesheet)
   }
 
