@@ -1,7 +1,8 @@
 /**
- * Helper: Get Canvas config
+ * Helper: Get design config
  * -----------------------------------------------------------------------------
- * Returns canvas.config.js file if it exists, and is a Canvas project.
+ * Returns design.config.js file if it exists, or canvas/design-config.js, or
+ * canvas/helpers/design-config.js.
  *
  */
 const fs = require('fs-extra')
