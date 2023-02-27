@@ -94,7 +94,7 @@ function writeVariablesStylesheets({ designPaths, fileMessages, variables }) {
           'utf-8',
         ))
 
-        fileMessages.push(`${stylesheet.name} variables stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
+        fileMessages.push(`${stylesheet.name} stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
       }
 
       await Promise.all(queue)
