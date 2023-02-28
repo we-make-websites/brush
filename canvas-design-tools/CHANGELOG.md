@@ -2,6 +2,10 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 1.4.0 - 2023-02-28
+
+* Added support for utility stylesheets
+
 ## 1.3.1 - 2023-02-01
 
 * Fixed Storybook text styles being affected by tokens
