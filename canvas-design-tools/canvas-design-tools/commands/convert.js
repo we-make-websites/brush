@@ -56,10 +56,16 @@ async function init() {
 
   try {
     await writeVariablesStylesheets({ designPaths, fileMessages, variables })
-    await writeVariablesScripts(variables)
     await writeUtilityStylesheets({ designPaths, fileMessages, variables })
     await writeClassesStylesheets({ classes, designPaths, fileMessages, variables })
-    await writeStyleguideContent({ classes, storybookFileMessages, variables })
+
+    if (argv.js !== false) {
+      await writeVariablesScripts({ fileMessages, variables })
+    }
+
+    if (argv.storybook !== false) {
+      await writeStyleguideContent({ classes, storybookFileMessages, variables })
+    }
 
   } catch (error) {
     Tny.message([
@@ -110,13 +116,30 @@ function writeVariablesStylesheets({ designPaths, fileMessages, variables }) {
 
 /**
  * Write variables scripts.
+ * @param {Array} fileMessages - File messages.
  * @param {Object} variables - Formatted variables.
  * @returns {Promise}
  */
-function writeVariablesScripts(variables) {
+function writeVariablesScripts({ fileMessages, variables }) {
   return new Promise(async(resolve, reject) => {
     try {
       await variableApi.buildScripts(variables)
+
+      config.scripts.forEach((script) => {
+        const scriptPath = argv.path
+          ? path.resolve(argv.path, `${script.filename}.js`)
+          : path.resolve(Paths.scripts.config, `${script.filename}.js`)
+
+        const action = fs.existsSync(scriptPath) ? 'updated' : 'created'
+
+        let scriptOutput = scriptPath.split(/src[/\\]/g)[1]
+        scriptOutput = path.join('src', scriptOutput)
+
+        fileMessages.push(
+          `${script.name} config script ${action} ${Tny.colour('brightBlack', `(${scriptOutput})`)}`,
+        )
+      })
+
       resolve()
 
     } catch (error) {
@@ -252,29 +275,12 @@ function writeStyleguideContent({ classes, storybookFileMessages, variables }) {
 
 /**
  * Output messaging.
+ * - Adds decorations first.
  * @param {Array} fileMessages - File messages.
  * @param {Number} start - Start time of command.
  * @param {Array} storybookFileMessages - Storybook file messages.
  */
 function outputMessaging({ fileMessages, start, storybookFileMessages }) {
-  config.scripts.forEach((script) => {
-    const scriptPath = argv.path
-      ? path.resolve(argv.path, `${script.filename}.js`)
-      : path.resolve(Paths.scripts.config, `${script.filename}.js`)
-
-    const action = fs.existsSync(scriptPath) ? 'updated' : 'created'
-
-    let scriptOutput = scriptPath.split(/src[/\\]/g)[1]
-    scriptOutput = path.join('src', scriptOutput)
-
-    fileMessages.push(
-      `${script.name} config script ${action} ${Tny.colour('brightBlack', `(${scriptOutput})`)}`,
-    )
-  })
-
-  /**
-   * Add decorations.
-   */
   const formattedFileMessages = fileMessages.map((message, index) => {
     const decoration = index === fileMessages.length - 1
       ? '└──'
@@ -296,18 +302,30 @@ function outputMessaging({ fileMessages, start, storybookFileMessages }) {
    */
   const end = performance.now()
 
-  Tny.message([
+  let messages = [
     Tny.colour('green', '📑 Variables files created'),
     Tny.colour('green', '🎨 Classes files created'),
-    Tny.colour('green', '📚 Storybook files created'),
+  ]
+
+  if (argv.storybook !== false) {
+    messages.push(Tny.colour('green', '📚 Storybook files created'))
+  }
+
+  messages = [
+    ...messages,
     Tny.time(start, end),
     '',
     Tny.colour('brightCyan', '📂 Canvas files'),
     ...formattedFileMessages,
-    '',
-    Tny.colour('brightCyan', '📂 Storybook files'),
-    ...formattedStorybookFileMessages,
-  ])
+  ]
+
+  if (argv.storybook !== false) {
+    messages.push('')
+    messages.push(Tny.colour('brightCyan', '📂 Storybook files'))
+    messages.push(...formattedStorybookFileMessages)
+  }
+
+  Tny.message(messages)
 }
 
 /**
