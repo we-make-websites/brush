@@ -135,6 +135,11 @@ function writeVariablesScripts(variables) {
 function writeUtilityStylesheets({ designPaths, fileMessages, variables }) {
   return new Promise(async(resolve, reject) => {
     try {
+      if (!config.utilities) {
+        resolve()
+        return
+      }
+
       const queue = []
 
       for (const stylesheet of config.utilities) {
@@ -355,8 +360,10 @@ function getPaths() {
   /**
    * Build object for each utility stylesheet.
    */
-  for (const stylesheet of config.utilities) {
-    designPaths[stylesheet.handle] = buildPathObject(stylesheet)
+  if (config.utilities) {
+    for (const stylesheet of config.utilities) {
+      designPaths[stylesheet.handle] = buildPathObject(stylesheet)
+    }
   }
 
   /**
