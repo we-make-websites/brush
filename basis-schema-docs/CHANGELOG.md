@@ -2,6 +2,10 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
+## 1.2.1 - 2023-03-01
+
+* Removed escape characters from output
+
 ## 1.2.0 - 2022-10-03
 
 * Updated dependencies
