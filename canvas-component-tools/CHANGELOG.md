@@ -2,6 +2,10 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 1.2.1 - 2023-03-01
+
+* Fixed limited interactivity Vue template failing eslint
+
 ## 1.2.0 - 2023-03-01
 
 * Updated limited interactivity template to include class in template
