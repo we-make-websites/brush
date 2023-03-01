@@ -166,7 +166,7 @@ module.exports = class StorybookIconShortcodePlugin {
         .replace('<!-- svgo-disable -->', '')
         .replaceAll('\n', '')
 
-      const base64 = svg64(icon)
+      const base64 = svg64.default(icon)
       resolve(base64)
     })
   }
