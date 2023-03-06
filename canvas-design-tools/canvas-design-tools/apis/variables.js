@@ -302,11 +302,14 @@ function formatVariable({ name, type, value: valueObject }) {
   /**
    * If property has associated unit, add it.
    * - If value is string and contains '%' then don't set unit.
+   * - Convert AUTO to auto for line heights.
    */
   if (typeof value === 'string' && value.includes('%')) {
     unit = ''
   } else if (config.units[type] && config.units[type] !== 'rgb') {
     unit = config.units[type]
+  } else if (value === 'AUTO') {
+    value = value.toLowerCase()
   }
 
   /**
