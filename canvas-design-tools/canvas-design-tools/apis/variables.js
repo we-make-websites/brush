@@ -139,9 +139,27 @@ function findVariableByName(name, tokens, variables) {
   }
 
   /**
-   * Iterate over type object to create array of formatted objects.
+   * Iterate over name object to create array of formatted objects.
    */
   Object.entries(objectToSearch).forEach(([key, value]) => {
+    if (!value.value && !value.type) {
+      Object.entries(value).forEach(([subKey, subValue]) => {
+        if (!config.layoutNames?.includes(convertStringToHandle(subKey, config))) {
+          return
+        }
+
+        variables[formattedName].push(
+          formatVariable({
+            name: `${key}${config.delimiter}${subKey}`,
+            type: formattedName,
+            value: subValue,
+          }),
+        )
+      })
+
+      return
+    }
+
     variables[formattedName].push(
       formatVariable({ name: key, type: formattedName, value }),
     )
@@ -248,7 +266,7 @@ function replaceAlias({
     let name = valueObject.name
 
     if (valueObject.group) {
-      name = `${valueObject.group}${config.delimiter}${valueObject.name}`
+      name = `${valueObject.group} ${valueObject.name}`
     }
 
     return name === formatAlias(object, config)
@@ -297,28 +315,24 @@ function replaceAlias({
  */
 function formatVariable({ name, type, value: valueObject }) {
   let unit = ''
-  let { original, value } = convertValue(valueObject, type)
+
+  const handle = type === config.special.layout?.base
+    ? convertStringToHandle(name.replace(/(?:mobile|tablet|desktop)/gi, ''), config)
+    : convertStringToHandle(name, config)
+
+  let { original, value } = convertValue(valueObject, handle, type)
 
   /**
    * If property has associated unit, add it.
    * - If value is string and contains '%' then don't set unit.
-   * - If value is a string with 'px' then convert to number.
-   * - Convert AUTO to auto for line heights.
+   * - Remove units from layout columns.
+   * - Set unit for colours.
    */
-  if (typeof value === 'string') {
-    if (value.includes('%')) {
-      unit = ''
-    } else if (value.includes('px')) {
-      value = Number(value.replaceAll('px', ''))
-    } else if (value === 'AUTO') {
-      value = value.toLowerCase()
-    }
-  }
-
-  /**
-   * Set unit for colours.
-   */
-  if (config.units[type] && config.units[type] !== 'rgb') {
+  if (typeof value === 'string' && value.includes('%')) {
+    unit = ''
+  } else if (handle === config.special.layout?.column) {
+    unit = ''
+  } else if (config.units[type] && config.units[type] !== 'rgb') {
     unit = config.units[type]
   }
 
@@ -349,6 +363,7 @@ function formatVariable({ name, type, value: valueObject }) {
   return {
     description: valueObject.description,
     group: valueObject.group,
+    handle,
     name: name.toLowerCase(),
     original,
     unit,
@@ -360,12 +375,27 @@ function formatVariable({ name, type, value: valueObject }) {
 /**
  * Convert values based on config.
  * @param {Object} valueObject - Object containing value.
+ * @param {String} handle - Handle of name (e.g. 'mobile-column').
  * @param {String} type - Type of property (e.g. 'breakpoint').
  * @return {Object}
  */
-function convertValue(valueObject, type) {
+function convertValue(valueObject, handle, type) {
   let original = false
   let value = valueObject.value
+
+  /**
+   * Convert AUTO to auto for line heights.
+   */
+  if (value === 'AUTO') {
+    value = 'auto'
+  }
+
+  /**
+   * If value is a string with 'px' then convert to number.
+   */
+  if (value.includes('px')) {
+    value = Number(value.replaceAll('px', ''))
+  }
 
   /**
    * If value has spaces then wrap in quotations.
@@ -421,7 +451,7 @@ function convertValue(valueObject, type) {
   if (!isNaN(value)) {
     value = Number(value)
 
-    if (config.units[type] === 'rem') {
+    if (config.units[type] === 'rem' && handle !== config.special.layout?.column) {
       original = {
         unit: 'px',
         value,
