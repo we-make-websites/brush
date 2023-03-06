@@ -302,14 +302,24 @@ function formatVariable({ name, type, value: valueObject }) {
   /**
    * If property has associated unit, add it.
    * - If value is string and contains '%' then don't set unit.
+   * - If value is a string with 'px' then convert to number.
    * - Convert AUTO to auto for line heights.
    */
-  if (typeof value === 'string' && value.includes('%')) {
-    unit = ''
-  } else if (config.units[type] && config.units[type] !== 'rgb') {
+  if (typeof value === 'string') {
+    if (value.includes('%')) {
+      unit = ''
+    } else if (value.includes('px')) {
+      value = Number(value.replaceAll('px', ''))
+    } else if (value === 'AUTO') {
+      value = value.toLowerCase()
+    }
+  }
+
+  /**
+   * Set unit for colours.
+   */
+  if (config.units[type] && config.units[type] !== 'rgb') {
     unit = config.units[type]
-  } else if (value === 'AUTO') {
-    value = value.toLowerCase()
   }
 
   /**

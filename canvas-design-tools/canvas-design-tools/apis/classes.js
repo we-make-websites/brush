@@ -129,7 +129,7 @@ function formatClass({
 function formatProperties(value, variables) {
 
   /**
-   * OriginalProperty: fontFamily, textCase etc.
+   * OriginalProperty: fontFamilies, textCase etc.
    * Alias: {font-family.sans}, {text-case.none} etc.
    */
   return Object.entries(value).map(([originalProperty, alias]) => {
@@ -169,7 +169,7 @@ function formatProperties(value, variables) {
      * Find variables object.
      */
     const variableObject = variables[property]?.find((object) => {
-      return object.name === name
+      return object.name.toLowerCase() === name.toLowerCase()
     })
 
     if (!variableObject) {
