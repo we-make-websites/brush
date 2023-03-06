@@ -12,6 +12,10 @@
 module.exports = (string, config, isClass, parent = false) => {
   const handle = string && string.replaceAll('+', 'Plus')
 
+  if (string.match(/^\d*(?:XS|S|M|L|XL)$/gi)) {
+    return string.toLowerCase()
+  }
+
   if (isClass) {
     const newHandle = handle
       .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)

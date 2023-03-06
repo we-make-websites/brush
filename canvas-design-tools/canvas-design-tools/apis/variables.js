@@ -115,23 +115,12 @@ function findVariables(tokens) {
  */
 function findVariableByName(name, tokens, variables) {
   let formattedName = name
-  let objectToSearch = tokens[name]
 
-  /**
-   * If name is a prefix then build object to iterate over.
-   */
-  if (name.slice(-1) === '-') {
-    formattedName = name.slice(0, -1)
-    objectToSearch = {}
+  const matchingKey = Object.keys(tokens).find((key) => {
+    return convertStringToHandle(key, config) === formattedName
+  })
 
-    Object.entries(tokens).forEach(([key, value]) => {
-      if (key.split(config.delimiter)[0] !== formattedName) {
-        return
-      }
-
-      objectToSearch[key] = value
-    })
-  }
+  const objectToSearch = tokens[matchingKey]
 
   /**
    * If variable doesn't exist then ignore.
@@ -308,8 +297,6 @@ function replaceAlias({
  */
 function formatVariable({ name, type, value: valueObject }) {
   let unit = ''
-
-  // eslint-disable-next-line prefer-const
   let { original, value } = convertValue(valueObject, type)
 
   /**

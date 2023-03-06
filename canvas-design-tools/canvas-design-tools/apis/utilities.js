@@ -47,7 +47,7 @@ function getStylesTemplate(variables, stylesheet) {
   /**
    * Output utility classes for mobile.
    */
-  values.forEach((value, index) => {
+  values?.forEach((value, index) => {
     const last = index + 1 === values.length
     content += buildDeclarations(value, stylesheet, { last })
   })
@@ -57,7 +57,7 @@ function getStylesTemplate(variables, stylesheet) {
    */
   content += `\n@include mq($from: ${config.breakpoint.desktop}) {\n`
 
-  values.forEach((value, index) => {
+  values?.forEach((value, index) => {
     const last = index + 1 === values.length
 
     content += `${buildDeclarations(value, stylesheet, {
