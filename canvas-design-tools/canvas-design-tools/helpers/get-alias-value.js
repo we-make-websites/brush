@@ -4,13 +4,14 @@
  * Returns alias value.
  *
  * @param {Object} config - Design config.
+ * @param {String} key - Token key (e.g. 'breakpoint').
  * @param {String} value - Token value that includes alias.
  * @param {Object} variables - Converted variables object.
  * @returns {Object}
  */
 const convertStringToHandle = require('../helpers/convert-string-to-handle')
 
-module.exports = ({ config, value, variables } = {}) => {
+function getAliasValue({ config, key, value, variables } = {}) {
   const formattedAlias = value
     .replace(/[{}]/g, '')
     .replace('$', '')
@@ -32,16 +33,25 @@ module.exports = ({ config, value, variables } = {}) => {
     nonRenamedType = originalType
   })
 
+  /**
+   * Exclude if both the type and its original key are not found in config.
+   */
   if (
     !config.variablesByName.includes(convertStringToHandle(nonRenamedType, config)) &&
-    !config.variablesByType.includes(nonRenamedType)
+    !config.variablesByName.includes(key) &&
+    !config.variablesByType.includes(nonRenamedType) &&
+    !config.variablesByType.includes(key)
   ) {
     return false
   }
 
-  const property = config.renameVariable[type]
+  let property = config.renameVariable[type]
     ? config.renameVariable[type]
     : convertStringToHandle(type, config)
+
+  if (key === config.special.color) {
+    property = key
+  }
 
   /**
    * Find variables object.
@@ -52,6 +62,25 @@ module.exports = ({ config, value, variables } = {}) => {
 
   if (!variableObject) {
     return false
+  }
+
+  /**
+   * If variable value is an alias itself then replace.
+   */
+  let alias = false
+
+  if (
+    typeof variableObject.value === 'string' &&
+    variableObject.value?.includes('{')
+  ) {
+    alias = getAliasValue({
+      config,
+      key,
+      value: variableObject.value,
+      variables,
+    })
+
+    alias = alias.variable
   }
 
   /**
@@ -73,6 +102,10 @@ module.exports = ({ config, value, variables } = {}) => {
   return {
     property,
     value: cssValue,
-    variable: variableObject,
+    variable: alias ? alias : variableObject,
   }
+}
+
+module.exports = (data) => {
+  return getAliasValue(data)
 }

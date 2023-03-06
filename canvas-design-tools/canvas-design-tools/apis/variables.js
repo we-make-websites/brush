@@ -554,6 +554,21 @@ function replaceAlias({
     variables,
   })
 
+  if (!match) {
+    return
+  }
+
+  /**
+   * Use variable for layout tokens.
+   */
+  let unit = match.variable.unit
+  let value = match.variable.value
+
+  if (key === config.special.layout?.base) {
+    unit = ''
+    value = match.value
+  }
+
   /**
    * Update variable.
    * - Use original alias name for alias field.
@@ -561,9 +576,9 @@ function replaceAlias({
   variables[key][index] = {
     ...variable,
     alias: formatAlias(variable, config),
-    original: match.original,
-    unit: match.value?.includes('var(') ? '' : match.variable.unit,
-    value: match.value,
+    original: match.variable?.original,
+    unit,
+    value,
   }
 }
 
