@@ -142,18 +142,19 @@ function findVariableByName(name, tokens, variables) {
   /**
    * Iterate over name object to create array of formatted objects.
    */
-  Object.entries(objectToSearch).forEach(([key, value]) => {
-    if (!value.value && !value.type) {
-      Object.entries(value).forEach(([subKey, subValue]) => {
+  Object.entries(objectToSearch).forEach(([key, valueObject]) => {
+    if (!valueObject.value && !valueObject.type) {
+      Object.entries(valueObject).forEach(([subKey, subValueObject]) => {
         if (!config.layoutNames?.includes(convertStringToHandle(subKey, config))) {
           return
         }
 
         variables[formattedName].push(
           formatVariable({
-            name: `${key}${config.delimiter}${subKey}`,
+            group: key,
+            name: subKey,
             type: formattedName,
-            value: subValue,
+            valueObject: subValueObject,
           }),
         )
       })
@@ -162,7 +163,11 @@ function findVariableByName(name, tokens, variables) {
     }
 
     variables[formattedName].push(
-      formatVariable({ name: key, type: formattedName, value }),
+      formatVariable({
+        name: key,
+        type: formattedName,
+        valueObject,
+      }),
     )
   })
 }
@@ -178,25 +183,14 @@ function findVariableByType(type, tokens, variables) {
   const objects = []
 
   Object.entries(tokens).forEach(([name, object]) => {
-    if (object.type === formattedType) {
-      objects.push({
-        group: false,
-        name,
-        ...object,
-      })
+    const typeObjects = getVariableTypeObject({ name, object, type: formattedType })
+    const typeObject = [...typeObjects]
+
+    if (!typeObject.length) {
+      return
     }
 
-    Object.entries(object).forEach(([subName, subObject]) => {
-      if (subObject.type !== formattedType) {
-        return
-      }
-
-      objects.push({
-        group: name,
-        name: subName,
-        ...subObject,
-      })
-    })
+    objects.push(...typeObject)
   })
 
   /**
@@ -220,7 +214,12 @@ function findVariableByType(type, tokens, variables) {
    */
   objects.forEach((object) => {
     variables[formattedType].push(
-      formatVariable({ name: object.name, type: formattedType, value: object }),
+      formatVariable({
+        group: object.group,
+        name: object.name,
+        type: formattedType,
+        valueObject: object,
+      }),
     )
   })
 }
@@ -235,57 +234,46 @@ function renameVariable(type) {
 }
 
 /**
- * Replaces aliases with actual colour value.
- * @param {String} key - Variable's group key.
- * @param {Number} index - Index of variable in variable's group.
- * @param {Object} [previousMatch] - Previous variable match if alias.
- * @param {Object} variable - Variable object.
- * @param {Array} variables - Formatted variables object.
+ * Look through objects until a type is found and push to object if it matches.
+ * @param {String} group - Group if not root object.
+ * @param {Array} name - Key of token (e.g. 'breakpoint).
+ * @param {Object} object - Token object.
+ * @param {String} type - Formatted type.
  */
-function replaceAlias({
-  key,
-  index,
-  previousMatch = false,
-  variable,
-  variables,
-} = {}) {
-  const object = previousMatch || variable
+function *getVariableTypeObject({ group = false, name, object, type } = {}) {
+  if (!object.type && !object.value) {
+    for (const [subName, subObject] of Object.entries(object)) {
+      yield* getVariableTypeObject({
+        group: name,
+        name: subName,
+        object: subObject,
+        type,
+      })
 
-  if (
-    typeof object.value !== 'string' ||
-    !object.value.includes('{')
-  ) {
+      continue
+    }
+  }
+
+  if (object.type !== type) {
     return
   }
 
-  const match = getAliasValue({
-    config,
-    key,
-    value: object.value,
-    variables,
-  })
-
-  /**
-   * Update variable.
-   * - Use original alias name for alias field.
-   */
-  variables[key][index] = {
-    ...variable,
-    alias: formatAlias(variable, config),
-    original: match.original,
-    unit: match.value?.includes('var(') ? '' : match.variable.unit,
-    value: match.value,
+  yield {
+    group,
+    name,
+    ...object,
   }
 }
 
 /**
  * Format property into variable object.
  * - Convert pixel value to rem where applicable.
+ * @param {String} group - Object group if not root object.
  * @param {String} name - Object name/key (e.g. 'xs').
  * @param {String} type - Type of property (e.g. 'breakpoint').
- * @param {Object} value - Object values.
+ * @param {Object} valueObject - Object values.
  */
-function formatVariable({ name, type, value: valueObject }) {
+function formatVariable({ group = false, name, type, valueObject }) {
   let unit = ''
 
   const handle = type === config.special.layout?.base
@@ -312,7 +300,7 @@ function formatVariable({ name, type, value: valueObject }) {
   /**
    * Create variable name.
    */
-  const variable = convertPropertyNameToVariable({ group: valueObject.group, name, type })
+  const variable = convertPropertyNameToVariable({ group, name, type })
 
   /**
    * Special behaviours.
@@ -533,6 +521,50 @@ function convertPropertyNameToVariable({ group = false, name, type } = {}) {
    * Return variable name.
    */
   return `${config.cssPrefix}${variable}`
+}
+
+/**
+ * Replaces aliases with actual colour value.
+ * @param {String} key - Variable's group key.
+ * @param {Number} index - Index of variable in variable's group.
+ * @param {Object} [previousMatch] - Previous variable match if alias.
+ * @param {Object} variable - Variable object.
+ * @param {Array} variables - Formatted variables object.
+ */
+function replaceAlias({
+  key,
+  index,
+  previousMatch = false,
+  variable,
+  variables,
+} = {}) {
+  const object = previousMatch || variable
+
+  if (
+    typeof object.value !== 'string' ||
+    !object.value.includes('{')
+  ) {
+    return
+  }
+
+  const match = getAliasValue({
+    config,
+    key,
+    value: object.value,
+    variables,
+  })
+
+  /**
+   * Update variable.
+   * - Use original alias name for alias field.
+   */
+  variables[key][index] = {
+    ...variable,
+    alias: formatAlias(variable, config),
+    original: match.original,
+    unit: match.value?.includes('var(') ? '' : match.variable.unit,
+    value: match.value,
+  }
 }
 
 /**
