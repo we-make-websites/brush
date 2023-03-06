@@ -496,6 +496,37 @@ function convertPropertyNameToVariable({ group = false, name, type } = {}) {
   }
 
   /**
+   * Walk through each part of the variable to make sure the same word isn't
+   * next to each other.
+   * - E.g. 'font-family-family-#' becomes 'font-family-#'.
+   * - Walk through in reverse as this will usually mean that a plural isn't
+   * - E.g. 'color-neutrals-neutral-#' becomes 'color-neutral-#'.
+   *   used in the variable.
+   * - Set lastWord to 'initialWord' to avoid S ordinals equalling blank after
+   *   they've been sliced.
+   */
+  let lastWord = 'initialWord'
+
+  variable = variable
+    .split(config.delimiter)
+    .reverse()
+    .map((word) => {
+      if (
+        word === lastWord ||
+        word === `${lastWord}s` ||
+        word === lastWord.slice(0, -1)
+      ) {
+        return false
+      }
+
+      lastWord = word
+      return word
+    })
+    .filter(Boolean)
+    .reverse()
+    .join(config.delimiter)
+
+  /**
    * Return variable name.
    */
   return `${config.cssPrefix}${variable}`
