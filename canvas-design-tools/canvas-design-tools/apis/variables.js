@@ -66,32 +66,7 @@ function findVariables(tokens) {
   /**
    * Sort variable objects in array.
    */
-  const presortingVariables = variables
-  const sortedKeys = Object.keys(presortingVariables).sort()
-  variables = {}
-
-  sortedKeys.forEach((key) => {
-    variables[key] = presortingVariables[key]
-  })
-
-  /**
-   * Sort variables to match sorting config.
-   * - If in sorting config then sort alphabetically by default.
-   * - If type has an array then match the sorting of that.
-   */
-  Object.entries(config.sorting).forEach(([name, value]) => {
-    if (!variables[name]) {
-      return
-    }
-
-    variables[name] = variables[name].sort((a, b) => {
-      if (Array.isArray(value)) {
-        return value.indexOf(a.name) - value.indexOf(b.name)
-      }
-
-      return a.variable.localeCompare(b.variable)
-    })
-  })
+  variables = sortVariables(variables)
 
   /**
    * Go through variables object to replace aliases with values.
@@ -151,7 +126,7 @@ function findVariableByName(name, tokens, variables) {
 
         variables[formattedName].push(
           formatVariable({
-            group: key,
+            group: convertStringToHandle(`${formattedName}${config.delimiter}${key}`, config),
             name: subKey,
             type: formattedName,
             valueObject: subValueObject,
@@ -323,7 +298,7 @@ function formatVariable({ group = false, name, type, valueObject }) {
 
   return {
     description: valueObject.description,
-    group: valueObject.group,
+    group: valueObject.group || group,
     handle,
     name: name.toLowerCase(),
     original,
@@ -521,6 +496,64 @@ function convertPropertyNameToVariable({ group = false, name, type } = {}) {
    * Return variable name.
    */
   return `${config.cssPrefix}${variable}`
+}
+
+/**
+ * Sort variables to match config.
+ * @param {Object} variables - Pre-sorted variables.
+ * @returns {Object}
+ */
+function sortVariables(variables) {
+  const presortedVariables = variables
+  const sortedKeys = Object.keys(presortedVariables).sort()
+  const sortedVariables = {}
+
+  sortedKeys.forEach((key) => {
+    sortedVariables[key] = presortedVariables[key]
+  })
+
+  /**
+   * Sort variables to match sorting config.
+   * - If in sorting config then sort alphabetically by default.
+   * - If type has an array then match the sorting of that.
+   */
+  Object.entries(config.sorting).forEach(([name, sorting]) => {
+    if (!sortedVariables[name]) {
+      return
+    }
+
+    sortedVariables[name] = sortedVariables[name].sort((a, b) => {
+      if (Array.isArray(sorting)) {
+        if (name !== config.special.layout?.base) {
+          return sorting.indexOf(a.name) - sorting.indexOf(b.name)
+        }
+
+        /**
+         * Layout multi-level sorting.
+         */
+        const aGroup = sorting.find((sort) => a.group.startsWith(sort))
+        const aIndex = sorting.indexOf(aGroup)
+        const bGroup = sorting.find((sort) => b.group.startsWith(sort))
+        const bIndex = sorting.indexOf(bGroup)
+
+        /**
+         * If index matches then sort alphabetically.
+         * - Splits off the matching sorting prefix.
+         */
+        if (aIndex === bIndex) {
+          const aToken = a.name.replace(aGroup, '')
+          const bToken = b.name.replace(bGroup, '')
+          return aToken.localeCompare(bToken)
+        }
+
+        return aIndex - bIndex
+      }
+
+      return a.variable.localeCompare(b.variable)
+    })
+  })
+
+  return sortedVariables
 }
 
 /**
