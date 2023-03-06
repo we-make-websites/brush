@@ -10,10 +10,10 @@
  * @returns {String}
  */
 module.exports = (string, config, isClass, parent = false) => {
-  const handle = string && string.replaceAll('+', 'Plus')
+  let handle = string && string.replaceAll('+', 'Plus')
 
-  if (string.match(/^\d*(?:XS|S|M|L|XL)$/gi)) {
-    return string.toLowerCase()
+  if (handle.match(/^\d*(?:XS|S|M|L|XL)$/gi)) {
+    handle = handle.toLowerCase()
   }
 
   if (isClass) {
