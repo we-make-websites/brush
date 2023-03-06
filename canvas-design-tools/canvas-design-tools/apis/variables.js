@@ -12,6 +12,7 @@ const { hideBin } = require('yargs/helpers')
 const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
 const convertStringToHandle = require('../helpers/convert-string-to-handle')
 const formatAlias = require('../helpers/format-alias')
+const getAliasValue = require('../helpers/get-alias-value')
 const getDesignConfig = require('../helpers/get-design-config')
 const hexRgb = require('../helpers/hex-rgb')
 const isExcludedAndNotIncluded = require('../helpers/is-excluded-not-included')
@@ -238,7 +239,6 @@ function renameVariable(type) {
  * @param {String} key - Variable's group key.
  * @param {Number} index - Index of variable in variable's group.
  * @param {Object} [previousMatch] - Previous variable match if alias.
- * @param {Array} values - Array of other values in variable's group.
  * @param {Object} variable - Variable object.
  * @param {Array} variables - Formatted variables object.
  */
@@ -246,7 +246,6 @@ function replaceAlias({
   key,
   index,
   previousMatch = false,
-  values,
   variable,
   variables,
 } = {}) {
@@ -259,39 +258,12 @@ function replaceAlias({
     return
   }
 
-  /**
-   * Find matching value in same values object.
-   */
-  const match = values.find((valueObject) => {
-    let name = valueObject.name
-
-    if (valueObject.group) {
-      name = `${valueObject.group} ${valueObject.name}`
-    }
-
-    return name === formatAlias(object, config)
+  const match = getAliasValue({
+    config,
+    key,
+    value: object.value,
+    variables,
   })
-
-  if (!match) {
-    return
-  }
-
-  /**
-   * If match is an alias itself then find original value using current match as
-   * the starting point.
-   */
-  if (match.value.includes('{')) {
-    replaceAlias({
-      key,
-      index,
-      previousMatch: match,
-      values,
-      variable,
-      variables,
-    })
-
-    return
-  }
 
   /**
    * Update variable.
@@ -301,7 +273,7 @@ function replaceAlias({
     ...variable,
     alias: formatAlias(variable, config),
     original: match.original,
-    unit: match.unit,
+    unit: match.value?.includes('var(') ? '' : match.variable.unit,
     value: match.value,
   }
 }
@@ -328,9 +300,10 @@ function formatVariable({ name, type, value: valueObject }) {
    * - Remove units from layout columns.
    * - Set unit for colours.
    */
-  if (typeof value === 'string' && value.includes('%')) {
-    unit = ''
-  } else if (handle === config.special.layout?.column) {
+  if (
+    (typeof value === 'string' && value.includes('%')) ||
+    handle === config.special.layout?.column
+  ) {
     unit = ''
   } else if (config.units[type] && config.units[type] !== 'rgb') {
     unit = config.units[type]
