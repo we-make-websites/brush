@@ -336,7 +336,7 @@ function formatVariable({ name, type, value: valueObject }) {
   return {
     description: valueObject.description,
     group: valueObject.group,
-    name,
+    name: name.toLowerCase(),
     original,
     unit,
     value,
