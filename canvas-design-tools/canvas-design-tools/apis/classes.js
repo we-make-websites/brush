@@ -269,7 +269,7 @@ function buildStyles(classes, variables, stylesheet) {
       /**
        * Find base scale variable.
        */
-      const baseScale = variables[config.special.baseScale.split('.')?.[0]]?.[0]
+      const baseScale = variables[config.special.baseScale.toLowerCase().split('.')?.[0]]?.[0]
 
       /**
        * Replace font size property with base scale variable.
