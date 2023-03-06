@@ -328,7 +328,7 @@ function formatVariable({ name, type, value: valueObject }) {
 
     case config.special.fontWeight:
       if (typeof value === 'string') {
-        value = config.fontWeights[value.toLowerCase()]
+        value = config.fontWeights[value.toLowerCase().replaceAll('\'', '')]
       }
       break
   }
