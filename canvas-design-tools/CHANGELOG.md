@@ -2,6 +2,11 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.0.0 - 2023-03-30
+
+* Updated to support new design tokens
+* Updated forms styleguide template
+
 ## 1.4.0 - 2023-02-28
 
 * Added support for utility stylesheets
