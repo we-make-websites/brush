@@ -587,19 +587,22 @@ function buildDefaultStyles({ className, properties }) {
   /**
    * Use mixins.
    */
-  content += `${formattedClassName} {\n`
+  content += `${formattedClassName},\n`
+  content += `${formattedClassName}-hover:hover {\n`
   content += `  @include ${className};\n\n`
 
   if (config.textTabletBreakpoint) {
     content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-    content += `    &-tablet.${className}-tablet {\n`
+    content += `    &-tablet.${className}-tablet,\n`
+    content += `    &-tablet-hover.${className}-tablet-hover:hover {\n`
     content += `      @include ${className};\n`
     content += `    }\n`
     content += `  }\n\n`
   }
 
   content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-  content += `    &-desktop.${className}-desktop {\n`
+  content += `    &-desktop.${className}-desktop,\n`
+  content += `    &-desktop-hover.${className}-desktop-hover:hover {\n`
   content += `      @include ${className};\n`
   content += `    }\n`
   content += `  }\n`
