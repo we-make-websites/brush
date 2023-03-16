@@ -585,26 +585,26 @@ function buildDefaultStyles({ className, properties }) {
   }
 
   /**
-   * Use mixins.
+   * Output text and hover classes.
    */
   content += `${formattedClassName},\n`
   content += `${formattedClassName}-hover:hover {\n`
-  content += `  @include ${className};\n\n`
+  content += `  @include ${className};\n`
+  content += `}\n\n`
 
   if (config.textTabletBreakpoint) {
     content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-    content += `    &-tablet.${className}-tablet,\n`
-    content += `    &-tablet-hover.${className}-tablet-hover:hover {\n`
-    content += `      @include ${className};\n`
-    content += `    }\n`
-    content += `  }\n\n`
+    content += `  ${formattedClassName}-tablet.${className}-tablet,\n`
+    content += `  ${formattedClassName}-tablet-hover:hover.${className}-tablet-hover:hover {\n`
+    content += `    @include ${className};\n`
+    content += `  }\n`
+    content += `}\n`
   }
 
-  content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-  content += `    &-desktop.${className}-desktop,\n`
-  content += `    &-desktop-hover.${className}-desktop-hover:hover {\n`
-  content += `      @include ${className};\n`
-  content += `    }\n`
+  content += `@include mq($from: ${config.breakpoint.desktop}) {\n`
+  content += `  ${formattedClassName}-desktop.${className}-desktop,\n`
+  content += `  ${formattedClassName}-desktop-hover:hover.${className}-desktop-hover:hover {\n`
+  content += `    @include ${className};\n`
   content += `  }\n`
   content += `}\n`
 
