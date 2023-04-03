@@ -1,6 +1,7 @@
 {% comment %}
 ------------------------------------------------------------------------------
   Section: <%= name %> (<%= handle %>)
+  - Limited interactivity section.
 ------------------------------------------------------------------------------
 {% endcomment %}
 {{ 'component.<%= handle %>.css' | asset_url | stylesheet_tag }}
@@ -10,6 +11,20 @@
   data-component-handle="<%= handle %>"
   data-component-type="<%= load %>"<%= customContent %>
 >
+  <div class="<%= handle %> critical-component-clear liquid">
+    <h2
+      id="section-title-{{ section.id }}"
+      class="<%= handle %>__title"
+    >
+      Title
+    </h2>
+  </div>
+
+  {% comment %}
+  -----------------------------------------------------------------------------
+    Load Vue component to initialise JS code.
+  -----------------------------------------------------------------------------
+  {% endcomment %}
   <<%= handle %>
     v-if="getComponentVisible('<%= handle %>')"
     v-cloak
@@ -17,22 +32,6 @@
       sectionId: {{ section.id | json | escape }}
     }"
   ></<%= handle %>>
-
-  {% comment %}
-  -----------------------------------------------------------------------------
-    Loading state.
-  -----------------------------------------------------------------------------
-  {% endcomment %}
-  <div v-if="!getComponentActive('<%= handle %>')">
-    <div class="<%= handle %> is-loading critical-component-clear liquid">
-      <h2
-        id="section-title-{{ section.id }}"
-        class="<%= handle %>__title"
-      >
-        Title
-      </h2>
-    </div>
-  </div>
 </section>
 
 {% schema '<%= handle %>' %}

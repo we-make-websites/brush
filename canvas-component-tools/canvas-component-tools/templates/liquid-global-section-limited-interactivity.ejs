@@ -1,7 +1,7 @@
 {% comment %}
 ------------------------------------------------------------------------------
   Section: <%= name %> (<%= handle %>)
-  - Static section.
+  - Limited interactivity section.
 ------------------------------------------------------------------------------
 {% endcomment %}
 <section
@@ -16,6 +16,19 @@
       Title
     </h2>
   </div>
+
+  {% comment %}
+  -----------------------------------------------------------------------------
+    Load Vue component to initialise JS code.
+  -----------------------------------------------------------------------------
+  {% endcomment %}
+  <<%= handle %>
+    v-if="getComponentVisible('<%= handle %>')"
+    v-cloak
+    :liquid="{
+      sectionId: {{ section.id | json | escape }}
+    }"
+  ></<%= handle %>>
 </section>
 
 {% schema '<%= handle %>' %}

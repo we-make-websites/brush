@@ -1,11 +1,5 @@
 <template>
-  <div class="<%= handle %> critical-component-hide">
-    <h2
-      :id="`section-title-${liquid.sectionId}`"
-      class="<%= handle %>__title"
-      v-text="$string('general.title')"
-    />
-  </div>
+  <div class="<%= handle %>" />
 </template>
 
 <script>
@@ -14,6 +8,7 @@
  * Vue: <%= name %> (<%= handle %>)
  * -----------------------------------------------------------------------------
  * <%= description %>
+ * - Limited interactivity section.
  *
  * @param {String} liquid.sectionId - Section's Liquid ID.
  *
@@ -22,12 +17,12 @@ export default {
   name: '<%= pascalCase %>',
 
   props: {
-    liquid: {
-      type: Object,
-      default: () => ({
-        sectionId: '',
-      }),
-    },
+    // liquid: {
+    //   type: Object,
+    //   default: () => ({
+    //     sectionId: '',
+    //   }),
+    // },
   },
 
   data() {
