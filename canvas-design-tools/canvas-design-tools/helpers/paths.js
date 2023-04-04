@@ -33,6 +33,7 @@ module.exports = {
   styles: {
     base: path.resolve(rootFolder, 'src', 'styles', 'base'),
     config: path.resolve(rootFolder, 'src', 'styles', 'config'),
+    helpers: path.resolve(rootFolder, 'src', 'styles', 'helpers'),
   },
   storybook: {
     assets: path.resolve(rootFolder, '.storybook', 'assets'),

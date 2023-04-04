@@ -6,6 +6,9 @@
  */
 const getDesignConfig = require('../helpers/get-design-config')
 const config = getDesignConfig()
+const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
+const convertStringToHandle = require('../helpers/convert-string-to-handle')
+const isExcludedAndNotIncluded = require('../helpers/is-excluded-not-included')
 
 /**
  * Find tokens by key and push formatted class object into object.
@@ -173,7 +176,7 @@ function formatProperties(value, variables) {
 
     const property = config.renameVariable[originalProperty]
       ? config.renameVariable[originalProperty]
-      : convertStringToHandle(originalProperty)
+      : convertStringToHandle(originalProperty, config)
 
     /**
      * Find variables object.
@@ -273,7 +276,7 @@ function buildStyles(classes, variables, stylesheet) {
    * Build CSS declarations.
    */
   Object.entries(classes).forEach(([key, value], index) => {
-    if (isExcludedAndNotIncluded(key, stylesheet)) {
+    if (isExcludedAndNotIncluded(key, stylesheet, config)) {
       return
     }
 
@@ -309,7 +312,7 @@ function buildCssDeclarations({ key, stylesheet, value }) {
   let content = `// ${convertCamelCaseToTitleCase(key)}\n`
 
   value.forEach(({ className, properties }, valueIndex) => {
-    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet)) {
+    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet, config)) {
       return
     }
 
@@ -379,7 +382,13 @@ function buildCriticalStyles({ className, properties }) {
 
   if (!defaultObject) {
     content += `${formattedClassName} {\n`
-    content += buildCssDeclarationBlock(properties)
+
+    if (className.includes(',')) {
+      content += buildCssDeclarationBlock(properties)
+    } else {
+      content += `  @include ${className};\n}\n`
+    }
+
     return content
   }
 
@@ -653,7 +662,7 @@ function outputBrandColours(type, variables) {
  * @returns {String}
  */
 function convertStringToClassName(string, parent = false, type) {
-  let className = convertStringToHandle(convertOrdinal(string), parent)
+  let className = convertStringToHandle(convertOrdinal(string), config, true, parent)
   const parts = className.split(config.delimiter)
 
   if (type === config.defaultsType && parts.length) {
@@ -665,32 +674,6 @@ function convertStringToClassName(string, parent = false, type) {
   }
 
   return className
-}
-
-/**
- * Convert a string into handle (kebab-case).
- * @param {String} string - String to convert.
- * @param {String|Boolean} [parent] - String parent to combine.
- * @returns {String}
- */
-function convertStringToHandle(string, parent = false) {
-  let handle = string && string.replaceAll('+', 'Plus')
-
-  handle = handle
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  if (!parent) {
-    return handle
-  }
-
-  const parentHandle = parent
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  return `${parentHandle}${config.delimiter}${handle}`
 }
 
 /**
@@ -711,79 +694,6 @@ function convertOrdinal(string) {
   const xCharacter = match[0].slice(0, 1)
 
   return string.replace(match[0], `${length}${xCharacter}`)
-}
-
-/**
- * Converts a camelCase to Title Case.
- * @param {String} string - String to convert.
- * @return {String}
- */
-function convertCamelCaseToTitleCase(string) {
-  let titleCase = string
-    .trim()
-    .replace(/(?<capitals>[A-Z])/g, ' $<capitals>')
-
-  titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1)
-
-  return titleCase.trim()
-}
-
-/**
- * Checks if key is excluded and not included.
- * - Can target specific values, e.g. 'text.text-body-m'.
- * - Used to determine if current key shouldn't be rendered.
- * - Returns true if key is excluded or is not included.
- * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
- * in format `[key].[className]`, e.g. 'text.text-body-m'.
- * @param {Object} stylesheet - Stylesheet object.
- * @returns {Boolean}
- */
-function isExcludedAndNotIncluded(key, stylesheet) {
-  if (stylesheet.include.length) {
-    const included = stylesheet.include.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[0]
-        : item
-
-      return test === key
-    })
-
-    return !included
-  }
-
-  if (stylesheet.exclude.length) {
-    const excluded = stylesheet.exclude.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[1]
-        : item
-
-      return test === key
-    })
-
-    return excluded
-  }
-
-  /**
-   * If critical stylesheet and matches default class name or html, body then
-   * include in stylesheet render.
-   * - Only check when in format `[key].[className]`.
-   */
-  if (key.includes('.') && stylesheet.handle === 'classes-critical') {
-    const included = Object.entries(config.defaults).some(([defaultName, defaultClassName]) => {
-      if (defaultName === 'button') {
-        return false
-      }
-
-      return (
-        `${config.defaultsType}.${config.special.htmlBody}` === key ||
-        `${config.defaultsType}.${defaultClassName}` === key
-      )
-    })
-
-    return !included
-  }
-
-  return false
 }
 
 /**
