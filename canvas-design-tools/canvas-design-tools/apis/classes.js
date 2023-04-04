@@ -6,6 +6,9 @@
  */
 const getDesignConfig = require('../helpers/get-design-config')
 const config = getDesignConfig()
+const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
+const convertStringToHandle = require('../helpers/convert-string-to-handle')
+const isExcludedAndNotIncluded = require('../helpers/is-excluded-not-included')
 
 /**
  * Find tokens by key and push formatted class object into object.
@@ -33,6 +36,46 @@ function findTokens(tokens, variables) {
      */
     iterateObject({ classes, object: tokens, type, variables })
   })
+
+  /**
+   * Sort typography into sorting order.
+   */
+  if (classes.typography && config.sorting.typography) {
+    const groupSorting = Object.keys(config.sorting.typography)
+
+    classes.typography = classes.typography.sort((a, b) => {
+      const aGroup = a.className.replace('text-', '').split('-')[0]
+      const bGroup = b.className.replace('text-', '').split('-')[0]
+
+      const aSize = a.className.replace('text-', '').split('-')[1]
+      const bSize = b.className.replace('text-', '').split('-')[1]
+
+      const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
+
+      /**
+       * If groups are equal then sort by size.
+       */
+      if (groupSort === 0) {
+        const sizeSorting = config.sorting.typography[aGroup]
+        const aSizeSort = sizeSorting.indexOf(aSize)
+        const bSizeSort = sizeSorting.indexOf(bSize)
+
+        /**
+         * If either don't exist in sizeSorting then sort alphabetically.
+         */
+        if (aSizeSort < 0 && bSizeSort < 0) {
+          return aSize.localeCompare(bSize)
+        }
+
+        return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
+      }
+
+      /**
+       * Sort group.
+       */
+      return groupSort
+    })
+  }
 
   /**
    * Return object.
@@ -133,7 +176,7 @@ function formatProperties(value, variables) {
 
     const property = config.renameVariable[originalProperty]
       ? config.renameVariable[originalProperty]
-      : convertStringToHandle(originalProperty)
+      : convertStringToHandle(originalProperty, config)
 
     /**
      * Find variables object.
@@ -189,7 +232,7 @@ function buildStyles(classes, variables, stylesheet) {
     classes[config.defaultsType][0].className !== config.special.htmlBody
   ) {
     const bodyObject = classes[config.defaultsType].find((object) => {
-      return object.description === config.defaults.body
+      return hasDefaultClass(object.className, config.defaults.body)
     })
 
     /**
@@ -233,7 +276,7 @@ function buildStyles(classes, variables, stylesheet) {
    * Build CSS declarations.
    */
   Object.entries(classes).forEach(([key, value], index) => {
-    if (isExcludedAndNotIncluded(key, stylesheet)) {
+    if (isExcludedAndNotIncluded(key, stylesheet, config)) {
       return
     }
 
@@ -261,25 +304,17 @@ function buildStyles(classes, variables, stylesheet) {
  * Build CSS declaration objects.
  * - Go through each value, e.g. 'text-body-m' and its properties.
  * @param {String} key - Type of class, e.g. 'text'.
- * @param {Array} value - Array of objects containing class, properties etc.
  * @param {Object} stylesheet - Stylesheet object.
+ * @param {Array} value - Array of objects containing class, properties etc.
  * @returns {String}
  */
 function buildCssDeclarations({ key, stylesheet, value }) {
   let content = `// ${convertCamelCaseToTitleCase(key)}\n`
 
-  value.forEach(({ className, description, properties }, valueIndex) => {
-    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet)) {
+  value.forEach(({ className, properties }, valueIndex) => {
+    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet, config)) {
       return
     }
-
-    /**
-     * Set class names.
-     * - Adds element if class name has been specified in config.
-     */
-    let formattedClassName = className.includes(',')
-      ? className
-      : `.${className}`
 
     /**
      * Add extra line to space declarations if not first.
@@ -289,110 +324,19 @@ function buildCssDeclarations({ key, stylesheet, value }) {
     }
 
     /**
-     * Find if description contains default string.
-     */
-    const defaultObject = Object.keys(config.defaults).find((defaultKey) => {
-      return defaultKey === description
-    })
-
-    /**
-     * Update class name if default object, and not html, body.
-     */
-    if (
-      defaultObject === 'body' &&
-      formattedClassName !== config.special.htmlBody
-    ) {
-      formattedClassName = `p, ${formattedClassName}`
-
-    } else if (defaultObject === 'link') {
-      formattedClassName = `a, ${formattedClassName}`
-    }
-
-    /**
-     * If setting html, body styles then override default mixin's font-size to
-     * use --scale-base variable.
-     * - This CSS variable is in pixels as we need to set the base font size so
-     *   that the REM units have the right scale.
-     */
-    let htmlBodyFontSize = false
-
-    if (formattedClassName === config.special.htmlBody) {
-      const fontSizeProperty = properties.find((object) => {
-        return object.property === config.special.fontSize
-      })
-
-      htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
-    }
-
-    /**
      * Output based on stylesheet handle.
      */
     switch (stylesheet.handle) {
       case 'classes-critical':
-        content += `${formattedClassName} {\n`
-
-        if (defaultObject) {
-          content += `  @include defaults-${description};\n`
-
-          if (htmlBodyFontSize) {
-            content += htmlBodyFontSize
-          }
-
-          content += '}\n'
-          return
-        }
-
-        content += buildCssDeclarationBlock(properties)
+        content += buildCriticalStyles({ className, properties })
         break
 
       case 'classes-mixins':
-        if (className.includes(',')) {
-          return
-        }
-
-        content += `@mixin ${className} {\n`
-        content += buildCssDeclarationBlock(properties)
-
-        /**
-         * Re-use mixin as default mixin based on descriptions.
-         */
-        Object.entries(config.defaults).forEach(([defaultName, defaultDescription]) => {
-          if (description !== defaultDescription) {
-            return
-          }
-
-          content += `\n@mixin defaults-${defaultName} {\n`
-          content += `  @include ${className};\n`
-          content += `}\n`
-        })
-
+        content += buildMixinStyles({ className, properties })
         break
 
       default:
-        if (className.includes(',')) {
-          content += `${formattedClassName} {\n`
-          content += buildCssDeclarationBlock(properties)
-          return
-        }
-
-        content += `${formattedClassName} {\n`
-        content += `  @include ${className};\n\n`
-
-        if (config.textTabletBreakpoint) {
-          content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-          content += `    &-tablet.${className}-tablet {\n`
-          content += `      @include ${className};\n`
-          content += `    }\n`
-          content += `  }\n\n`
-        }
-
-        content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-        content += `    &-desktop.${className}-desktop {\n`
-        content += `      @include ${className};\n`
-        content += `    }\n`
-        content += `  }\n`
-        content += `}\n`
-
+        content += buildDefaultStyles({ className, properties })
         break
     }
   })
@@ -400,6 +344,235 @@ function buildCssDeclarations({ key, stylesheet, value }) {
   /**
    * Return stylesheet.
    */
+  return content
+}
+
+/**
+ * Build critical stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildCriticalStyles({ className, properties }) {
+  let content = ''
+
+  let formattedClassName = className.includes(',')
+    ? className
+    : `.${className}`
+
+  /**
+   * Build html, body declaration.
+   */
+  if (formattedClassName === config.special.htmlBody) {
+    content += buildCriticalDefaultDeclaration({
+      defaultName: 'body',
+      formattedClassName,
+      properties,
+    })
+
+    return content
+  }
+
+  /**
+   * Build critical styles that don't have a default class.
+   */
+  const defaultObject = Object.values(config.defaults).find((defaultClassname) => {
+    return hasDefaultClass(className, defaultClassname)
+  })
+
+  if (!defaultObject) {
+    content += `${formattedClassName} {\n`
+
+    if (className.includes(',')) {
+      content += buildCssDeclarationBlock(properties)
+    } else {
+      content += `  @include ${className};\n}\n`
+    }
+
+    return content
+  }
+
+  /**
+   * Keep track of which defaults have been rendered.
+   */
+  const defaults = []
+
+  /**
+   * Go through each default and see if it's in the class.
+   * - Output each default if it exists.
+   */
+  Object.entries(config.defaults).forEach(([defaultName, defaultClassName]) => {
+    if (
+      !hasDefaultClass(className, defaultClassName) ||
+      defaults.includes(defaultClassName)
+    ) {
+      return
+    }
+
+    if (hasDefaultClass(className, config.defaults.link)) {
+      formattedClassName = `a, ${formattedClassName}`
+      defaults.push(config.defaults.link)
+    }
+
+    if (hasDefaultClass(className, config.defaults.body)) {
+      formattedClassName = `p, ${formattedClassName}`
+      defaults.push(config.defaults.body)
+    }
+
+    content += buildCriticalDefaultDeclaration({
+      defaultName,
+      formattedClassName,
+      properties,
+    })
+  })
+
+  return content
+}
+
+/**
+ * Build critical stylesheet default declarations.
+ * @param {String} defaultName - Default class name.
+ * @param {String} formattedClassName - Declaration class name.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildCriticalDefaultDeclaration({ defaultName, formattedClassName, properties }) {
+  let content = ''
+
+  /**
+   * If setting html, body styles then override default mixin's font-size to
+   * use --scale-base variable.
+   * - This CSS variable is in pixels as we need to set the base font size so
+   *   that the REM units have the right scale.
+   */
+  let htmlBodyFontSize = false
+
+  if (formattedClassName === config.special.htmlBody) {
+    const fontSizeProperty = properties.find((object) => {
+      return object.property === config.special.fontSize
+    })
+
+    htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
+  }
+
+  content += `${formattedClassName} {\n`
+  content += `  @include defaults-${defaultName};\n`
+
+  if (htmlBodyFontSize) {
+    content += htmlBodyFontSize
+  }
+
+  content += '}\n'
+
+  return content
+}
+
+/**
+ * Build mixins stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildMixinStyles({ className, properties }) {
+  let content = ''
+
+  if (className.includes(',')) {
+    return content
+  }
+
+  content += `@mixin ${className} {\n`
+  content += buildCssDeclarationBlock(properties)
+
+  /**
+   * Re-use mixin as default mixin based on class names.
+   * - Don't render defaults-link mixin if it's the same as defaults-body.
+   */
+  Object.entries(config.defaults).forEach(([defaultName, defaultClassName]) => {
+    if (
+      !hasDefaultClass(className, defaultClassName) ||
+      (
+        config.defaults.body === config.defaults.link &&
+        defaultName === 'link'
+      )
+    ) {
+      return
+    }
+
+    content += `\n@mixin defaults-${defaultName} {\n`
+    content += `  @include ${className};\n`
+    content += `}\n`
+  })
+
+  return content
+}
+
+/**
+ * Build default stylesheet styles.
+ * @param {String} className - Class name of declaration.
+ * @param {Array} properties - Array of CSS properties and values.
+ * @returns {String}
+ */
+function buildDefaultStyles({ className, properties }) {
+  let content = ''
+
+  /**
+   * Set class names.
+   * - Adds element if class name has been specified in config.
+   */
+  let formattedClassName = className.includes(',')
+    ? className
+    : `.${className}`
+
+  /**
+   * Find if class contains default class.
+   */
+  const defaultObject = Object.values(config.defaults).find((defaultClassName) => {
+    return hasDefaultClass(className, defaultClassName)
+  })
+
+  /**
+   * Update class name if default object, and not html, body.
+   */
+  if (formattedClassName !== config.special.htmlBody) {
+    if (hasDefaultClass(defaultObject, config.defaults.link)) {
+      formattedClassName = `a, ${formattedClassName}`
+    }
+
+    if (hasDefaultClass(defaultObject, config.defaults.body)) {
+      formattedClassName = `p, ${formattedClassName}`
+    }
+  }
+
+  /**
+   * Output no responsive styles if it contains a comma in class name.
+   */
+  if (className.includes(',')) {
+    content += `${formattedClassName} {\n`
+    content += buildCssDeclarationBlock(properties)
+    return content
+  }
+
+  /**
+   * Use mixins.
+   */
+  content += `${formattedClassName} {\n`
+  content += `  @include ${className};\n\n`
+
+  if (config.textTabletBreakpoint) {
+    content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
+    content += `    &-tablet.${className}-tablet {\n`
+    content += `      @include ${className};\n`
+    content += `    }\n`
+    content += `  }\n\n`
+  }
+
+  content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
+  content += `    &-desktop.${className}-desktop {\n`
+  content += `      @include ${className};\n`
+  content += `    }\n`
+  content += `  }\n`
+  content += `}\n`
+
   return content
 }
 
@@ -489,7 +662,7 @@ function outputBrandColours(type, variables) {
  * @returns {String}
  */
 function convertStringToClassName(string, parent = false, type) {
-  let className = convertStringToHandle(convertOrdinal(string), parent)
+  let className = convertStringToHandle(convertOrdinal(string), config, true, parent)
   const parts = className.split(config.delimiter)
 
   if (type === config.defaultsType && parts.length) {
@@ -501,32 +674,6 @@ function convertStringToClassName(string, parent = false, type) {
   }
 
   return className
-}
-
-/**
- * Convert a string into handle (kebab-case).
- * @param {String} string - String to convert.
- * @param {String|Boolean} [parent] - String parent to combine.
- * @returns {String}
- */
-function convertStringToHandle(string, parent = false) {
-  let handle = string && string.replaceAll('+', 'Plus')
-
-  handle = handle
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  if (!parent) {
-    return handle
-  }
-
-  const parentHandle = parent
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  return `${parentHandle}${config.delimiter}${handle}`
 }
 
 /**
@@ -550,56 +697,13 @@ function convertOrdinal(string) {
 }
 
 /**
- * Converts a camelCase to Title Case.
- * @param {String} string - String to convert.
- * @return {String}
- */
-function convertCamelCaseToTitleCase(string) {
-  let titleCase = string
-    .trim()
-    .replace(/(?<capitals>[A-Z])/g, ' $<capitals>')
-
-  titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1)
-
-  return titleCase.trim()
-}
-
-/**
- * Checks if key is excluded and not included.
- * - Can target specific values, e.g. 'text.text-body-m'.
- * - Used to determine if current key shouldn't be rendered.
- * - Returns true if key is excluded or is not included.
- * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
- * in format `[key].[className]`, e.g. 'text.text-body-m'.
- * @param {Object} stylesheet - Stylesheet object.
+ * Tests if class matches a default class.
+ * @param {String} className - Token class name.
+ * @param {String} defaultClassName - Default class to check.
  * @returns {Boolean}
  */
-function isExcludedAndNotIncluded(key, stylesheet) {
-  if (stylesheet.include.length) {
-    const included = stylesheet.include.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[0]
-        : item
-
-      return test === key
-    })
-
-    return !included
-  }
-
-  if (stylesheet.exclude.length) {
-    const excluded = stylesheet.exclude.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[1]
-        : item
-
-      return test === key
-    })
-
-    return excluded
-  }
-
-  return false
+function hasDefaultClass(className, defaultClassName) {
+  return className === defaultClassName
 }
 
 /**

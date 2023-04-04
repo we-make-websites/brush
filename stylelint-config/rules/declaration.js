@@ -1,5 +1,20 @@
 /* eslint-disable max-len */
 
+const message = (rule, unit) => {
+  switch (rule) {
+    case 'animation':
+      return `Do not use "${unit}" by itself, add timing and easing`
+    case 'border':
+      return `Do not use "${unit}", instead use "0" as the value`
+    case 'letter-spacing':
+      return `Do not use "${unit}" units, use "em" or "px" units`
+    case 'line-height':
+      return `Do not use "${unit}" units, instead use "%" or decimal values`
+  }
+
+  return 'Error'
+}
+
 module.exports = {
   // Disallow duplicate properties within declaration blocks.
   'declaration-block-no-duplicate-properties': true,
@@ -43,15 +58,17 @@ module.exports = {
       'letter-spacing': ['rem'],
       'line-height': ['px', 'rem'],
     },
+    { message },
   ],
   // Specify a list of allowed property and unit pairs within declarations.
   'declaration-property-unit-allowed-list': null,
   // Specify a list of disallowed property and value pairs within declarations.
   'declaration-property-value-disallowed-list': [
     {
-      '/^animation/': ['linear'],
+      animation: ['linear'],
       '/^border$/': ['none'],
     },
+    { message },
   ],
   // Specify a list of allowed property and value pairs within declarations.
   'declaration-property-value-allowed-list': {},

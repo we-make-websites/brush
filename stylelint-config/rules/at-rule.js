@@ -1,8 +1,19 @@
 /* eslint-disable max-len */
 
+const message = (rule) => {
+  switch (rule) {
+    case 'debug':
+    case 'error':
+    case 'warn':
+      return 'Do not use debugging at-rules in SCSS'
+  }
+
+  return 'Error'
+}
+
 module.exports = {
   // Specify a list of disallowed at-rules.
-  'at-rule-disallowed-list': ['debug'],
+  'at-rule-disallowed-list': [['debug', 'error', 'warn'], { message }],
   // Require or disallow an empty line before @rules.
   'at-rule-empty-line-before': null,
   // Specify lowercase or uppercase for at-rules names.
