@@ -5,7 +5,6 @@
  * Creates schema documentation files.
  *
  */
-/* eslint-disable no-await-in-loop */
 const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const { NodeHtmlMarkdown } = require('node-html-markdown')
@@ -36,16 +35,24 @@ const templatePath = fs.existsSync(Paths.templates.project)
 function init() {
   return new Promise(async(resolve, reject) => {
     try {
-
       Tny.message([
         Tny.colour('bgCyan', 'Basis Schema Docs v{{docs version}}'),
         Tny.colour('bgCyan', 'Create documentation'),
       ], { empty: true })
 
+      /**
+       * Create folder.
+       */
       await fs.emptyDir(Paths.documentation)
 
+      /**
+       * Ask template question.
+       */
       const template = argv.template ? argv.template : await styleQuestion()
 
+      /**
+       * Create documentation.
+       */
       const start = performance.now()
       const schemas = await getSchemas()
       templates = await getTemplates(templatePath, template)
@@ -103,11 +110,13 @@ function styleQuestion() {
 /**
  * Uses templates to create files and write them.
  * @param {Array} schemas - Array of all schema paths.
- * @returns {Array}
+ * @returns {Promise}
  */
 function createFiles(schemas) {
   return new Promise(async(resolve, reject) => {
     try {
+      const queue = []
+
       for (const schemaPath of schemas) {
         const handle = schemaPath
           .split(/[\\/]{1,2}/g)
@@ -122,9 +131,10 @@ function createFiles(schemas) {
         }
 
         const fileContents = buildDocumentationTemplate(schema)
-        await writeFile(fileContents, filepath)
+        queue.push(writeFile(fileContents, filepath))
       }
 
+      await Promise.all(queue)
       resolve()
 
     } catch (error) {
@@ -292,6 +302,8 @@ function buildGroupsTemplate(groups, type = 'section') {
       }).join('')
 
       template = tagReplace(template, 'setting', settingsTemplate)
+    } else {
+      template = tagReplace(template, 'setting', '')
     }
 
     /**
