@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-component-tools",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Component command line tool to create components.",
   "repository": "https://bitbucket.org/we-make-websites/canvas-component-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",

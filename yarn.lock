@@ -291,10 +291,10 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
-"@we-make-websites/eslint-config@3.2.0-module":
-  version "3.2.0-module"
-  resolved "https://registry.yarnpkg.com/@we-make-websites/eslint-config/-/eslint-config-3.2.0-module.tgz#3751293baed59e0580f52243b0978c1597f2cb28"
-  integrity sha512-i25Xh73mcVq5VremjzadFpMUgjZNsHVDvjf4EbJF8oUv0KzlFN/UpphV2XHNodV0bCzxUi+TJDuVX9Y9zSwayA==
+"@we-make-websites/eslint-config@3.3.1-module":
+  version "3.3.1-module"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/eslint-config/3.3.1-module/95c402d4cab93cd6047f54591b38c7262d10ba29#95c402d4cab93cd6047f54591b38c7262d10ba29"
+  integrity sha512-BV5XN1iqMYTVrXaIsBptOEswM3wMpSE23ur3IZRI99+2Q1TRcVgHABxX1b85zgUPgJKrb5BTiY9APbVypyw+lQ==
   dependencies:
     eslint-plugin-vue "9.6.0"
     merge "2.1.1"
