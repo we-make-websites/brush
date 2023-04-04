@@ -494,10 +494,14 @@ function writeFile(content, filepath) {
 
         /**
          * Fix markdown conversion messing up nesting of options list.
+         * - Also removes escape characters as Notion no longer needs them.
          */
         markdown = markdown
           .replaceAll('         *', '        *')
           .replaceAll('              *', '          *')
+          .replaceAll('\\-', '-')
+          .replaceAll('\\[', '[')
+          .replaceAll('\\]', ']')
       }
 
       await fs.writeFile(filepath, markdown)
