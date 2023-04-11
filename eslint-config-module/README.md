@@ -1,6 +1,6 @@
-# 🔧 Eslint Config (Module)
+# 🔧 Eslint Config
 
-We Make Website's eslint rules and config for non-Webpack projects.
+We Make Website's eslint rules and config.
 
 ## Installation
 
