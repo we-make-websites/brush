@@ -2,7 +2,7 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
-## 1.3.0 - 2023-04-04
+## 1.3.0 - 2023-04-11
 
 * Added support for _settings_schema.js_ schema file
 * Fixed `<%= setting %>` being outputted for `paragraph` type setting objects
