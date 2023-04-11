@@ -2,7 +2,7 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
-## 1.3.0 - 2023-03-30
+## 1.3.0 - 2023-04-11
 
 * Added `disabled_on` property to async schema files to disable in header and footer section groups by default
 
