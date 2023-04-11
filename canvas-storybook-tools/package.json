@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-storybook-tools",
-  "version": "1.12.0",
+  "version": "1.13.0",
   "description": "Canvas Storybook tools for building Shopify compatible stories.",
   "repository": "https://bitbucket.org/we-make-websites/brush/src/master/canvas-storybook-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
