@@ -2,7 +2,7 @@
   "name": "@we-make-websites/brush",
   "version": "1.0.2",
   "description": "A collection of Basis and Canvas tools.",
-  "repository": "https://bitbucket.org/we-make-websites/brush",
+  "repository": "https://github.com/we-make-websites/brush",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "devDependencies": {
