@@ -37,7 +37,7 @@ module.exports = class StorybookIconShortcodePlugin {
       compilation.hooks.processAssets.tapAsync(
         {
           name: pluginName,
-          stage: Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+          stage: Compilation.PROCESS_ASSETS_STAGE_PRE_PROCESS,
         },
         async(assets, callback) => {
           await this.replaceIconShortcodes(compilation, assets)
