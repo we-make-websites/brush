@@ -6,6 +6,7 @@ Canvas Storybook Tools uses [semantic versioning](https://semver.org/).
 
 * Updated Storybook to version 7
 * Updated dependencies
+* Removed commands and helpers
 
 ## 1.13.0 - 2023-04-11
 
