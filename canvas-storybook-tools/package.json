@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-storybook-tools",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "Canvas Storybook tools for building Shopify compatible stories.",
   "repository": "https://github.com/we-make-websites/brush/src/master/canvas-storybook-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -20,8 +20,6 @@
     "postcss": "8.4.22",
     "postcss-loader": "7.2.4",
     "postcss-preset-env": "8.0.1",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
     "sass": "1.62.0",
     "sass-loader": "13.2.2",
     "style-loader": "3.3.2",
@@ -42,6 +40,8 @@
     "@storybook/vue3": "7.0.6",
     "@storybook/vue3-webpack5": "7.0.6",
     "@we-make-websites/tannoy": "1.12.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "storybook": "7.0.6",
     "storybook-addon-rtl-direction": "0.0.19"
   },
