@@ -2,7 +2,7 @@
 /**
  * Storybook: Watch
  * -----------------------------------------------------------------------------
- * Runs `start-storybook` for local development.
+ * Runs `storybook dev` for local development.
  *
  * Reference:
  * https://stackoverflow.com/a/43477289
@@ -18,7 +18,8 @@ const getVariablesUpdated = require('../helpers/get-variables-updated')
 /**
  * Execute commands in node.
  */
-const spawn = require('child_process').spawn
+const util = require('util')
+const exec = util.promisify(require('child_process').exec)
 
 /**
  * Set flags.
@@ -46,17 +47,9 @@ async function init() {
   }
 
   /**
-   * Windows spawn commands don't use alias like in Terminal.
-   * https://stackoverflow.com/a/17537559
-   */
-  const command = process.platform === 'win32'
-    ? 'start-storybook.cmd'
-    : 'start-storybook'
-
-  /**
    * Watch storybook.
    */
-  spawn(command, ['--quiet', `-p ${port}`], { stdio: 'inherit' })
+  await exec(`storybook dev --quiet -p ${port}`)
 }
 
 /**
@@ -66,7 +59,7 @@ function logBanner() {
   Tny.message([
     Tny.colour('bgCyan', `Canvas storybook tools v${version}`),
     Tny.colour('bgCyan', 'Watch command'),
-    Tny.colour('bgCyan', `Running start-storybook --quiet --port ${port}`),
+    Tny.colour('bgCyan', `Running storybook dev --quiet --port ${port}`),
   ], { empty: true })
 }
 

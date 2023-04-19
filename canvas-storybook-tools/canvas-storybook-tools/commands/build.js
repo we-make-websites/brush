@@ -2,7 +2,7 @@
 /**
  * Storybook: Build
  * -----------------------------------------------------------------------------
- * Runs `build-storybook` then organises files to be Shopify compatible.
+ * Runs `storybook build` then organises files to be Shopify compatible.
  *
  */
 /* eslint-disable no-console */
@@ -74,7 +74,7 @@ async function init() {
      * Build storybook (debug mode).
      */
     if (argv.debug) {
-      exec('build-storybook --output-dir storybook', (error, stdout, stderror) => {
+      exec('storybook build --output-dir storybook', (error, stdout, stderror) => {
         if (error) {
           Tny.spinner.stop('error')
           console.log(error)
@@ -93,7 +93,7 @@ async function init() {
     /**
      * Build storybook (normally).
      */
-    await exec('build-storybook --output-dir storybook')
+    await exec('storybook build --output-dir storybook')
     await processFiles()
 
     const end = performance.now()
@@ -113,7 +113,7 @@ function logBanner() {
   const messages = [
     Tny.colour('bgCyan', `Canvas storybook tools v${version}`),
     Tny.colour('bgCyan', 'Build command'),
-    Tny.colour('bgCyan', 'Running build-storybook --output-dir storybook'),
+    Tny.colour('bgCyan', 'Running storybook build --output-dir storybook'),
   ]
 
   if (argv.debug) {
