@@ -34,47 +34,19 @@ function findTokens(tokens, variables) {
     /**
      * Iterate over type object to create array of formatted objects.
      */
-    iterateObject({ classes, object: tokens, type, variables })
+    iterateObject({
+      classes,
+      object: tokens,
+      type,
+      variables,
+    })
   })
 
   /**
    * Sort typography into sorting order.
    */
   if (classes.typography && config.sorting.typography) {
-    const groupSorting = Object.keys(config.sorting.typography)
-
-    classes.typography = classes.typography.sort((a, b) => {
-      const aGroup = a.className.replace('text-', '').split('-')[0]
-      const bGroup = b.className.replace('text-', '').split('-')[0]
-
-      const aSize = a.className.replace('text-', '').split('-')[1]
-      const bSize = b.className.replace('text-', '').split('-')[1]
-
-      const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
-
-      /**
-       * If groups are equal then sort by size.
-       */
-      if (groupSort === 0) {
-        const sizeSorting = config.sorting.typography[aGroup]
-        const aSizeSort = sizeSorting.indexOf(aSize)
-        const bSizeSort = sizeSorting.indexOf(bSize)
-
-        /**
-         * If either don't exist in sizeSorting then sort alphabetically.
-         */
-        if (aSizeSort < 0 && bSizeSort < 0) {
-          return aSize.localeCompare(bSize)
-        }
-
-        return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
-      }
-
-      /**
-       * Sort group.
-       */
-      return groupSort
-    })
+    classes.typography = sortTypography(classes.typography)
   }
 
   /**
@@ -94,7 +66,16 @@ function findTokens(tokens, variables) {
 function iterateObject({ classes, object, parent, type, variables }) {
   Object.entries(object).forEach(([name, value]) => {
     if (!value.type) {
-      iterateObject({ classes, object: value, parent: name, type, variables })
+      const newParent = parent ? `${parent}${config.delimiter}${name}` : name
+
+      iterateObject({
+        classes,
+        object: value,
+        parent: newParent,
+        type,
+        variables,
+      })
+
       return
     }
 
@@ -102,7 +83,13 @@ function iterateObject({ classes, object, parent, type, variables }) {
       return
     }
 
-    classes[type].push(formatClass({ name, parent, type, value, variables }))
+    classes[type].push(formatClass({
+      name,
+      parent,
+      type,
+      value,
+      variables,
+    }))
   })
 }
 
@@ -142,7 +129,7 @@ function formatClass({
 function formatProperties(value, variables) {
 
   /**
-   * OriginalProperty: fontFamily, textCase etc.
+   * OriginalProperty: fontFamilies, textCase etc.
    * Alias: {font-family.sans}, {text-case.none} etc.
    */
   return Object.entries(value).map(([originalProperty, alias]) => {
@@ -182,7 +169,7 @@ function formatProperties(value, variables) {
      * Find variables object.
      */
     const variableObject = variables[property]?.find((object) => {
-      return object.name === name
+      return object.name.toLowerCase() === name.toLowerCase()
     })
 
     if (!variableObject) {
@@ -214,6 +201,48 @@ function formatProperties(value, variables) {
 }
 
 /**
+ * Sort typography classes.
+ * @param {Array} typography - Typography classes to sort.
+ * @returns {Array}
+ */
+function sortTypography(typography) {
+  const groupSorting = Object.keys(config.sorting.typography)
+
+  return typography.sort((a, b) => {
+    const aGroup = a.className.replace('text-', '').split('-')[0]
+    const bGroup = b.className.replace('text-', '').split('-')[0]
+
+    const aSize = a.className.replace('text-', '').split('-')[1]
+    const bSize = b.className.replace('text-', '').split('-')[1]
+
+    const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
+
+    /**
+     * If groups are equal then sort by size.
+     */
+    if (groupSort === 0 && config.sorting.typography[aGroup]) {
+      const sizeSorting = config.sorting.typography[aGroup]
+      const aSizeSort = sizeSorting.indexOf(aSize)
+      const bSizeSort = sizeSorting.indexOf(bSize)
+
+      /**
+       * If either don't exist in sizeSorting then sort alphabetically.
+       */
+      if (aSizeSort < 0 && bSizeSort < 0) {
+        return aSize.localeCompare(bSize)
+      }
+
+      return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
+    }
+
+    /**
+     * Sort group.
+     */
+    return groupSort
+  })
+}
+
+/**
  * Build classes stylesheet content.
  * @param {Object} classes - Converted classes object.yarn
  * @param {Object} variables - Converted variables object.
@@ -229,47 +258,50 @@ function buildStyles(classes, variables, stylesheet) {
    */
   if (
     classes[config.defaultsType] &&
-    classes[config.defaultsType][0].className !== config.special.htmlBody
+    classes[config.defaultsType][0]?.className !== config.special.htmlBody
   ) {
     const bodyObject = classes[config.defaultsType].find((object) => {
       return hasDefaultClass(object.className, config.defaults.body)
     })
 
-    /**
-     * Find base scale variable.
-     */
-    const baseScale = variables[config.special.baseScale.split('.')[0]][0]
+    if (bodyObject) {
 
-    /**
-     * Replace font size property with base scale variable.
-     */
-    const fontSize = bodyObject.properties.find((property) => {
-      return property.property === config.special.fontSize
-    })
+      /**
+       * Find base scale variable.
+       */
+      const baseScale = variables[config.special.baseScale.toLowerCase().split('.')?.[0]]?.[0]
 
-    const fontSizeCopy = { ...fontSize }
-    fontSizeCopy.value = `var(${baseScale.variable})`
-    fontSizeCopy.variable = baseScale
+      /**
+       * Replace font size property with base scale variable.
+       */
+      const fontSize = bodyObject.properties.find((property) => {
+        return property.property === config.special.fontSize
+      })
 
-    /**
-     * Update properties array with new font size object.
-     */
-    const properties = bodyObject.properties.map((property) => {
-      if (property.property === config.special.fontSize) {
-        return fontSizeCopy
-      }
+      const fontSizeCopy = { ...fontSize }
+      fontSizeCopy.value = `var(${baseScale?.variable})`
+      fontSizeCopy.variable = baseScale
 
-      return property
-    })
+      /**
+       * Update properties array with new font size object.
+       */
+      const properties = bodyObject.properties.map((property) => {
+        if (property.property === config.special.fontSize) {
+          return fontSizeCopy
+        }
 
-    /**
-     * Add html, body class.
-     */
-    classes[config.defaultsType].unshift({
-      className: config.special.htmlBody,
-      description: bodyObject.description,
-      properties,
-    })
+        return property
+      })
+
+      /**
+       * Add html, body class.
+       */
+      classes[config.defaultsType].unshift({
+        className: config.special.htmlBody,
+        description: bodyObject.description,
+        properties,
+      })
+    }
   }
 
   /**
@@ -452,7 +484,7 @@ function buildCriticalDefaultDeclaration({ defaultName, formattedClassName, prop
       return object.property === config.special.fontSize
     })
 
-    htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
+    htmlBodyFontSize = `  font-size: ${fontSizeProperty?.value};\n`
   }
 
   content += `${formattedClassName} {\n`
@@ -553,23 +585,26 @@ function buildDefaultStyles({ className, properties }) {
   }
 
   /**
-   * Use mixins.
+   * Output text and hover classes.
    */
-  content += `${formattedClassName} {\n`
-  content += `  @include ${className};\n\n`
+  content += `${formattedClassName},\n`
+  content += `${formattedClassName}-hover:hover {\n`
+  content += `  @include ${className};\n`
+  content += `}\n\n`
 
   if (config.textTabletBreakpoint) {
     content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-    content += `    &-tablet.${className}-tablet {\n`
-    content += `      @include ${className};\n`
-    content += `    }\n`
-    content += `  }\n\n`
+    content += `  ${formattedClassName}-tablet.${className}-tablet,\n`
+    content += `  ${formattedClassName}-tablet-hover:hover.${className}-tablet-hover:hover {\n`
+    content += `    @include ${className};\n`
+    content += `  }\n`
+    content += `}\n`
   }
 
-  content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-  content += `    &-desktop.${className}-desktop {\n`
-  content += `      @include ${className};\n`
-  content += `    }\n`
+  content += `@include mq($from: ${config.breakpoint.desktop}) {\n`
+  content += `  ${formattedClassName}-desktop.${className}-desktop,\n`
+  content += `  ${formattedClassName}-desktop-hover:hover.${className}-desktop-hover:hover {\n`
+  content += `    @include ${className};\n`
   content += `  }\n`
   content += `}\n`
 
