@@ -4,16 +4,16 @@
  * Functions to update the terminal.
  *
  */
-import fs from 'fs-extra'
-import path from 'path'
-import Tny from '@we-make-websites/tannoy'
+const fs = require('fs-extra')
+const path = require('path')
+const Tny = require('@we-make-websites/tannoy')
 
 /**
  * Outputs banner.
  */
 function logBanner() {
   Tny.message([
-    Tny.colour('bgCyan', `Communique v${getPackageVersion()})`),
+    Tny.colour('bgCyan', `Communique v${getPackageVersion()}`),
     Tny.colour('bgCyan', 'Preview command'),
   ], { empty: true })
 }
