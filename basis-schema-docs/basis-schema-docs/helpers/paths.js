@@ -15,8 +15,7 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  */
 module.exports = {
   components: {
-    async: path.resolve(rootFolder, 'src', 'components', 'async'),
-    global: path.resolve(rootFolder, 'src', 'components', 'global'),
+    root: path.resolve(rootFolder, 'src', 'components'),
   },
   documentation: path.resolve(rootFolder, 'documentation'),
   schemas: {
