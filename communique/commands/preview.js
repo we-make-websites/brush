@@ -13,11 +13,14 @@ const Tny = require('@we-make-websites/tannoy')
 
 const messagesApi = require('../apis/messages')
 
+const getFilesInFolder = require('../helpers/get-files-in-folder')
 const Paths = require('../helpers/paths')
 
 /**
  * Set variables.
  */
+let firstRun = true
+
 const engine = new Liquid({
   extname: '.liquid',
   root: Paths.templates,
@@ -31,13 +34,15 @@ async function init() {
   const start = performance.now()
 
   try {
-    await renderLiquidTemplates()
-    const end = performance.now()
+    const content = await findTemplates()
+    const count = await renderTemplates(content)
 
-    Tny.message([
-      Tny.colour('green', '📨 Email templates created'),
-      Tny.time(start, end),
-    ])
+    if (firstRun) {
+      await renderIndexPage()
+    }
+
+    messagesApi.logBuild({ count, start })
+    firstRun = false
 
   } catch (error) {
     Tny.message([
@@ -48,35 +53,42 @@ async function init() {
 }
 
 /**
- * Renders Liquid templates.
+ * Finds Liquid templates.
  * @returns {Promise}
  */
-function renderLiquidTemplates() {
+function findTemplates() {
   return new Promise(async(resolve, reject) => {
-    await fs.ensureDir(Paths.dist)
-    let templates = []
-    let indexContext = {}
-
-    /**
-     * Find templates and index context.
-     */
     try {
-      templates = await fs.readdir(Paths.templates)
-      indexContext = require(Paths.context.index)
+      await fs.ensureDir(Paths.dist)
+      const filepaths = getFilesInFolder(Paths.templates, ['liquid'])
+      const indexContext = require(Paths.context.index)
+      resolve({ filepaths, indexContext })
 
     } catch (error) {
       reject(error)
-      return
     }
+  })
+}
 
-    /**
-     * Go through each template and parse Liquid based on associated context.
-     */
+/**
+ * Renders Liquid templates.
+ * - Go through each template and parse Liquid based on associated context.
+ * @param {Array} data.filepaths - Liquid template filepaths.
+ * @param {Object} data.indexContext - Context used in all templates.
+ * @returns {Promise}
+ */
+function renderTemplates({ filepaths, indexContext }) {
+  return new Promise(async(resolve, reject) => {
     try {
-      for (const filename of templates) {
-        const filepath = path.join(Paths.templates, filename)
+      let count = 0
+
+      for (const filepath of filepaths) {
+        const filename = filepath.split(path.sep).reverse()[0]
         const template = await fs.readFile(filepath, 'utf-8')
 
+        /**
+         * Find template specific context (if it exists).
+         */
         const contextFilepath = path.join(Paths.context.root, filename.replace('.liquid', '.js'))
         let context = {}
 
@@ -84,18 +96,86 @@ function renderLiquidTemplates() {
           context = require(contextFilepath)
         }
 
+        /**
+         * Use LiquidJS to parse and render Liquid in template.
+         * - Combines index and template-specific contexts.
+         */
         const output = await engine.parseAndRender(template, {
           ...indexContext,
           ...context,
         })
 
-        await fs.writeFile(
-          path.join(Paths.dist, 'order-confirmation.html'),
-          output,
-          'utf-8',
-        )
+        /**
+         * Write parsed file to dist/ folder.
+         */
+        const writeFilepath = path.join(Paths.dist, filename.replace('.liquid', '.html'))
+        await fs.writeFile(writeFilepath, output, 'utf-8')
+        count += 1
       }
 
+      resolve(count)
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Render index page for notification navigation.
+ * @returns {Promise}
+ */
+function renderIndexPage() {
+  return new Promise(async(resolve, reject) => {
+    const filepaths = getFilesInFolder(Paths.templates, ['liquid'])
+
+    /**
+     * Build objects from filepaths to reflect folder structure.
+     */
+    const structure = {}
+
+    for (const filepath of filepaths) {
+      const folderPath = filepath.replace(`${Paths.templates}${path.sep}`, '').split(path.sep)
+      const folder = folderPath[0]
+
+      if (!structure[folder]) {
+        const name = folder.replace('-', ' ')
+
+        structure[folder] = {
+          handle: folder,
+          name: `${name.slice(0, 1).toUpperCase()}${name.slice(1)}`,
+          paths: [],
+        }
+      }
+
+      structure[folder].paths.push({
+        distPath: path.join(Paths.dist, folderPath[1].replace('.liquid', '.html')),
+        filename: folderPath[1],
+        filepath,
+      })
+    }
+
+    /**
+     * Build HTML groups.
+     */
+    const groups = Object.values(structure).map((folder) => {
+      let template = `<h2>${folder.name}</h2>\n\n`
+      template += '    <ul>\n'
+
+      folder.paths.forEach((item) => {
+        template += `      <li><a href="${item.distPath}">${item.filename}</a>\n`
+      })
+
+      template += '    </ul>'
+
+      return template
+    }).join('\n\n    ')
+
+    try {
+      let contents = await fs.readFile(Paths.index, 'utf-8')
+      contents = contents.replace('<%= groups %>', groups)
+
+      await fs.writeFile(path.join(Paths.dist, 'index.html'), contents, 'utf-8')
       resolve()
 
     } catch (error) {

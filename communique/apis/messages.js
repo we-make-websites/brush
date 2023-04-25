@@ -34,8 +34,24 @@ function getPackageVersion() {
 }
 
 /**
+ * Outputs build banner.
+ * @param {Number} data.count - Number of templates compiled.
+ * @param {Number} data.start - Build start time.
+ */
+function logBuild({ count, start }) {
+  const end = performance.now()
+  const plural = count === 1 ? '' : 's'
+
+  Tny.message([
+    Tny.colour('green', `📨 ${count} email template${plural} created`),
+    Tny.time(start, end),
+  ])
+}
+
+/**
  * Export API.
  */
 module.exports = {
   logBanner,
+  logBuild,
 }

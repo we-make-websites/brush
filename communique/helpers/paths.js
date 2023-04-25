@@ -10,6 +10,7 @@ const path = require('path')
  * Set variables.
  */
 const rootFolder = path.resolve(path.dirname('./'))
+const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-websites', 'communique')
 
 /**
  * Export.
@@ -21,5 +22,6 @@ module.exports = {
     root: path.resolve(rootFolder, 'emails', 'context'),
   },
   dist: path.resolve(rootFolder, 'emails', 'dist'),
+  index: path.resolve(packageFolder, 'templates', 'index.ejs'),
   templates: path.resolve(rootFolder, 'emails', 'templates'),
 }
