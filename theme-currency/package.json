@@ -1,0 +1,13 @@
+{
+  "name": "@we-make-websites/theme-currency",
+  "version": "4.0.2",
+  "description": "A library that helps with managing currencies in Shopify Themes",
+  "repository": "https://github.com/we-make-websites/brush/src/master/theme-currency",
+  "author": "Shopify Inc. + Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "main": "theme-currency/currency.js",
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.17.0"
+  }
+}
