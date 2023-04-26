@@ -5,7 +5,6 @@
  * Creates schema documentation files.
  *
  */
-/* eslint-disable no-await-in-loop */
 const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const { NodeHtmlMarkdown } = require('node-html-markdown')
@@ -36,16 +35,24 @@ const templatePath = fs.existsSync(Paths.templates.project)
 function init() {
   return new Promise(async(resolve, reject) => {
     try {
-
       Tny.message([
         Tny.colour('bgCyan', 'Basis Schema Docs v{{docs version}}'),
         Tny.colour('bgCyan', 'Create documentation'),
       ], { empty: true })
 
+      /**
+       * Create folder.
+       */
       await fs.emptyDir(Paths.documentation)
 
+      /**
+       * Ask template question.
+       */
       const template = argv.template ? argv.template : await styleQuestion()
 
+      /**
+       * Create documentation.
+       */
       const start = performance.now()
       const schemas = await getSchemas()
       templates = await getTemplates(templatePath, template)
@@ -73,8 +80,14 @@ function init() {
 function styleQuestion() {
   return new Promise(async(resolve, reject) => {
     try {
-      const choices = fs.readdirSync(templatePath)
-      const index = choices.findIndex((choice) => choice === 'headings')
+      const folders = fs.readdirSync(templatePath)
+
+      const choices = [
+        { role: 'separator' },
+        ...folders.map((folder) => `${folder.slice(0, 1).toUpperCase()}${folder.slice(1)}`),
+      ]
+
+      const index = choices.findIndex((choice) => choice === 'Headings')
 
       const question = await prompt({
         choices,
@@ -103,11 +116,13 @@ function styleQuestion() {
 /**
  * Uses templates to create files and write them.
  * @param {Array} schemas - Array of all schema paths.
- * @returns {Array}
+ * @returns {Promise}
  */
 function createFiles(schemas) {
   return new Promise(async(resolve, reject) => {
     try {
+      const queue = []
+
       for (const schemaPath of schemas) {
         const handle = schemaPath
           .split(/[\\/]{1,2}/g)
@@ -116,21 +131,52 @@ function createFiles(schemas) {
 
         const filepath = path.join(Paths.documentation, `${handle}.${format}`)
         const schema = require(schemaPath)
+        let fileContents = ''
 
-        if (!schema.blocks?.length && !schema.settings?.length) {
+        if (handle === 'settings_schema') {
+          fileContents = buildSettingsSchemaTemplate(schema)
+        } else if (schema.blocks?.length || schema.settings?.length) {
+          fileContents = buildDocumentationTemplate(schema)
+        }
+
+        if (!fileContents) {
           continue
         }
 
-        const fileContents = buildDocumentationTemplate(schema)
-        await writeFile(fileContents, filepath)
+        queue.push(writeFile(fileContents, filepath))
       }
 
+      await Promise.all(queue)
       resolve()
 
     } catch (error) {
       reject(error)
     }
   })
+}
+
+/**
+ * Build markup for settings schema documentation.
+ * @param {Object} schema - Settings schema object.
+ * @returns {String}
+ */
+function buildSettingsSchemaTemplate(schema) {
+  const section = schema
+    .map((group, index) => {
+      if (index === 0) {
+        return false
+      }
+
+      return buildSectionTemplate(group, group.name)
+    })
+    .filter(Boolean)
+    .join('')
+
+  let template = tagReplace(templates.base, 'section', section)
+  template = tagReplace(template, 'blocks', '')
+  template = tagReplace(template, 'name', 'Theme')
+
+  return template
 }
 
 /**
@@ -160,10 +206,11 @@ function buildDocumentationTemplate(schema) {
 /**
  * Build markup for section template.
  * @param {Object} schema - Section schema object.
+ * @param {String} [name] - Output schema name.
  * @returns {String}
  */
-function buildSectionTemplate(schema) {
-  let template = tagReplace(templates.section, 'name', schema.name)
+function buildSectionTemplate(schema, name = 'Section') {
+  let template = tagReplace(templates.section, 'name', name)
 
   /**
    * Replace shortcodes.
@@ -292,6 +339,8 @@ function buildGroupsTemplate(groups, type = 'section') {
       }).join('')
 
       template = tagReplace(template, 'setting', settingsTemplate)
+    } else {
+      template = tagReplace(template, 'setting', '')
     }
 
     /**
