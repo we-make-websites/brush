@@ -43,7 +43,12 @@ module.exports = {
   // Disallow Sass variables that are used without interpolation with CSS features that use custom identifiers
   'scss/dollar-variable-no-missing-interpolation': true,
   // Specify a pattern for Sass-like variables
-  'scss/dollar-variable-pattern': null,
+  'scss/dollar-variable-pattern': [
+    '^[a-z][a-z0-9-]+$',
+    {
+      message: () => `Expected $variable name to be kebab-case`,
+    },
+  ],
   // Specify a pattern for %-placeholders
   'scss/percent-placeholder-pattern': null,
   // Require or disallow an empty line before //-comments

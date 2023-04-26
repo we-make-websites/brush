@@ -51,5 +51,7 @@ module.exports = {
     { message },
   ],
   // Specify a list of allowed property and value pairs within declarations
-  'declaration-property-value-allowed-list': {},
+  'declaration-property-value-allowed-list': null,
+  // Disallow unknown values for properties within declarations
+  'declaration-property-value-no-unknown': true,
 }

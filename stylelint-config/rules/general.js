@@ -30,7 +30,7 @@ module.exports = {
   ],
   // Disallow (unescaped) newlines in strings
   'string-no-newline': true,
-  // Minimum time in milliseconds
+  // Limit the minimum number of milliseconds for time values
   'time-min-milliseconds': 100,
   // Specify lowercase or uppercase for keywords values
   'value-keyword-case': 'lower',

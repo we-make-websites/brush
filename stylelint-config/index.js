@@ -14,14 +14,13 @@ module.exports = {
     },
   ],
   plugins: [
-    'stylelint-scss',
     'stylelint-order',
+    'stylelint-scss',
     'stylelint-stylistic',
   ],
   extends: [
     'stylelint-config-standard',
     'stylelint-config-standard-scss',
-    'stylelint-stylistic/config',
   ],
   rules: merge(
     require('./rules/at-rule'),
