@@ -1,15 +1,6 @@
 /* eslint-disable max-len */
 
 const atRule = {
-  // Require or disallow an empty line before @rules
-  'stylistic/at-rule-empty-line-before': [
-    'always',
-    {
-      except: ['first-nested'],
-      ignore: ['after-comment', 'blockless-after-same-name-blockless'],
-      ignoreAtRules: ['else', 'include', 'extend'],
-    },
-  ],
   // Specify lowercase or uppercase for at-rules names
   'stylistic/at-rule-name-case': 'lower',
   // Require a newline after at-rule names
