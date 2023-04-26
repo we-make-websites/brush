@@ -16,7 +16,10 @@ module.exports = {
       { type: 'at-rule', name: 'include', parameter: 'has-hover' },
       { type: 'at-rule', name: 'include', parameter: 'mq' },
     ],
-    { unspecified: 'ignore' },
+    {
+      disableFix: true,
+      unspecified: 'ignore',
+    },
   ],
   // https://github.com/hudochenkov/stylelint-order/tree/master/rules/properties-order
   'order/properties-order': null,
