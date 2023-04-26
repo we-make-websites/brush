@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 
 module.exports = {
-  // Require or disallow a leading zero for fractional numbers less than 1.
+  // Require or disallow a leading zero for fractional numbers less than 1
   'number-leading-zero': 'always',
-  // Limit the number of decimal places allowed in numbers.
+  // Limit the number of decimal places allowed in numbers
   'number-max-precision': 3,
-  // Disallow trailing zeros within numbers.
+  // Disallow trailing zeros within numbers
   'number-no-trailing-zeros': true,
 }
