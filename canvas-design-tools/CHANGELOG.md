@@ -5,6 +5,7 @@ Canvas Design Tools uses [semantic versioning](https://semver.org/).
 ## 2.1.0 - 2023-04-??
 
 * Added responsive layout variables to grid page
+* Updated styleguide styles to follow new stylelint rules
 
 ## 2.0.0 - 2023-04-11
 

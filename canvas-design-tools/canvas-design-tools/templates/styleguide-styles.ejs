@@ -5,18 +5,18 @@
  * - WarningMessage.
  *
  */
-// stylelint-disable block-closing-brace-newline-before, block-opening-brace-newline-after, block-opening-brace-newline-before, declaration-no-important, order/order, rule-empty-line-before, unit-disallowed-list
+// stylelint-disable declaration-no-important, order/order, rule-empty-line-before, stylistic/block-closing-brace-newline-before, stylistic/block-opening-brace-newline-after, stylistic/block-opening-brace-newline-before, stylistic/rule-empty-line-before, unit-disallowed-list
 
 @import '../../src/styles/config/configuration';
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+@import 'https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap';
 $size: 45px;
 
 :root {
-  --sb-styleguide-animation: rgb(128, 0, 255);
-  --sb-styleguide-border: rgb(230, 233, 236);
-  --sb-styleguide-light: rgb(170, 170, 170);
-  --sb-styleguide-token: rgb(229, 92, 172);
-  --sb-styleguide-token-border: rgba(229, 92, 172, 0.25);
+  --sb-styleguide-animation: rgb(128 0 255);
+  --sb-styleguide-border: rgb(230 233 236);
+  --sb-styleguide-light: rgb(170 170 170);
+  --sb-styleguide-token: rgb(229 92 172);
+  --sb-styleguide-token-border: rgb(229 92 172 / 25%);
   --sb-styleguide-element: 70px;
   --sb-group-table-title: 26%;
 }
@@ -218,7 +218,7 @@ abbr.sb-value {
   $parent: &;
 
   &__swatch {
-    background-color: rgb(255, 255, 255);
+    background-color: rgb(255 255 255);
     border-radius: 4px;
     height: var(--sb-styleguide-element);
     width: var(--sb-styleguide-element);
