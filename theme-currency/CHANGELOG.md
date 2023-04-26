@@ -2,6 +2,10 @@
 
 Theme Currency uses [semantic versioning](https://semver.org/).
 
+## 4.2.1 - 2023-04-26
+
+* Reduced minimum Node version to support Grau
+
 ## 4.2.0 - 2023-04-26
 
 * Added `amount_with_apostrophe_separator` support
