@@ -1,0 +1,34 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Section: <%= name %> (<%= handle %>)
+  - Limited interactivity section.
+------------------------------------------------------------------------------
+{% endcomment %}
+<section
+  aria-labelledby="section-title-{{ section.id }}"
+  data-component-handle="<%= handle %>"<%= customContent %>
+>
+  <div class="<%= handle %> critical-component-clear liquid">
+    <h2
+      id="section-title-{{ section.id }}"
+      class="<%= handle %>__title"
+    >
+      Title
+    </h2>
+  </div>
+
+  {% comment %}
+  -----------------------------------------------------------------------------
+    Load Vue component to initialise JS code.
+  -----------------------------------------------------------------------------
+  {% endcomment %}
+  <<%= handle %>
+    v-if="getComponentVisible('<%= handle %>')"
+    v-cloak
+    :liquid="{
+      sectionId: {{ section.id | json | escape }}
+    }"
+  ></<%= handle %>>
+</section>
+
+{% schema '<%= handle %>' %}

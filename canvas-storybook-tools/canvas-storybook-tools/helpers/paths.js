@@ -29,6 +29,7 @@ module.exports = {
   },
   favicon: path.resolve(rootFolder, './storybook', 'favicon.ico'),
   iframe: path.resolve(rootFolder, './storybook', 'iframe.html'),
+  icons: path.resolve(rootFolder, 'src', 'icons'),
   index: path.resolve(rootFolder, './storybook', 'index.html'),
   layout: {
     root: path.resolve(rootFolder, './storybook', 'layout'),
@@ -37,6 +38,7 @@ module.exports = {
   packageJson: '../../package.json',
   root: path.resolve(rootFolder, './storybook'),
   templates: {
+    giftCard: path.resolve(rootFolder, './storybook', 'templates', 'gift_card.liquid'),
     index: path.resolve(rootFolder, './storybook', 'templates', 'index.json'),
     root: path.resolve(rootFolder, './storybook', 'templates'),
   },

@@ -5,13 +5,14 @@
  *
  */
 /* eslint-disable array-bracket-newline */
-const Paths = require('@we-make-websites/basis/basis/helpers/paths')
+const Paths = require('./helpers/paths')
 
 /**
  * Ordinal sorting orders.
  */
 const screenOrdinals = ['mobile', 'tablet', 'desktop']
 const sizeOrdinals = ['4xs', '3xs', '2xs', 'xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl', '10xl']
+const sizeOrdinalsReverse = [...sizeOrdinals].reverse()
 const spacingOrdinals = ['tightest', 'tighter', 'tight', 'baseline', 'normal', 'loose', 'looser', 'loosest']
 const timingOrdinals = ['quickest', 'quicker', 'quick', 'normal', 'slow', 'slower', 'slowest', 'message']
 
@@ -64,7 +65,9 @@ module.exports = {
     'layer',
     'margin',
     'max-content-width',
+    'paragraphIndent',
     'scale',
+    'text-indent',
     'timing',
   ],
 
@@ -98,6 +101,7 @@ module.exports = {
     fontWeights: 'font-weight',
     letterSpacing: 'letter-spacing',
     lineHeights: 'line-height',
+    paragraphIndent: 'text-indent',
     textCase: 'text-transform',
     textDecoration: 'text-decoration',
   },
@@ -127,12 +131,13 @@ module.exports = {
     form: 'px',
     gutter: 'rem',
     header: 'px',
-    icon: 'rem',
+    icon: 'px',
     'letter-spacing': 'px',
     margin: 'rem',
     'max-content-width': 'rem',
     scale: 'px',
     spacing: 'rem',
+    'text-indent': 'px',
     timing: 's',
   },
 
@@ -164,6 +169,13 @@ module.exports = {
     margin: screenOrdinals,
     spacing: sizeOrdinals,
     timing: timingOrdinals,
+    typography: {
+      heading: sizeOrdinalsReverse,
+      body: [...sizeOrdinalsReverse, 'label'],
+      button: sizeOrdinalsReverse,
+      label: sizeOrdinalsReverse,
+      utility: sizeOrdinalsReverse,
+    },
   },
 
   /**
@@ -171,6 +183,18 @@ module.exports = {
    * 5. Configure typography settings.
    * ---------------------------------------------------------------------------
    */
+
+  /**
+   * Set default typography to be used for body text, links, and buttons.
+   * - Body sets styles for the html, body and .rte elements.
+   * - Button sets styles for default btn and Shopify challenge buttons.
+   * - Link sets styles for a elements.
+   */
+  defaults: {
+    body: 'text-body-m',
+    button: 'text-utility-button',
+    link: 'text-body-m-link',
+  },
 
   /**
    * Set fallback font stacks if not set by designer in token's description.
@@ -294,7 +318,7 @@ module.exports = {
 
   /**
    * ---------------------------------------------------------------------------
-   * . Configure file settings
+   * 8. Configure file settings
    * - You will rarely need to edit these.
    * ---------------------------------------------------------------------------
    */
@@ -326,11 +350,7 @@ module.exports = {
     classes: [
       {
         exclude: [],
-        include: [
-          'typography.html, body',
-          'typography.text-body-m',
-          'typography.text-body-m-link',
-        ],
+        include: [],
         name: 'Critical',
         handle: 'classes-critical',
         path: Paths.styles.base,
@@ -396,17 +416,6 @@ module.exports = {
   cssPrefix: '--',
 
   /**
-   * Define defaults which are values which have certain descriptions
-   * - Body sets styles for the html, body and .rte elements.
-   * - Button sets styles for default btn and Shopify challenge buttons.
-   */
-  defaults: {
-    body: 'body',
-    button: 'button',
-    link: 'link',
-  },
-
-  /**
    * Defaults type.
    * - The object that defaults are search for in.
    */
@@ -457,5 +466,6 @@ module.exports = {
     fontSize: 'font-size',
     fontWeight: 'font-weight',
     htmlBody: 'html, body',
+    lineHeight: 'line-height',
   },
 }

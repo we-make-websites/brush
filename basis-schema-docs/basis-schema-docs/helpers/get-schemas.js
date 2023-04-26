@@ -14,13 +14,11 @@ const Paths = require('../helpers/paths')
 function getSchemas() {
   return new Promise((resolve, reject) => {
     try {
-      const asyncSchemas = getFilesInFolder(Paths.components.async, ['schema.js'])
-      const globalSchemas = getFilesInFolder(Paths.components.global, ['schema.js'])
+      const componentSchemas = getFilesInFolder(Paths.components.root, ['schema.js'])
       const sectionSchemas = getFilesInFolder(Paths.schemas.root, ['js'])
 
       const schemas = [
-        ...asyncSchemas,
-        ...globalSchemas,
+        ...componentSchemas,
         ...sectionSchemas,
       ]
 

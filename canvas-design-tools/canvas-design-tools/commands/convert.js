@@ -14,6 +14,7 @@ const { hideBin } = require('yargs/helpers')
 
 const classApi = require('../apis/classes')
 const styleguideApi = require('../apis/styleguide')
+const utilitiesApi = require('../apis/utilities')
 const variableApi = require('../apis/variables')
 
 const getDesignConfig = require('../helpers/get-design-config')
@@ -24,11 +25,13 @@ const Paths = require('../helpers/paths')
  */
 const argv = yargs(hideBin(process.argv)).argv
 const config = getDesignConfig()
+let version = '{{canvas version}}'
 
 /**
  * Initialises the design functionality.
  */
 async function init() {
+  version = getPackageVersion()
   logBanner()
   const start = performance.now()
   const designPaths = getPaths()
@@ -53,9 +56,16 @@ async function init() {
 
   try {
     await writeVariablesStylesheets({ designPaths, fileMessages, variables })
-    await writeVariablesScripts(variables)
+    await writeUtilityStylesheets({ designPaths, fileMessages, variables })
     await writeClassesStylesheets({ classes, designPaths, fileMessages, variables })
-    await writeStyleguideContent({ classes, storybookFileMessages, variables })
+
+    if (argv.js !== false) {
+      await writeVariablesScripts({ fileMessages, variables })
+    }
+
+    if (argv.storybook !== false) {
+      await writeStyleguideContent({ classes, storybookFileMessages, variables })
+    }
 
   } catch (error) {
     Tny.message([
@@ -92,7 +102,7 @@ function writeVariablesStylesheets({ designPaths, fileMessages, variables }) {
           'utf-8',
         ))
 
-        fileMessages.push(`${stylesheet.name} variables stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
+        fileMessages.push(`${stylesheet.name} stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
       }
 
       await Promise.all(queue)
@@ -106,17 +116,73 @@ function writeVariablesStylesheets({ designPaths, fileMessages, variables }) {
 
 /**
  * Write variables scripts.
+ * @param {Array} fileMessages - File messages.
  * @param {Object} variables - Formatted variables.
  * @returns {Promise}
  */
-function writeVariablesScripts(variables) {
+function writeVariablesScripts({ fileMessages, variables }) {
   return new Promise(async(resolve, reject) => {
     try {
       await variableApi.buildScripts(variables)
+
+      config.scripts.forEach((script) => {
+        const scriptPath = argv.path
+          ? path.resolve(argv.path, `${script.filename}.js`)
+          : path.resolve(Paths.scripts.config, `${script.filename}.js`)
+
+        const action = fs.existsSync(scriptPath) ? 'updated' : 'created'
+
+        let scriptOutput = scriptPath.split(/src[/\\]/g)[1]
+        scriptOutput = path.join('src', scriptOutput)
+
+        fileMessages.push(
+          `${script.name} config script ${action} ${Tny.colour('brightBlack', `(${scriptOutput})`)}`,
+        )
+      })
+
       resolve()
 
     } catch (error) {
       reject({ error, message: 'Failed to write variables scripts' })
+    }
+  })
+}
+
+/**
+ * Write variables stylesheets.
+ * @param {Object} designPaths - Paths to write files to.
+ * @param {Array} fileMessages - File messages.
+ * @param {Object} variables - Formatted variables.
+ * @returns {Promise}
+ */
+function writeUtilityStylesheets({ designPaths, fileMessages, variables }) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      if (!config.utilities) {
+        resolve()
+        return
+      }
+
+      const queue = []
+
+      for (const stylesheet of config.utilities) {
+        const designPath = designPaths[stylesheet.handle]
+        const action = fs.existsSync(designPath.write) ? 'updated' : 'created'
+
+        queue.push(fs.writeFile(
+          designPath.write,
+          utilitiesApi.buildStyles(variables, stylesheet),
+          'utf-8',
+        ))
+
+        fileMessages.push(`${stylesheet.name} stylesheet ${action} ${Tny.colour('brightBlack', `(${designPath.output})`)}`)
+      }
+
+      await Promise.all(queue)
+      resolve()
+
+    } catch (error) {
+      reject({ error, message: 'Failed to write utilities stylesheets' })
     }
   })
 }
@@ -209,29 +275,12 @@ function writeStyleguideContent({ classes, storybookFileMessages, variables }) {
 
 /**
  * Output messaging.
+ * - Adds decorations first.
  * @param {Array} fileMessages - File messages.
  * @param {Number} start - Start time of command.
  * @param {Array} storybookFileMessages - Storybook file messages.
  */
 function outputMessaging({ fileMessages, start, storybookFileMessages }) {
-  config.scripts.forEach((script) => {
-    const scriptPath = argv.path
-      ? path.resolve(argv.path, `${script.filename}.js`)
-      : path.resolve(Paths.scripts.config, `${script.filename}.js`)
-
-    const action = fs.existsSync(scriptPath) ? 'updated' : 'created'
-
-    let scriptOutput = scriptPath.split(/src[/\\]/g)[1]
-    scriptOutput = path.join('src', scriptOutput)
-
-    fileMessages.push(
-      `${script.name} config script ${action} ${Tny.colour('brightBlack', `(${scriptOutput})`)}`,
-    )
-  })
-
-  /**
-   * Add decorations.
-   */
   const formattedFileMessages = fileMessages.map((message, index) => {
     const decoration = index === fileMessages.length - 1
       ? '└──'
@@ -253,18 +302,30 @@ function outputMessaging({ fileMessages, start, storybookFileMessages }) {
    */
   const end = performance.now()
 
-  Tny.message([
+  let messages = [
     Tny.colour('green', '📑 Variables files created'),
     Tny.colour('green', '🎨 Classes files created'),
-    Tny.colour('green', '📚 Storybook files created'),
+  ]
+
+  if (argv.storybook !== false) {
+    messages.push(Tny.colour('green', '📚 Storybook files created'))
+  }
+
+  messages = [
+    ...messages,
     Tny.time(start, end),
     '',
     Tny.colour('brightCyan', '📂 Canvas files'),
     ...formattedFileMessages,
-    '',
-    Tny.colour('brightCyan', '📂 Storybook files'),
-    ...formattedStorybookFileMessages,
-  ])
+  ]
+
+  if (argv.storybook !== false) {
+    messages.push('')
+    messages.push(Tny.colour('brightCyan', '📂 Storybook files'))
+    messages.push(...formattedStorybookFileMessages)
+  }
+
+  Tny.message(messages)
 }
 
 /**
@@ -275,12 +336,27 @@ function outputMessaging({ fileMessages, start, storybookFileMessages }) {
  */
 
 /**
+ * Get design tools package version.
+ * @returns {String}
+ */
+function getPackageVersion() {
+  const packagePath = path.resolve('node_modules', '@we-make-websites/canvas-design-tools/package.json')
+
+  if (!fs.existsSync(packagePath)) {
+    return '{{canvas version}}'
+  }
+
+  const toolPackage = require(packagePath)
+  return toolPackage.version
+}
+
+/**
  * Log banner to console.
  */
 function logBanner() {
   Tny.message([
-    Tny.colour('bgCyan', 'Canvas generate v{{canvas version}}'),
-    Tny.colour('bgCyan', 'Design command'),
+    Tny.colour('bgCyan', `Canvas design tools v${version}`),
+    Tny.colour('bgCyan', 'Convert command'),
   ], { empty: argv.clear !== false })
 }
 
@@ -297,6 +373,15 @@ function getPaths() {
    */
   for (const stylesheet of config.stylesheets.classes) {
     designPaths[stylesheet.handle] = buildPathObject(stylesheet)
+  }
+
+  /**
+   * Build object for each utility stylesheet.
+   */
+  if (config.utilities) {
+    for (const stylesheet of config.utilities) {
+      designPaths[stylesheet.handle] = buildPathObject(stylesheet)
+    }
   }
 
   /**

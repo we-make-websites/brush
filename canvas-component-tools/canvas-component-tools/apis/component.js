@@ -7,7 +7,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 
-const getCanvasConfig = require('@we-make-websites/basis/basis/helpers/get-canvas-config')
+const getCanvasConfig = require('../helpers/get-canvas-config')
 const Paths = require('../helpers/paths')
 
 /**
