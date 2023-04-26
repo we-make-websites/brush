@@ -5,6 +5,13 @@ module.exports = {
   'block-no-empty': true,
   // Disallow !important within keyframe declarations
   'keyframe-declaration-no-important': true,
+  // Specify a pattern for keyframe names
+  'keyframes-name-pattern': [
+    '^[a-z][a-z0-9-]+$',
+    {
+      message: () => `Expected keyframe name to be kebab-case`,
+    },
+  ],
   // Enforce percentage keyframes, unless all keywords
   'keyframe-selector-notation': 'percentage-unless-within-keyword-only-block',
   // Disallow units for zero lengths

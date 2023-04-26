@@ -10,7 +10,12 @@ module.exports = {
   // Disallow at-extends (@extend) with missing placeholders
   'scss/at-extend-no-missing-placeholder': true,
   // Specify a pattern for Sass/SCSS-like function names
-  'scss/at-function-pattern': null,
+  'scss/at-function-pattern': [
+    '^[a-z][a-z0-9-]+$',
+    {
+      message: () => `Expected function name to be kebab-case`,
+    },
+  ],
   // Require or disallow a newline after the closing brace of @if statements
   'scss/at-if-closing-brace-newline-after': 'always-last-in-chain',
   // Require a single space or disallow whitespace after the closing brace of @if statements

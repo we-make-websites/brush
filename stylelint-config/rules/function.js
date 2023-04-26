@@ -15,13 +15,15 @@ const message = (rule) => {
 }
 
 module.exports = {
+  // Specify a list of only allowed functions
+  'function-allowed-list': null,
+  // Disallow an unspaced operator within calc functions
+  'function-calc-no-unspaced-operator': true,
   // Specify a list of disallowed functions
   'function-disallowed-list': [
     ['hsl', 'hsla', 'rotate', 'scale', 'translate'],
     { message },
   ],
-  // Disallow an unspaced operator within calc functions
-  'function-calc-no-unspaced-operator': true,
   // Disallow direction values in linear-gradient() calls that are not valid according to the standard syntax
   'function-linear-gradient-no-nonstandard-direction': true,
   // Limit the number of adjacent empty lines within functions
@@ -36,6 +38,4 @@ module.exports = {
   'function-url-scheme-disallowed-list': null,
   // Specify a list of allowed url schemes
   'function-url-scheme-allowed-list': ['http', 'https', 'data'],
-  // Specify a list of only allowed functions
-  'function-allowed-list': null,
 }

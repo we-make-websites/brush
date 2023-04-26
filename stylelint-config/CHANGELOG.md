@@ -2,7 +2,12 @@
 
 ## 4.0.0 - 2023-04-??
 
-* Added `stylelint-stylistic` to keep soon to be removed stylelistic rules
+* Added `stylelint-stylistic` to keep soon to be removed stylistic rules
+* Added `stylelint-config-standard` and `stylelint-config-standard-scss` rulesets
+* Added name patterns for classes, mixins, functions, and keyframes
+* Updated rules so they're split between less separate files
+* Fixed weird newline interaction between CSS and SASS variables
+* Removed Shopify rule overrides
 
 ## 3.5.0 - 2022-11-14
 
