@@ -7,8 +7,6 @@ module.exports = {
   'property-allowed-list': null,
   // Specify a list of disallowed properties
   'property-disallowed-list': [],
-  // Specify lowercase or uppercase for properties
-  'property-case': 'lower',
   // Disallow unknown properties
   'property-no-unknown': true,
   // Disallow vendor prefixes for properties

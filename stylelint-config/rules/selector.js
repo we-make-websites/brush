@@ -1,14 +1,8 @@
 /* eslint-disable max-len */
 
 module.exports = {
-  // Require a single space or disallow whitespace on the inside of the brackets within attribute selectors
-  'selector-attribute-brackets-space-inside': 'never',
   // Specify a list of disallowed attribute operators.
   'selector-attribute-operator-disallowed-list': null,
-  // Require a single space or disallow whitespace after operators within attribute selectors
-  'selector-attribute-operator-space-after': 'never',
-  // Require a single space or disallow whitespace before operators within attribute selectors
-  'selector-attribute-operator-space-before': 'never',
   // Specify a list of allowed attribute operators
   'selector-attribute-operator-allowed-list': null,
   // Require or disallow quotes for attribute values
@@ -20,12 +14,6 @@ module.exports = {
       message: (selector) => `Expected class selector "${selector}" to follow BEM naming`,
     },
   ],
-  // Require a single space or disallow whitespace after the combinators of selectors
-  'selector-combinator-space-after': 'always',
-  // Require a single space or disallow whitespace before the combinators of selectors
-  'selector-combinator-space-before': 'always',
-  // Disallow non-space characters for descendant combinators of selectors
-  'selector-descendant-combinator-no-non-space': true,
   // Specify a pattern for id selectors
   'selector-id-pattern': null,
   // Limit the number of attribute selectors in a selector
@@ -40,14 +28,6 @@ module.exports = {
   'selector-max-type': null,
   // Limit the number of universal selectors in a selector
   'selector-max-universal': 2,
-  // Require a newline or disallow whitespace after the commas of selector lists
-  'selector-list-comma-newline-after': 'always-multi-line',
-  // Require a newline or disallow whitespace before the commas of selector lists
-  'selector-list-comma-newline-before': null,
-  // Require a single space or disallow whitespace after the commas of selector lists
-  'selector-list-comma-space-after': 'always-single-line',
-  // Require a single space or disallow whitespace before the commas of selector lists
-  'selector-list-comma-space-before': 'never',
   // Limit the number of compound selectors in a selector
   'selector-max-compound-selectors': 3,
   // Limit the specificity of selectors
@@ -60,16 +40,10 @@ module.exports = {
   'selector-no-vendor-prefix': true,
   // Specify a list of disallowed pseudo-class selectors
   'selector-pseudo-class-disallowed-list': null,
-  //  Specify lowercase or uppercase for pseudo-class selectors
-  'selector-pseudo-class-case': 'lower',
   // Disallow unknown pseudo-class selectors
   'selector-pseudo-class-no-unknown': true,
-  // Require a single space or disallow whitespace on the inside of the parentheses within pseudo-class selectors
-  'selector-pseudo-class-parentheses-space-inside': 'never',
   // Specify a list of allowed pseudo-class selectors
   'selector-pseudo-class-allowed-list': null,
-  // Specify lowercase or uppercase for pseudo-element selectors
-  'selector-pseudo-element-case': 'lower',
   // Specify single or double colon notation for applicable pseudo-elements
   'selector-pseudo-element-colon-notation': 'double',
   // Disallow unknown pseudo-element selectors
@@ -78,6 +52,4 @@ module.exports = {
   'selector-type-case': 'lower',
   // Disallow unknown type selectors
   'selector-type-no-unknown': true,
-  // Limit the number of adjacent empty lines within selectors
-  'selector-max-empty-lines': 0,
 }

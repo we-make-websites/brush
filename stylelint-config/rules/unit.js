@@ -4,8 +4,6 @@ module.exports = {
     ['em'],
     { message: 'Do not use em units' },
   ],
-  // Specify lowercase or uppercase for units
-  'unit-case': 'lower',
   // Disallow unknown units
   'unit-no-unknown': null,
   // Specify a list of allowed units

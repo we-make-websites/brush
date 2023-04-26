@@ -25,7 +25,6 @@ module.exports = {
   ],
   rules: merge(
     require('./rules/at-rule'),
-    require('./rules/block'),
     require('./rules/color'),
     require('./rules/comment'),
     require('./rules/declaration'),
@@ -33,13 +32,11 @@ module.exports = {
     require('./rules/function'),
     require('./rules/general'),
     require('./rules/media'),
-    require('./rules/number'),
     require('./rules/order'),
     require('./rules/property'),
     require('./rules/scss'),
     require('./rules/selector'),
     require('./rules/stylistic'),
     require('./rules/unit'),
-    require('./rules/value'),
   ),
 }
