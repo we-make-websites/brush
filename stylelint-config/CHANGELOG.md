@@ -6,6 +6,7 @@
 * Added `stylelint-config-standard` and `stylelint-config-standard-scss` rulesets
 * Added name patterns for classes, mixins, functions, and keyframes
 * Updated rules so they're split between less separate files
+* Updated disallowed properties list
 * Updated declaration order to not autofix (properties will still be alphabetised)
 * Updated declaration order
 * Fixed weird newline interaction between CSS and SASS variables
