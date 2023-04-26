@@ -24,6 +24,8 @@ module.exports = {
   'no-duplicate-selectors': true,
   // Disallow empty sources
   'no-empty-source': true,
+  // Disallow invalid position @import rules
+  'no-invalid-position-at-import-rule': null,
   // Disallow animation names that do not correspond to a @keyframes declaration
   'no-unknown-animations': null,
   // Limit the number of decimal places allowed in numbers
