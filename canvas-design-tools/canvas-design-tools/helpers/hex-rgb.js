@@ -43,8 +43,8 @@ module.exports = (hex) => {
   const blue = number & 255
 
   if (alphaFromHex === 1) {
-    return `rgb(${red}, ${green}, ${blue})`
+    return `rgb(${red} ${green} ${blue})`
   }
 
-  return `rgba(${red}, ${green}, ${blue}, ${alphaFromHex.toFixed(2)})`
+  return `rgb(${red} ${green} ${blue} ${Math.round(alphaFromHex * 100)}%)`
 }
