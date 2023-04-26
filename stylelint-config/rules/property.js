@@ -29,9 +29,11 @@ module.exports = {
   'property-allowed-list': null,
   // Specify a list of disallowed properties
   'property-disallowed-list': [
-    'background',
-    'font',
-    '/^(margin|padding)-(bottom|left|right|top)$/',
+    [
+      'background',
+      'font',
+      '/^(margin|padding)-(bottom|left|right|top)$/',
+    ],
     { message },
   ],
   // Disallow unknown properties
