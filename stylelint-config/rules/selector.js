@@ -14,7 +14,12 @@ module.exports = {
   // Require or disallow quotes for attribute values
   'selector-attribute-quotes': 'never',
   // Specify a pattern for class selectors
-  'selector-class-pattern': '[a-z]+',
+  'selector-class-pattern': [
+    '^([a-z][a-z0-9]*)([-_]{1,2}[a-z0-9]+)*$',
+    {
+      message: (selector) => `Expected class selector "${selector}" to follow BEM naming`,
+    },
+  ],
   // Require a single space or disallow whitespace after the combinators of selectors
   'selector-combinator-space-after': 'always',
   // Require a single space or disallow whitespace before the combinators of selectors

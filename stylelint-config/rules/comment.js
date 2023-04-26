@@ -7,8 +7,8 @@ module.exports = {
       ignore: ['stylelint-commands'],
     },
   ],
-  // Disallow empty comments
-  'comment-no-empty': true,
+  // Disallow empty comments, disabled to use SCSS plugin
+  'comment-no-empty': null,
   // Require a single space or disallow whitespace on the inside of comment markers
   'comment-whitespace-inside': 'always',
   // Specify a list of disallowed words within comments
