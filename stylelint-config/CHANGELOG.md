@@ -1,6 +1,10 @@
 # 📅 Stylelint Config Changelog
 
-## 3.5.0 - 2022-110-14
+## 4.0.0 - 2023-04-??
+
+* Added `stylelint-stylistic` to keep soon to be removed stylelistic rules
+
+## 3.5.0 - 2022-11-14
 
 * Added custom error messages to 'disallowed' rules
 * Added `stylelint` to `peerDependencies`
