@@ -25,18 +25,33 @@ export function formatMoney(cents, format) {
   const placeholderRegex = /\{\{\s*(\w+)\s*\}\}/
   let value = ''
 
+  /**
+   * Determine format based on store setting.
+   * - https://help.shopify.com/en/manual/payments/currency-formatting
+   */
   switch (formatString.match(placeholderRegex)[1]) {
     case 'amount':
       value = formatWithDelimiters(cents, 2)
       break
+
     case 'amount_no_decimals':
       value = formatWithDelimiters(cents, 0)
       break
+
     case 'amount_with_comma_separator':
       value = formatWithDelimiters(cents, 2, '.', ',')
       break
+
     case 'amount_no_decimals_with_comma_separator':
       value = formatWithDelimiters(cents, 0, '.', ',')
+      break
+
+    case 'amount_with_apostrophe_separator':
+      value = formatWithDelimiters(cents, 2, '\'', '.')
+      break
+
+    default:
+      value = formatWithDelimiters(cents, 2)
       break
   }
 
