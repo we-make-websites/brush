@@ -228,11 +228,11 @@ function renderIndexPage() {
      * Build HTML groups.
      */
     const groups = Object.values(structure).map((folder) => {
-      let template = `<h2>${folder.name}</h2>\n\n`
+      let template = `<strong>${folder.name}</strong>\n\n`
       template += '    <ul>\n'
 
       folder.paths.forEach((item) => {
-        template += `      <li><a href="${item.distPath}">${item.filename}</a>\n`
+        template += `      <li><a href="${item.distPath}" data-page="${item.filename}" js-iframe="link">${item.filename}</a>\n`
       })
 
       template += '    </ul>'
