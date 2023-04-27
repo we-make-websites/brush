@@ -12,6 +12,7 @@ const { Liquid } = require('liquidjs')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
 
+const filtersApi = require('../apis/filters')
 const messagesApi = require('../apis/messages')
 
 const getBrowsersyncConfig = require('../helpers/get-browsersync-config')
@@ -27,14 +28,18 @@ const engine = new Liquid({
   root: Paths.templates,
 })
 
-let ports = {}
-
 /**
  * Initialises the preview functionality.
  */
 async function init() {
+  const ports = await getPorts()
+
   try {
-    await runPreview()
+    Object.entries(filtersApi).forEach(([key, value]) => {
+      engine.registerFilter(key, value)
+    })
+
+    await runPreview(ports)
 
   } catch (error) {
     Tny.message([
@@ -47,8 +52,7 @@ async function init() {
   }
 
   try {
-    ports = await getPorts()
-    await createBrowsersync()
+    await createBrowsersync(ports)
 
   } catch (error) {
     Tny.message([
@@ -61,10 +65,11 @@ async function init() {
 /**
  * Run preview.
  * - Single function to run each time a file change is detected.
+ * @param {Object} ports - Browsersync ports.
  * @param {Boolean} [watch] - Function is being run from watch.
  * @returns {Promise}
  */
-function runPreview(watch) {
+function runPreview(ports, watch) {
   return new Promise(async(resolve, reject) => {
     try {
       messagesApi.logBanner()
@@ -350,9 +355,10 @@ function renderIndexPage() {
 
 /**
  * Create Browsersync instance.
+ * @param {Object} ports - Browsersync ports.
  * @returns {Promise}
  */
-function createBrowsersync() {
+function createBrowsersync(ports) {
   return new Promise((resolve, reject) => {
     try {
       bs.watch(
@@ -366,7 +372,7 @@ function createBrowsersync() {
             return
           }
 
-          await runPreview(true)
+          await runPreview(ports, true)
           bs.notify('🔥 Updated', 2000)
           bs.reload()
         },
