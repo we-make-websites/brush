@@ -23,5 +23,9 @@ module.exports = {
   },
   dist: path.resolve(rootFolder, 'emails', 'dist'),
   index: path.resolve(packageFolder, 'templates', 'index.ejs'),
+  styles: {
+    index: path.resolve(rootFolder, 'emails', 'styles', 'index.css'),
+    root: path.resolve(rootFolder, 'emails', 'styles'),
+  },
   templates: path.resolve(rootFolder, 'emails', 'templates'),
 }

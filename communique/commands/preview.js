@@ -71,8 +71,9 @@ function runPreview(watch) {
       }
 
       const start = performance.now()
-      const content = await findTemplates()
-      const count = await renderTemplates(content)
+      const { filepaths, indexContext } = await findTemplates()
+      const { indexStyles, stylePaths } = await findStyles()
+      const count = await renderTemplates({ filepaths, indexContext, indexStyles, stylePaths })
       await renderIndexPage()
 
       if (watch) {
@@ -116,20 +117,39 @@ function findTemplates() {
 }
 
 /**
+ * Finds CSS files.
+ * @returns {Promise}
+ */
+function findStyles() {
+  return new Promise(async(resolve, reject) => {
+    try {
+      const stylePaths = getFilesInFolder(Paths.styles.root, ['css'])
+      const indexStyles = await fs.readFile(Paths.styles.index, 'utf-8')
+      resolve({ indexStyles, stylePaths })
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
  * Renders Liquid templates.
  * - Go through each template and parse Liquid based on associated context.
  * @param {Array} data.filepaths - Liquid template filepaths.
  * @param {Object} data.indexContext - Context used in all templates.
+ * @param {String} data.indexStyles - Styles used in all templates.
+ * @param {Array} data.stylePaths - CSS stylesheet filepaths.
  * @returns {Promise}
  */
-function renderTemplates({ filepaths, indexContext }) {
+function renderTemplates({ filepaths, indexContext, indexStyles, stylePaths }) {
   return new Promise(async(resolve, reject) => {
     try {
       let count = 0
 
       for (const filepath of filepaths) {
         const filename = filepath.split(path.sep).reverse()[0]
-        const template = await getTemplate(filepath)
+        const template = await getTemplate({ filename, filepath, indexStyles, stylePaths })
 
         /**
          * Find template specific context (if it exists).
@@ -168,10 +188,13 @@ function renderTemplates({ filepaths, indexContext }) {
 
 /**
  * Read and update template before parsing.
- * @param {String} filepath - Path to file.
+ * @param {String} data.filename - Filename.
+ * @param {String} data.filepath - Path to file.
+ * @param {String} data.indexStyles - Styles used in all templates.
+ * @param {Array} data.stylePaths - CSS stylesheet filepaths.
  * @returns {String}
  */
-function getTemplate(filepath) {
+function getTemplate({ filename, filepath, indexStyles, stylePaths }) {
   return new Promise(async(resolve, reject) => {
     try {
       let template = await fs.readFile(filepath, 'utf-8')
@@ -182,7 +205,74 @@ function getTemplate(filepath) {
           'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/spacer-1a26dfd5c56b21ac888f9f1610ef81191b571603cb207c6c0f564148473cab3c.png',
         )
 
+      /**
+       * If it contains style.css link then embed the styles and remove <link>.
+       */
+      if (template.includes('<link rel="stylesheet" type="text/css" href="/assets/notifications/styles.css">')) {
+        template = template.replace('<link rel="stylesheet" type="text/css" href="/assets/notifications/styles.css">', '')
+        template = await injectStyles({ filename, indexStyles, stylePaths, template })
+      }
+
       resolve(template)
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Inject stylesheet files into <style> tag.
+ * @param {String} data.filename - Filename.
+ * @param {String} data.indexStyles - Styles used in all templates.
+ * @param {Array} data.stylePaths - CSS stylesheet filepaths.
+ * @param {String} data.template - Current template.
+ * @returns {Promise}
+ */
+function injectStyles({ filename, indexStyles, stylePaths, template }) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      let updatedTemplate = template
+      const styleName = filename.replace('.liquid', '.css')
+      const queue = []
+
+      /**
+       * Load CSS files with matching filename.
+       */
+      for (const filepath of stylePaths) {
+        if (filepath.includes('index.css') || !filepath.includes(styleName)) {
+          continue
+        }
+
+        queue.push(await fs.readFile(filepath, 'utf-8'))
+      }
+
+      const newStyles = await Promise.all(queue)
+
+      /**
+       * Get existing styles in file's <style> tags.
+       */
+      let styles = updatedTemplate.match(/<style>(?<styles>.*)<\/style>/gs)
+
+      if (styles) {
+        styles = styles[0].replace('<style>', '').replace('</style>', '')
+      }
+
+      /**
+       * Add index and matching styles.
+       */
+      styles += `${indexStyles}\n`
+      styles += `${newStyles.join('\n')}\n`
+
+      /**
+       * Update template.
+       */
+      updatedTemplate = updatedTemplate.replace(
+        /<style>(?<styles>.*)<\/style>/gs,
+        `<style>${styles}</style>`,
+      )
+
+      resolve(updatedTemplate)
 
     } catch (error) {
       reject(error)
