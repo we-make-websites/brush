@@ -34,22 +34,25 @@ let ports = {}
  */
 async function init() {
   try {
+    await runPreview()
+
+  } catch (error) {
+    Tny.message([
+      Tny.colour('red', '❌ Error creating templates'),
+      Tny.colour('red', '❌ Please fix and run command again'),
+      error,
+    ])
+
+    return
+  }
+
+  try {
     ports = await getPorts()
     await createBrowsersync()
 
   } catch (error) {
     Tny.message([
       Tny.colour('red', '❌ Error creating Browsersync'),
-      error,
-    ])
-  }
-
-  try {
-    await runPreview()
-
-  } catch (error) {
-    Tny.message([
-      Tny.colour('red', '❌ Error creating templates'),
       error,
     ])
   }
@@ -107,7 +110,7 @@ function findTemplates() {
     try {
       await fs.ensureDir(Paths.dist)
       const filepaths = getFilesInFolder(Paths.templates, ['liquid'])
-      const indexContext = require(Paths.context.index)
+      const indexContext = await fs.readJSON(Paths.context.index)
       resolve({ filepaths, indexContext })
 
     } catch (error) {
@@ -154,11 +157,11 @@ function renderTemplates({ filepaths, indexContext, indexStyles, stylePaths }) {
         /**
          * Find template specific context (if it exists).
          */
-        const contextFilepath = path.join(Paths.context.root, filename.replace('.liquid', '.js'))
+        const contextFilepath = path.join(Paths.context.root, filename.replace('.liquid', '.json'))
         let context = {}
 
         if (fs.existsSync(contextFilepath)) {
-          context = require(contextFilepath)
+          context = await fs.readJSON(contextFilepath)
         }
 
         /**

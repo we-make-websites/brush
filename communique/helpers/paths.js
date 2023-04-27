@@ -18,7 +18,7 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  */
 module.exports = {
   context: {
-    index: path.resolve(rootFolder, 'emails', 'context', 'index.js'),
+    index: path.resolve(rootFolder, 'emails', 'context', 'index.json'),
     root: path.resolve(rootFolder, 'emails', 'context'),
   },
   dist: path.resolve(rootFolder, 'emails', 'dist'),
