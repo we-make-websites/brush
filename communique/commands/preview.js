@@ -84,7 +84,7 @@ function renderTemplates({ filepaths, indexContext }) {
 
       for (const filepath of filepaths) {
         const filename = filepath.split(path.sep).reverse()[0]
-        const template = await fs.readFile(filepath, 'utf-8')
+        const template = await getTemplate(filepath)
 
         /**
          * Find template specific context (if it exists).
@@ -114,6 +114,30 @@ function renderTemplates({ filepaths, indexContext }) {
       }
 
       resolve(count)
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Read and update template before parsing.
+ * @param {String} filepath - Path to file.
+ * @returns {String}
+ */
+function getTemplate(filepath) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      let template = await fs.readFile(filepath, 'utf-8')
+
+      template = template
+        .replaceAll(
+          `{{ 'notifications/spacer.png' | shopify_asset_url }}`,
+          'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/spacer-1a26dfd5c56b21ac888f9f1610ef81191b571603cb207c6c0f564148473cab3c.png',
+        )
+
+      resolve(template)
 
     } catch (error) {
       reject(error)
