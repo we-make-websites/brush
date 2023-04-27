@@ -4,6 +4,26 @@
  * Register custom filters with Liquid JS engine.
  *
  */
+/* eslint-disable camelcase */
+
+/**
+ * Format address filter.
+ * @param {String} value - Value.
+ * @returns {String}
+ */
+function format_address(value) {
+  return value.replaceAll('\n', '<br />')
+}
+
+/**
+ * Format image URL.
+ * @param {Object} value - Value.
+ * @param {String} parameter - Parameter.
+ * @returns {String}
+ */
+function img_url(value, parameter) {
+  return formatImageUrl(value.image, parameter)
+}
 
 /**
  * Money filter.
@@ -63,6 +83,108 @@ function money(cents, format) {
 }
 
 /**
+ * Helpers.
+ * -----------------------------------------------------------------------------
+ * Helper functions to achieve filters.
+ *
+ */
+
+/**
+ * Format Shopify image URL.
+ * @param {String} src - Image URL, can include existing parameters.
+ * @param {Object|String} options - Image options object, or image size string.
+ * @param {String} options.crop - Crop image positioning when height and width
+ * are set.
+ * @param {Number} options.height - Height of image in pixels.
+ * @param {String} options.pad_color - Background colour to pad image when image
+ * cannot be cropped.
+ * @param {Number} options.width - Width of image in pixels.
+ * @returns {String}
+ */
+function formatImageUrl(src, options) {
+  if (!src.includes('cdn.shopify.com')) {
+    return src
+  }
+
+  const filetype = src.split('.').reverse()[0]?.split('?')[0]
+  let version = src.match(/(?!\?|&)(?<version>v=\d+)/gi)
+
+  if (!filetype || !version) {
+    return src
+  }
+
+  version = version[0]
+  const parameters = []
+
+  /**
+   * Clean up image URL.
+   * - Remove URL parameters.
+   * - Standardise protocol.
+   * - Remove progressive filetype prefix.
+   * - Remove filetype.
+   * - Remove sizing, crop, and scale.
+   */
+  let url = src
+    .split('?')[0]
+    .split('//')[1]
+    .replace('.progressive.', '.')
+    .replace(`.${filetype}`, '.')
+    .replace(/(?<size>(?:\d+)?x(?:\d+)?)?(?<crop>_crop_(?:top|center|bottom|left|right))?(?<scale>@(?:2|3)x)?\./g, '.')
+    .replace('_compact_cropped', '')
+
+  url = `//${url}${filetype}?${version}`
+
+  /**
+   * If no options provided then return URL.
+   */
+  if (!options) {
+    return url
+  }
+
+  /**
+   * Get parameters from options object.
+   */
+  if (typeof options === 'object') {
+    Object.entries(options).forEach(([key, value]) => {
+      if (!value || key === 'format') {
+        return
+      }
+
+      let formattedValue = value
+
+      if (key === 'pad_color') {
+        formattedValue = value.replace('#', '')
+      }
+
+      parameters.push(`${key}=${formattedValue}`)
+    })
+  }
+
+  /**
+   * Get width and height parameters from options string.
+   */
+  if (typeof options === 'string') {
+    const sizes = options.split('x')
+
+    if (sizes[0]) {
+      parameters.push(`width=${sizes[0]}`)
+    }
+
+    if (sizes[1]) {
+      parameters.push(`height=${sizes[1]}`)
+    }
+
+    if (sizes[0] && sizes[1]) {
+      parameters.push('crop=center')
+    }
+  }
+
+  return parameters.length
+    ? `${url}&${parameters.join('&')}`
+    : url
+}
+
+/**
  * Format delimiters.
  * @param {Number} number - Number to format.
  * @param {Number} [precision] - Decimal places.
@@ -95,6 +217,8 @@ function formatWithDelimiters(number, precision = 2, thousands = ',', decimal = 
  * Export API.
  */
 module.exports = {
+  format_address,
+  img_url,
   money,
   money_with_currency: money,
 }
