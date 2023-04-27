@@ -155,12 +155,28 @@
       padding: 1.25rem;
     }
 
-    iframe {
+    .preview__title {
+      align-items: center;
+      border-bottom: 1px solid #dde0e4;
+      display: flex;
+      font-size: 0.875rem;
+      height: 3rem;
+      padding: 0.5rem;
+      padding-inline-start: 1rem;
+    }
+
+    .preview__iframe {
       border: 1px solid #dde0e4;
       border-radius: 0.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    iframe {
+      border: 0;
       display: block;
       flex: 1;
-      margin: 0 auto;
       width: 100%;
     }
   </style>
@@ -191,35 +207,41 @@
       <div class="preview">
         <h2>Preview</h2>
 
-        <iframe
-          title="Email preview"
-          js-iframe="container"
-        ></iframe>
+        <div class="preview__iframe">
+          <p
+            class="preview__title"
+            js-iframe="title"
+          >
+            Please select a template
+          </p>
+
+          <iframe
+            title="Email preview"
+            js-iframe="container"
+          ></iframe>
+        </div>
       </div>
     </div>
 
     <script>
-      function iframeHandler() {
-        const nodeSelectors = {
-          button: document.querySelector('[js-nav="button"]'),
-          container: document.querySelector('[js-iframe="container"]'),
-          dropdown: document.querySelector('[js-nav="dropdown"]'),
-          link: [...document.querySelectorAll('[js-iframe="link"]')],
-        }
+      let nodeSelectors
+      let searchParams
+      let storageItem
 
-        const url = new URL(location.href)
+      function iframeHandler() {
+        setVariables()
 
         /**
-         * Read URL parameters.
+         * Read localStorage or URL parameters.
          */
-        const searchParams = new URLSearchParams(location.search)
+        const storedPage = storageItem || searchParams.get('page')
 
-        if (searchParams.get('page')) {
+        if (storedPage) {
           const link = nodeSelectors.link.find((link) => {
-            return link.dataset.page === searchParams.get('page')
+            return link.dataset.page === storedPage
           })
 
-          nodeSelectors.container.src = link.href
+          setPage(link.href, storedPage)
         }
 
         /**
@@ -228,9 +250,7 @@
         nodeSelectors.link.forEach((link) => {
           link.addEventListener('click', (event) => {
             event.preventDefault()
-            nodeSelectors.container.src = event.target.href
-            url.searchParams.set('page', event.target.dataset.page)
-            history.replaceState(null, null, url);
+            setPage(event.target.href, event.target.dataset.page)
           })
         })
 
@@ -245,6 +265,31 @@
 
           nodeSelectors.dropdown.classList.remove('is-active')
         })
+      }
+
+      function setVariables() {
+        nodeSelectors = {
+          button: document.querySelector('[js-nav="button"]'),
+          container: document.querySelector('[js-iframe="container"]'),
+          dropdown: document.querySelector('[js-nav="dropdown"]'),
+          link: [...document.querySelectorAll('[js-iframe="link"]')],
+          title: document.querySelector('[js-iframe="title"]'),
+        }
+
+        searchParams = new URLSearchParams(location.search)
+        storageItem = localStorage.getItem('communique-page')
+      }
+
+      /**
+       * Set active page.
+       * @param {String} href - URL to template file.
+       * @param {String} page - Filename.
+       */
+      function setPage(href, page) {
+        nodeSelectors.container.src = href
+        nodeSelectors.title.innerText = page
+
+        localStorage.setItem('communique-page', page)
       }
 
       iframeHandler()
