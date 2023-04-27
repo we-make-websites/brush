@@ -250,19 +250,21 @@ function injectStyles({ filename, indexStyles, stylePaths, template }) {
       const newStyles = await Promise.all(queue)
 
       /**
-       * Get existing styles in file's <style> tags.
-       */
-      let styles = updatedTemplate.match(/<style>(?<styles>.*)<\/style>/gs)
-
-      if (styles) {
-        styles = styles[0].replace('<style>', '').replace('</style>', '')
-      }
-
-      /**
        * Add index and matching styles.
        */
-      styles += `${indexStyles}\n`
+      let styles = `${indexStyles}\n`
       styles += `${newStyles.join('\n')}\n`
+
+      /**
+       * Get existing styles in file's <style> tags.
+       * - Add them last for increased specificity.
+       */
+      let inlineStyles = updatedTemplate.match(/<style>(?<styles>.*)<\/style>/gs)
+
+      if (inlineStyles) {
+        inlineStyles = inlineStyles[0].replace('<style>', '').replace('</style>', '')
+        styles += `${inlineStyles}\n`
+      }
 
       /**
        * Update template.
