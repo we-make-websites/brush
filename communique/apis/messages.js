@@ -37,13 +37,14 @@ function getPackageVersion() {
  * Outputs build banner.
  * @param {Number} data.count - Number of templates compiled.
  * @param {Number} data.start - Build start time.
+ * @param {Boolean} [data.watch] - Function is being run from watch.
  */
-function logBuild({ count, start }) {
+function logBuild({ count, start, watch }) {
   const end = performance.now()
   const plural = count === 1 ? '' : 's'
 
   Tny.message([
-    Tny.colour('green', `📨 ${count} email template${plural} created`),
+    Tny.colour('green', `📨 ${count} email template${plural} ${watch ? 'updated' : 'created'}`),
     Tny.time(start, end),
   ])
 }

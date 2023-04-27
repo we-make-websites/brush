@@ -6,6 +6,7 @@
  *
  */
 /* eslint-disable no-await-in-loop */
+const bs = require('browser-sync').create()
 const fs = require('fs-extra')
 const { Liquid } = require('liquidjs')
 const path = require('path')
@@ -13,36 +14,38 @@ const Tny = require('@we-make-websites/tannoy')
 
 const messagesApi = require('../apis/messages')
 
+const getBrowsersyncConfig = require('../helpers/get-browsersync-config')
+const getPorts = require('../helpers/get-ports')
 const getFilesInFolder = require('../helpers/get-files-in-folder')
 const Paths = require('../helpers/paths')
 
 /**
  * Set variables.
  */
-let firstRun = true
-
 const engine = new Liquid({
   extname: '.liquid',
   root: Paths.templates,
 })
 
+let ports = {}
+
 /**
  * Initialises the preview functionality.
  */
 async function init() {
-  messagesApi.logBanner()
-  const start = performance.now()
+  try {
+    ports = await getPorts()
+    await createBrowsersync()
+
+  } catch (error) {
+    Tny.message([
+      Tny.colour('red', '❌ Error creating Browsersync'),
+      error,
+    ])
+  }
 
   try {
-    const content = await findTemplates()
-    const count = await renderTemplates(content)
-
-    if (firstRun) {
-      await renderIndexPage()
-    }
-
-    messagesApi.logBuild({ count, start })
-    firstRun = false
+    await runPreview()
 
   } catch (error) {
     Tny.message([
@@ -50,6 +53,48 @@ async function init() {
       error,
     ])
   }
+}
+
+/**
+ * Run preview.
+ * - Single function to run each time a file change is detected.
+ * @param {Boolean} [watch] - Function is being run from watch.
+ * @returns {Promise}
+ */
+function runPreview(watch) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      messagesApi.logBanner()
+
+      if (watch) {
+        Tny.message('⏳ Building emails')
+      }
+
+      const start = performance.now()
+      const content = await findTemplates()
+      const count = await renderTemplates(content)
+      await renderIndexPage()
+
+      if (watch) {
+        messagesApi.logBanner()
+      }
+
+      messagesApi.logBuild({ count, start, watch })
+
+      Tny.message([
+        Tny.colour('green', '👀 Watching for changes'),
+        '',
+        Tny.colour('magenta', '🔗 Localhost URLs'),
+        `📧 http://localhost:${ports.browsersync} ${Tny.colour('brightBlack', '(Emails)')}`,
+        `💻 http://localhost:${ports.ui} ${Tny.colour('brightBlack', '(Browsersync UI)')}`,
+      ])
+
+      resolve()
+
+    } catch (error) {
+      reject(error)
+    }
+  })
 }
 
 /**
@@ -173,7 +218,7 @@ function renderIndexPage() {
       }
 
       structure[folder].paths.push({
-        distPath: path.join(Paths.dist, folderPath[1].replace('.liquid', '.html')),
+        distPath: folderPath[1].replace('.liquid', '.html'),
         filename: folderPath[1],
         filepath,
       })
@@ -200,6 +245,39 @@ function renderIndexPage() {
       contents = contents.replace('<%= groups %>', groups)
 
       await fs.writeFile(path.join(Paths.dist, 'index.html'), contents, 'utf-8')
+      resolve()
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Create Browsersync instance.
+ * @returns {Promise}
+ */
+function createBrowsersync() {
+  return new Promise((resolve, reject) => {
+    try {
+      bs.watch(
+        'emails/**/*',
+        {
+          ignored: 'emails/dist/*',
+          ignoreInitial: true,
+        },
+        async(event) => {
+          if (event !== 'change' && event !== 'add') {
+            return
+          }
+
+          await runPreview(true)
+          bs.notify('🔥 Updated', 2000)
+          bs.reload()
+        },
+      )
+
+      bs.init(getBrowsersyncConfig(ports))
       resolve()
 
     } catch (error) {
