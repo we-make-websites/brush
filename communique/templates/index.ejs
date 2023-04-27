@@ -225,16 +225,17 @@
 
     <script>
       let nodeSelectors
-      let searchParams
-      let storageItem
 
-      function iframeHandler() {
-        setVariables()
+      /**
+       * Init functionality.
+       */
+      function init() {
+        setNodeSelectors()
 
         /**
-         * Read localStorage or URL parameters.
+         * Read localStorage.
          */
-        const storedPage = storageItem || searchParams.get('page')
+        const storedPage = localStorage.getItem('communique-page')
 
         if (storedPage) {
           const link = nodeSelectors.link.find((link) => {
@@ -267,7 +268,10 @@
         })
       }
 
-      function setVariables() {
+      /**
+       * Set nodeSelectors.
+       */
+      function setNodeSelectors() {
         nodeSelectors = {
           button: document.querySelector('[js-nav="button"]'),
           container: document.querySelector('[js-iframe="container"]'),
@@ -275,9 +279,6 @@
           link: [...document.querySelectorAll('[js-iframe="link"]')],
           title: document.querySelector('[js-iframe="title"]'),
         }
-
-        searchParams = new URLSearchParams(location.search)
-        storageItem = localStorage.getItem('communique-page')
       }
 
       /**
@@ -292,7 +293,7 @@
         localStorage.setItem('communique-page', page)
       }
 
-      iframeHandler()
+      init()
     </script>
   </body>
 </html>
