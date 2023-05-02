@@ -10,11 +10,14 @@ const Tny = require('@we-make-websites/tannoy')
 
 /**
  * Outputs banner.
+ * @param {Boolean} mode - Compile mode, `development` or `production`.
  */
-function logBanner() {
+function logBanner(mode) {
+  const type = mode === 'production' ? 'Build' : 'Preview'
+
   Tny.message([
     Tny.colour('bgCyan', `Communique v${getPackageVersion()}`),
-    Tny.colour('bgCyan', 'Preview command'),
+    Tny.colour('bgCyan', `${type} command`),
   ], { empty: true })
 }
 

@@ -33,6 +33,8 @@ const engine = new Liquid({
   ],
 })
 
+const mode = 'development'
+
 /**
  * Initialises the preview functionality.
  */
@@ -77,7 +79,7 @@ async function init() {
 function runPreview(ports, watch) {
   return new Promise(async(resolve, reject) => {
     try {
-      messagesApi.logBanner()
+      messagesApi.logBanner(mode)
 
       if (watch) {
         Tny.message('⏳ Building emails')
@@ -92,7 +94,7 @@ function runPreview(ports, watch) {
       const count = await renderTemplates({ filepaths, indexContext, indexStyles, stylePaths })
 
       /**
-       * Build index page.
+       * Build preview index page.
        */
       await buildApi.index()
 
@@ -157,7 +159,7 @@ function findStyles() {
 }
 
 /**
- * Renders Liquid templates.
+ * Renders templates.
  * - Go through each template and parse Liquid based on associated context.
  * @param {Array} data.filepaths - Liquid template filepaths.
  * @param {Object} data.indexContext - Context used in all templates.
@@ -174,9 +176,9 @@ function renderTemplates({ filepaths, indexContext, indexStyles, stylePaths }) {
         const filename = filepath.split(path.sep).reverse()[0]
 
         let template = await fs.readFile(filepath, 'utf-8')
-        template = await buildApi.html(template)
-        template = await buildApi.css({ filename, indexStyles, stylePaths, template })
-        template = await buildApi.liquid({ engine, filename, indexContext, template })
+        template = await buildApi.html({ template }, mode)
+        template = await buildApi.css({ filename, indexStyles, stylePaths, template }, mode)
+        template = await buildApi.liquid({ engine, filename, indexContext, template }, mode)
 
         /**
          * Write parsed file to dist/ folder.

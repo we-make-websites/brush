@@ -4,6 +4,8 @@
  * Functions to build parts of the template file.
  *
  */
+/* eslint-disable no-await-in-loop */
+
 const cssnano = require('@node-minify/cssnano')
 const fs = require('fs-extra')
 const minify = require('@node-minify/core')
@@ -15,12 +17,13 @@ const Paths = require('../helpers/paths')
 /**
  * Builds CSS.
  * @param {String} data.filename - Filename.
- * @param {String} data.indexStyles - Styles used in all templates.
+ * @param {String} [data.indexStyles] - Styles used in all templates.
  * @param {Array} data.stylePaths - CSS stylesheet filepaths.
  * @param {String} data.template - Current template.
+ * @param {Boolean} mode - Compile mode, `development` or `production`.
  * @returns {Promise}
  */
-function css({ filename, indexStyles, stylePaths, template }) {
+function css({ filename, indexStyles, stylePaths, template }, mode) {
   return new Promise(async(resolve, reject) => {
     try {
       let updatedTemplate = template.replace('<link rel="stylesheet" type="text/css" href="/assets/notifications/styles.css">', '')
@@ -43,16 +46,25 @@ function css({ filename, indexStyles, stylePaths, template }) {
       /**
        * Add index and matching styles.
        */
-      let styles = `${indexStyles}\n`
+      let styles = ''
+
+      if (mode !== 'production') {
+        styles = `${indexStyles}\n`
+      }
+
       styles += `${newStyles.join('\n')}\n`
 
       /**
        * Minify CSS.
+       * - No need to minify in production because Shopify automatically injects
+       *   styles inline when compiling.
        */
-      styles = await minify({
-        compressor: cssnano,
-        content: styles,
-      })
+      if (mode !== 'production') {
+        styles = await minify({
+          compressor: cssnano,
+          content: styles,
+        })
+      }
 
       /**
        * Get existing styles in file's <style> tags.
@@ -94,31 +106,81 @@ function css({ filename, indexStyles, stylePaths, template }) {
 
 /**
  * Builds HTML.
- * @param {String} template - Current template.
+ * @param {String} data.template - Current template.
+ * @param {Boolean} mode - Compile mode, `development` or `production`.
  * @returns {Promise}
  */
-function html(template) {
-  return new Promise((resolve) => {
-    const updatedTemplate = template
-      .replaceAll(
-        `{{ 'notifications/spacer.png' | shopify_asset_url }}`,
-        'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/spacer-1a26dfd5c56b21ac888f9f1610ef81191b571603cb207c6c0f564148473cab3c.png',
-      )
-      .replaceAll(
-        `{{ 'notifications/discounttag.png' | shopify_asset_url }}`,
-        'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/discounttag-d1f7c6d9334582b151797626a5ae244c56af0791fcd7841f21027dd44830bcc6.png',
-      )
-      .replaceAll(
-        'money_with_currency',
-        `money | append: ' ' | append: shop.currency`,
-      )
+function html({ template }, mode) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      let updatedTemplate = template
 
-    resolve(updatedTemplate)
+      if (mode !== 'production') {
+        updatedTemplate = template
+          .replaceAll(
+            `{{ 'notifications/spacer.png' | shopify_asset_url }}`,
+            'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/spacer-1a26dfd5c56b21ac888f9f1610ef81191b571603cb207c6c0f564148473cab3c.png',
+          )
+          .replaceAll(
+            `{{ 'notifications/discounttag.png' | shopify_asset_url }}`,
+            'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/discounttag-d1f7c6d9334582b151797626a5ae244c56af0791fcd7841f21027dd44830bcc6.png',
+          )
+          .replaceAll(
+            'money_with_currency',
+            `money | append: ' ' | append: shop.currency`,
+          )
+      }
+
+      /**
+       * If in build mode then inject snippet content.
+       */
+      const regex = new RegExp('{% render \'(?<filename>.+?)\' %}', 'g')
+      const renders = updatedTemplate.match(regex)
+
+      if (mode !== 'production' || !renders) {
+        resolve(updatedTemplate)
+        return
+      }
+
+      const snippets = {}
+
+      for (const match of renders) {
+        const exec = regex.exec(match)
+
+        if (!exec) {
+          continue
+        }
+
+        const filename = `${exec.groups.filename}.liquid`
+        const filepath = path.join(Paths.snippets, filename)
+
+        if (!fs.existsSync(filepath)) {
+          continue
+        }
+
+        let snippet = ''
+
+        if (snippets[filename]) {
+          snippet = snippets[filename]
+        } else {
+          snippet = await fs.readFile(filepath, 'utf-8')
+          snippets[filename] = snippet
+        }
+
+        updatedTemplate = updatedTemplate.replaceAll(match, snippet)
+      }
+
+      resolve(updatedTemplate)
+
+    } catch (error) {
+      reject(error)
+    }
   })
 }
 
 /**
  * Builds index page.
+ * @returns {Promise}
  */
 function index() {
   return new Promise(async(resolve, reject) => {
@@ -183,13 +245,18 @@ function index() {
  * Builds Liquid.
  * @param {Object} data.engine - Liquid parsing engine.
  * @param {String} data.filename - Filename.
- * @param {Object} data.indexContext - Context used in all templates.
+ * @param {Object} [data.indexContext] - Context used in all templates.
  * @param {String} data.template - Current template.
+ * @param {Boolean} mode - Compile mode, `development` or `production`.
  * @returns {Promise}
  */
-function liquid({ engine, filename, indexContext, template }) {
+function liquid({ engine, filename, indexContext, template }, mode) {
   return new Promise(async(resolve, reject) => {
     try {
+      if (mode === 'production') {
+        resolve(template)
+        return
+      }
 
       /**
        * Find template specific context if it exists.
