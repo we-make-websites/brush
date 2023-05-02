@@ -7,8 +7,10 @@
  */
 /* eslint-disable no-await-in-loop */
 const bs = require('browser-sync').create()
+const cssnano = require('@node-minify/cssnano')
 const fs = require('fs-extra')
 const { Liquid } = require('liquidjs')
+const minify = require('@node-minify/core')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
 
@@ -275,6 +277,14 @@ function injectStyles({ filename, indexStyles, stylePaths, template }) {
       styles += `${newStyles.join('\n')}\n`
 
       /**
+       * Minify CSS.
+       */
+      styles = await minify({
+        compressor: cssnano,
+        content: styles,
+      })
+
+      /**
        * Get existing styles in file's <style> tags.
        * - Add them last for increased specificity.
        */
@@ -282,7 +292,7 @@ function injectStyles({ filename, indexStyles, stylePaths, template }) {
 
       if (inlineStyles) {
         inlineStyles = inlineStyles[0].replace('<style>', '').replace('</style>', '')
-        styles += `${inlineStyles}\n`
+        styles += inlineStyles.replaceAll('  ', '')
       }
 
       /**
