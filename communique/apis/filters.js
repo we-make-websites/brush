@@ -18,7 +18,7 @@ const config = getEmailConfig()
  * @returns {String}
  */
 function format_address(value) {
-  return value.replaceAll('\n', '<br />')
+  return `<p>${value.replaceAll('\n', '<br />')}</p>`
 }
 
 /**
@@ -33,6 +33,7 @@ function img_url(value, parameter) {
 
 /**
  * Money filter.
+ * - money_with_currency is replaced with append: shop.currency before parsing.
  * @param {Number|String} cents - Value in cents or dollar amount e.g. 300
  * cents or 3.00 dollars.
  * @param {String} [format] - shop money_format setting
@@ -169,7 +170,12 @@ function formatImageUrl(src, options) {
   /**
    * Get width and height parameters from options string.
    */
-  if (typeof options === 'string') {
+  if (options === 'compact_cropped') {
+    parameters.push('width=60')
+    parameters.push('height=60')
+    parameters.push('crop=center')
+
+  } else if (typeof options === 'string') {
     const sizes = options.split('x')
 
     if (sizes[0]) {
@@ -226,5 +232,4 @@ module.exports = {
   format_address,
   img_url,
   money,
-  money_with_currency: money,
 }

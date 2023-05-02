@@ -212,6 +212,14 @@ function getTemplate({ filename, filepath, indexStyles, stylePaths }) {
           `{{ 'notifications/spacer.png' | shopify_asset_url }}`,
           'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/spacer-1a26dfd5c56b21ac888f9f1610ef81191b571603cb207c6c0f564148473cab3c.png',
         )
+        .replaceAll(
+          `{{ 'notifications/discounttag.png' | shopify_asset_url }}`,
+          'https://cdn.shopify.com/shopifycloud/shopify/assets/themes_support/notifications/discounttag-d1f7c6d9334582b151797626a5ae244c56af0791fcd7841f21027dd44830bcc6.png',
+        )
+        .replaceAll(
+          'money_with_currency',
+          `money | append: ' ' | append: shop.currency`,
+        )
 
       /**
        * If it contains style.css link then embed the styles and remove <link>.
