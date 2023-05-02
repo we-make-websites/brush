@@ -1,6 +1,6 @@
 # 📅 Stylelint Config Changelog
 
-## 4.0.0 - 2023-04-??
+## 4.0.0 - 2023-05-02
 
 * Added `stylelint-stylistic` to keep soon to be removed stylistic rules
 * Added `stylelint-config-standard` and `stylelint-config-standard-scss` rulesets
@@ -9,6 +9,7 @@
 * Updated disallowed properties list
 * Updated declaration order to not autofix (properties will still be alphabetised)
 * Updated declaration order
+* Updated dependencies
 * Fixed weird newline interaction between CSS and SASS variables
 * Removed Shopify rule overrides
 
