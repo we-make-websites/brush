@@ -288,10 +288,18 @@ function injectStyles({ filename, indexStyles, stylePaths, template }) {
       /**
        * Update template.
        */
-      updatedTemplate = updatedTemplate.replace(
-        /<style>(?<styles>.*)<\/style>/gs,
-        `<style>${styles}</style>`,
-      )
+      if (updatedTemplate.includes('<style>')) {
+        updatedTemplate = updatedTemplate.replace(
+          /<style>(?<styles>.*)<\/style>/gs,
+          `<style>${styles}</style>`,
+        )
+
+      } else {
+        updatedTemplate = updatedTemplate.replace(
+          '</head>',
+          `<style>${styles}</style>\n</head>`,
+        )
+      }
 
       resolve(updatedTemplate)
 
