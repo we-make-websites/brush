@@ -18,14 +18,14 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  */
 module.exports = {
   context: {
-    index: path.resolve(rootFolder, 'emails', 'context', 'index.json'),
-    root: path.resolve(rootFolder, 'emails', 'context'),
+    index: path.resolve(rootFolder, 'emails', 'src', 'context', 'index.json'),
+    root: path.resolve(rootFolder, 'emails', 'src', 'context'),
   },
   dist: path.resolve(rootFolder, 'emails', 'dist'),
   index: path.resolve(packageFolder, 'templates', 'index.ejs'),
   styles: {
-    index: path.resolve(rootFolder, 'emails', 'styles', 'index.css'),
-    root: path.resolve(rootFolder, 'emails', 'styles'),
+    index: path.resolve(rootFolder, 'emails', 'src', 'styles', 'index.css'),
+    root: path.resolve(rootFolder, 'emails', 'src', 'styles'),
   },
-  templates: path.resolve(rootFolder, 'emails', 'templates'),
+  templates: path.resolve(rootFolder, 'emails', 'src', 'templates'),
 }
