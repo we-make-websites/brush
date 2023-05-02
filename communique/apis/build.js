@@ -154,7 +154,11 @@ function html({ template }, mode) {
         const filename = `${exec.groups.filename}.liquid`
         const filepath = path.join(Paths.snippets, filename)
 
+        /**
+         * If snippet doesn't exist then remove render tag.
+         */
         if (!fs.existsSync(filepath)) {
+          updatedTemplate = updatedTemplate.replaceAll(match, '')
           continue
         }
 
