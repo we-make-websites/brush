@@ -9,8 +9,13 @@ const path = require('path')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
+const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
+const convertStringToHandle = require('../helpers/convert-string-to-handle')
+const formatAlias = require('../helpers/format-alias')
+const getAliasValue = require('../helpers/get-alias-value')
 const getDesignConfig = require('../helpers/get-design-config')
 const hexRgb = require('../helpers/hex-rgb')
+const isExcludedAndNotIncluded = require('../helpers/is-excluded-not-included')
 const Paths = require('../helpers/paths')
 
 /**
@@ -61,32 +66,7 @@ function findVariables(tokens) {
   /**
    * Sort variable objects in array.
    */
-  const presortingVariables = variables
-  const sortedKeys = Object.keys(presortingVariables).sort()
-  variables = {}
-
-  sortedKeys.forEach((key) => {
-    variables[key] = presortingVariables[key]
-  })
-
-  /**
-   * Sort variables to match sorting config.
-   * - If in sorting config then sort alphabetically by default.
-   * - If type has an array then match the sorting of that.
-   */
-  Object.entries(config.sorting).forEach(([name, value]) => {
-    if (!variables[name]) {
-      return
-    }
-
-    variables[name] = variables[name].sort((a, b) => {
-      if (Array.isArray(value)) {
-        return value.indexOf(a.name) - value.indexOf(b.name)
-      }
-
-      return a.variable.localeCompare(b.variable)
-    })
-  })
+  variables = sortVariables(variables)
 
   /**
    * Go through variables object to replace aliases with values.
@@ -111,23 +91,12 @@ function findVariables(tokens) {
  */
 function findVariableByName(name, tokens, variables) {
   let formattedName = name
-  let objectToSearch = tokens[name]
 
-  /**
-   * If name is a prefix then build object to iterate over.
-   */
-  if (name.slice(-1) === '-') {
-    formattedName = name.slice(0, -1)
-    objectToSearch = {}
+  const matchingKey = Object.keys(tokens).find((key) => {
+    return convertStringToHandle(key, config) === formattedName
+  })
 
-    Object.entries(tokens).forEach(([key, value]) => {
-      if (key.split(config.delimiter)[0] !== formattedName) {
-        return
-      }
-
-      objectToSearch[key] = value
-    })
-  }
+  const objectToSearch = tokens[matchingKey]
 
   /**
    * If variable doesn't exist then ignore.
@@ -146,11 +115,34 @@ function findVariableByName(name, tokens, variables) {
   }
 
   /**
-   * Iterate over type object to create array of formatted objects.
+   * Iterate over name object to create array of formatted objects.
    */
-  Object.entries(objectToSearch).forEach(([key, value]) => {
+  Object.entries(objectToSearch).forEach(([key, valueObject]) => {
+    if (!valueObject.value && !valueObject.type) {
+      Object.entries(valueObject).forEach(([subKey, subValueObject]) => {
+        if (!config.layoutNames?.includes(convertStringToHandle(subKey, config))) {
+          return
+        }
+
+        variables[formattedName].push(
+          formatVariable({
+            group: convertStringToHandle(`${formattedName}${config.delimiter}${key}`, config),
+            name: subKey,
+            type: formattedName,
+            valueObject: subValueObject,
+          }),
+        )
+      })
+
+      return
+    }
+
     variables[formattedName].push(
-      formatVariable({ name: key, type: formattedName, value }),
+      formatVariable({
+        name: key,
+        type: formattedName,
+        valueObject,
+      }),
     )
   })
 }
@@ -166,25 +158,14 @@ function findVariableByType(type, tokens, variables) {
   const objects = []
 
   Object.entries(tokens).forEach(([name, object]) => {
-    if (object.type === formattedType) {
-      objects.push({
-        group: false,
-        name,
-        ...object,
-      })
+    const typeObjects = getVariableTypeObject({ name, object, type: formattedType })
+    const typeObject = [...typeObjects]
+
+    if (!typeObject.length) {
+      return
     }
 
-    Object.entries(object).forEach(([subName, subObject]) => {
-      if (subObject.type !== formattedType) {
-        return
-      }
-
-      objects.push({
-        group: name,
-        name: subName,
-        ...subObject,
-      })
-    })
+    objects.push(...typeObject)
   })
 
   /**
@@ -208,7 +189,12 @@ function findVariableByType(type, tokens, variables) {
    */
   objects.forEach((object) => {
     variables[formattedType].push(
-      formatVariable({ name: object.name, type: formattedType, value: object }),
+      formatVariable({
+        group: object.group,
+        name: object.name,
+        type: formattedType,
+        valueObject: object,
+      }),
     )
   })
 }
@@ -223,96 +209,64 @@ function renameVariable(type) {
 }
 
 /**
- * Replaces aliases with actual colour value.
- * @param {String} key - Variable's group key.
- * @param {Number} index - Index of variable in variable's group.
- * @param {Object} [previousMatch] - Previous variable match if alias.
- * @param {Array} values - Array of other values in variable's group.
- * @param {Object} variable - Variable object.
- * @param {Array} variables - Formatted variables object.
+ * Look through objects until a type is found and push to object if it matches.
+ * @param {String} group - Group if not root object.
+ * @param {Array} name - Key of token (e.g. 'breakpoint).
+ * @param {Object} object - Token object.
+ * @param {String} type - Formatted type.
  */
-function replaceAlias({
-  key,
-  index,
-  previousMatch = false,
-  values,
-  variable,
-  variables,
-} = {}) {
-  const object = previousMatch || variable
+function *getVariableTypeObject({ group = false, name, object, type } = {}) {
+  if (!object.type && !object.value) {
+    for (const [subName, subObject] of Object.entries(object)) {
+      yield* getVariableTypeObject({
+        group: name,
+        name: subName,
+        object: subObject,
+        type,
+      })
 
-  if (
-    typeof object.value !== 'string' ||
-    !object.value.includes('{')
-  ) {
-    return
-  }
-
-  /**
-   * Find matching value in same values object.
-   */
-  const match = values.find((valueObject) => {
-    let name = valueObject.name
-
-    if (valueObject.group) {
-      name = `${valueObject.group}${config.delimiter}${valueObject.name}`
+      continue
     }
+  }
 
-    return name === formatAlias(object)
-  })
-
-  if (!match) {
+  if (object.type !== type) {
     return
   }
 
-  /**
-   * If match is an alias itself then find original value using current match as
-   * the starting point.
-   */
-  if (match.value.includes('{')) {
-    replaceAlias({
-      key,
-      index,
-      previousMatch: match,
-      values,
-      variable,
-      variables,
-    })
-
-    return
-  }
-
-  /**
-   * Update variable.
-   * - Use original alias name for alias field.
-   */
-  variables[key][index] = {
-    ...variable,
-    alias: formatAlias(variable),
-    original: match.original,
-    unit: match.unit,
-    value: match.value,
+  yield {
+    group,
+    name,
+    ...object,
   }
 }
 
 /**
  * Format property into variable object.
  * - Convert pixel value to rem where applicable.
+ * @param {String} group - Object group if not root object.
  * @param {String} name - Object name/key (e.g. 'xs').
  * @param {String} type - Type of property (e.g. 'breakpoint').
- * @param {Object} value - Object values.
+ * @param {Object} valueObject - Object values.
  */
-function formatVariable({ name, type, value: valueObject }) {
+function formatVariable({ group = false, name, type, valueObject }) {
   let unit = ''
 
-  // eslint-disable-next-line prefer-const
-  let { original, value } = convertValue(valueObject, type)
+  const handle = type === config.special.layout?.base
+    ? convertStringToHandle(name.replace(/(?:mobile|tablet|desktop)/gi, ''), config)
+    : convertStringToHandle(name, config)
+
+  let { original, value } = convertValue(valueObject, handle, type)
 
   /**
    * If property has associated unit, add it.
    * - If value is string and contains '%' then don't set unit.
+   * - Remove units from layout columns.
+   * - Set unit for colours.
    */
-  if (typeof value === 'string' && value.includes('%')) {
+  if (
+    (typeof value === 'string' && value.includes('%')) ||
+    handle === config.special.layout?.column
+  ) {
     unit = ''
   } else if (config.units[type] && config.units[type] !== 'rgb') {
     unit = config.units[type]
@@ -321,7 +275,7 @@ function formatVariable({ name, type, value: valueObject }) {
   /**
    * Create variable name.
    */
-  const variable = convertPropertyNameToVariable({ group: valueObject.group, name, type })
+  const variable = convertPropertyNameToVariable({ group, name, type })
 
   /**
    * Special behaviours.
@@ -337,15 +291,16 @@ function formatVariable({ name, type, value: valueObject }) {
 
     case config.special.fontWeight:
       if (typeof value === 'string') {
-        value = config.fontWeights[value.toLowerCase()]
+        value = config.fontWeights[value.toLowerCase().replaceAll('\'', '')]
       }
       break
   }
 
   return {
     description: valueObject.description,
-    group: valueObject.group,
-    name,
+    group: valueObject.group || group,
+    handle,
+    name: name.toLowerCase(),
     original,
     unit,
     value,
@@ -356,12 +311,27 @@ function formatVariable({ name, type, value: valueObject }) {
 /**
  * Convert values based on config.
  * @param {Object} valueObject - Object containing value.
+ * @param {String} handle - Handle of name (e.g. 'mobile-column').
  * @param {String} type - Type of property (e.g. 'breakpoint').
  * @return {Object}
  */
-function convertValue(valueObject, type) {
+function convertValue(valueObject, handle, type) {
   let original = false
   let value = valueObject.value
+
+  /**
+   * Convert AUTO to auto for line heights.
+   */
+  if (value === 'AUTO') {
+    value = 'auto'
+  }
+
+  /**
+   * If value is a string with 'px' then convert to number.
+   */
+  if (value.includes('px')) {
+    value = Number(value.replaceAll('px', ''))
+  }
 
   /**
    * If value has spaces then wrap in quotations.
@@ -417,7 +387,7 @@ function convertValue(valueObject, type) {
   if (!isNaN(value)) {
     value = Number(value)
 
-    if (config.units[type] === 'rem') {
+    if (config.units[type] === 'rem' && handle !== config.special.layout?.column) {
       original = {
         unit: 'px',
         value,
@@ -467,15 +437,15 @@ function convertValue(valueObject, type) {
  * @returns {String}
  */
 function convertPropertyNameToVariable({ group = false, name, type } = {}) {
-  let nameHandle = convertStringToHandle(name)
-  const typeHandle = convertStringToHandle(type)
+  let nameHandle = convertStringToHandle(name, config)
+  const typeHandle = convertStringToHandle(type, config)
 
   if (group) {
     const renamedGroup = config.renameVariable[group]
       ? config.renameVariable[group]
       : group
 
-    nameHandle = `${convertStringToHandle(renamedGroup)}${config.delimiter}${nameHandle}`
+    nameHandle = `${convertStringToHandle(renamedGroup, config)}${config.delimiter}${nameHandle}`
   }
 
   /**
@@ -492,9 +462,157 @@ function convertPropertyNameToVariable({ group = false, name, type } = {}) {
   }
 
   /**
+   * Walk through each part of the variable to make sure the same word isn't
+   * next to each other.
+   * - E.g. 'font-family-family-#' becomes 'font-family-#'.
+   * - Walk through in reverse as this will usually mean that a plural isn't
+   * - E.g. 'color-neutrals-neutral-#' becomes 'color-neutral-#'.
+   *   used in the variable.
+   * - Set lastWord to 'initialWord' to avoid S ordinals equalling blank after
+   *   they've been sliced.
+   */
+  let lastWord = 'initialWord'
+
+  variable = variable
+    .split(config.delimiter)
+    .reverse()
+    .map((word) => {
+      if (
+        word === lastWord ||
+        word === `${lastWord}s` ||
+        word === lastWord.slice(0, -1)
+      ) {
+        return false
+      }
+
+      lastWord = word
+      return word
+    })
+    .filter(Boolean)
+    .reverse()
+    .join(config.delimiter)
+
+  /**
    * Return variable name.
    */
   return `${config.cssPrefix}${variable}`
+}
+
+/**
+ * Sort variables to match config.
+ * @param {Object} variables - Pre-sorted variables.
+ * @returns {Object}
+ */
+function sortVariables(variables) {
+  const presortedVariables = variables
+  const sortedKeys = Object.keys(presortedVariables).sort()
+  const sortedVariables = {}
+
+  sortedKeys.forEach((key) => {
+    sortedVariables[key] = presortedVariables[key]
+  })
+
+  /**
+   * Sort variables to match sorting config.
+   * - If in sorting config then sort alphabetically by default.
+   * - If type has an array then match the sorting of that.
+   */
+  Object.entries(config.sorting).forEach(([name, sorting]) => {
+    if (!sortedVariables[name]) {
+      return
+    }
+
+    sortedVariables[name] = sortedVariables[name].sort((a, b) => {
+      if (Array.isArray(sorting)) {
+        if (name !== config.special.layout?.base) {
+          return sorting.indexOf(a.name) - sorting.indexOf(b.name)
+        }
+
+        /**
+         * Layout multi-level sorting.
+         */
+        const aGroup = sorting.find((sort) => a.group.startsWith(sort))
+        const aIndex = sorting.indexOf(aGroup)
+        const bGroup = sorting.find((sort) => b.group.startsWith(sort))
+        const bIndex = sorting.indexOf(bGroup)
+
+        /**
+         * If index matches then sort alphabetically.
+         * - Splits off the matching sorting prefix.
+         */
+        if (aIndex === bIndex) {
+          const aToken = a.name.replace(aGroup, '')
+          const bToken = b.name.replace(bGroup, '')
+          return aToken.localeCompare(bToken)
+        }
+
+        return aIndex - bIndex
+      }
+
+      return a.variable.localeCompare(b.variable)
+    })
+  })
+
+  return sortedVariables
+}
+
+/**
+ * Replaces aliases with actual colour value.
+ * @param {String} key - Variable's group key.
+ * @param {Number} index - Index of variable in variable's group.
+ * @param {Object} [previousMatch] - Previous variable match if alias.
+ * @param {Object} variable - Variable object.
+ * @param {Array} variables - Formatted variables object.
+ */
+function replaceAlias({
+  key,
+  index,
+  previousMatch = false,
+  variable,
+  variables,
+} = {}) {
+  const object = previousMatch || variable
+
+  if (
+    typeof object.value !== 'string' ||
+    !object.value.includes('{')
+  ) {
+    return
+  }
+
+  const match = getAliasValue({
+    config,
+    key,
+    value: object.value,
+    variables,
+  })
+
+  if (!match) {
+    return
+  }
+
+  /**
+   * Use variable for layout tokens.
+   */
+  let unit = match.variable.unit
+  let value = match.variable.value
+
+  if (key === config.special.layout?.base) {
+    unit = ''
+    value = match.value
+  }
+
+  /**
+   * Update variable.
+   * - Use original alias name for alias field.
+   */
+  variables[key][index] = {
+    ...variable,
+    alias: formatAlias(variable, config),
+    original: match.variable?.original,
+    unit,
+    value,
+  }
 }
 
 /**
@@ -504,9 +622,17 @@ function convertPropertyNameToVariable({ group = false, name, type } = {}) {
  * @returns {String}
  */
 function buildStyles(variables, stylesheet) {
-  let content = `/**\n * Config: ${stylesheet.name} variables\n * -----------------------------------------------------------------------------\n * Automatically generated by \`design\` command, do not edit.\n *\n */\n`
+  let folder = stylesheet.path
+    .split(path.sep)
+    .reverse()[0]
+
+  folder = `${folder.slice(0, 1).toUpperCase()}${folder.slice(1)}`
+  folder = folder.slice(-1) === 's' ? folder.slice(0, -1) : folder
+
+  let content = `/**\n * ${folder}: ${stylesheet.name}\n * -----------------------------------------------------------------------------\n * Automatically generated by \`design\` command, do not edit.\n *\n */\n`
   content += '// stylelint-disable\n\n'
   content += getStylesTemplate(variables, stylesheet)
+
   return content
 }
 
@@ -748,105 +874,11 @@ function getScriptTemplate(type, variables) {
 }
 
 /**
- * Utils
- * -----------------------------------------------------------------------------
- * Utility functions.
- *
- */
-
-/**
- * Format alias.
- * - Removes alias characters.
- * - If property is in format 'key.name' then remove key.
- * @param {String} alias - Original alias.
- * @returns {String}
- */
-function formatAlias(alias) {
-  let formattedAlias = alias.value.replace(/[{$}]/g, '')
-
-  if (formattedAlias.includes('.')) {
-    formattedAlias = formattedAlias.replaceAll('.', config.delimiter)
-  }
-
-  return formattedAlias
-}
-
-/**
- * Convert a string into handle (kebab-case).
- * @param {String} string - String to convert.
- * @param {String} delimiter - Delimiter between strings.
- * @param {String} type - Property type.
- * @returns {String}
- */
-function convertStringToHandle(string) {
-  const handle = string && string.replaceAll('+', 'Plus')
-
-  return handle
-    .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-}
-
-/**
- * Converts a camelCase to Title Case.
- * @param {String} string - String to convert.
- * @return {String}
- */
-function convertCamelCaseToTitleCase(string) {
-  let titleCase = string
-    .trim()
-    .replace(/(?<capitals>[A-Z])/g, ' $<capitals>')
-
-  titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1)
-
-  return titleCase.trim()
-}
-
-/**
- * Checks if key is excluded and not included.
- * - Can target specific values, e.g. 'text.text-body-m'.
- * - Used to determine if current key shouldn't be rendered.
- * - Returns true if key is excluded or is not included.
- * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
- * in format `[key].[className]`, e.g. 'text.text-body-m'.
- * @param {Object} stylesheet - Stylesheet object.
- * @returns {Boolean}
- */
-function isExcludedAndNotIncluded(key, stylesheet) {
-  if (stylesheet.include.length) {
-    const included = stylesheet.include.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[0]
-        : item
-
-      return test === key
-    })
-
-    return !included
-  }
-
-  if (stylesheet.exclude.length) {
-    const excluded = stylesheet.exclude.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[0]
-        : item
-
-      return test === key
-    })
-
-    return excluded
-  }
-
-  return false
-}
-
-/**
  * Export API.
  */
 module.exports = {
   buildScripts,
   buildStyles,
   convertPropertyNameToVariable,
-  convertStringToHandle,
   findVariables,
 }

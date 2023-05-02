@@ -6,6 +6,9 @@
  */
 const getDesignConfig = require('../helpers/get-design-config')
 const config = getDesignConfig()
+const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
+const convertStringToHandle = require('../helpers/convert-string-to-handle')
+const isExcludedAndNotIncluded = require('../helpers/is-excluded-not-included')
 
 /**
  * Find tokens by key and push formatted class object into object.
@@ -31,47 +34,19 @@ function findTokens(tokens, variables) {
     /**
      * Iterate over type object to create array of formatted objects.
      */
-    iterateObject({ classes, object: tokens, type, variables })
+    iterateObject({
+      classes,
+      object: tokens,
+      type,
+      variables,
+    })
   })
 
   /**
    * Sort typography into sorting order.
    */
   if (classes.typography && config.sorting.typography) {
-    const groupSorting = Object.keys(config.sorting.typography)
-
-    classes.typography = classes.typography.sort((a, b) => {
-      const aGroup = a.className.replace('text-', '').split('-')[0]
-      const bGroup = b.className.replace('text-', '').split('-')[0]
-
-      const aSize = a.className.replace('text-', '').split('-')[1]
-      const bSize = b.className.replace('text-', '').split('-')[1]
-
-      const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
-
-      /**
-       * If groups are equal then sort by size.
-       */
-      if (groupSort === 0) {
-        const sizeSorting = config.sorting.typography[aGroup]
-        const aSizeSort = sizeSorting.indexOf(aSize)
-        const bSizeSort = sizeSorting.indexOf(bSize)
-
-        /**
-         * If either don't exist in sizeSorting then sort alphabetically.
-         */
-        if (aSizeSort < 0 && bSizeSort < 0) {
-          return aSize.localeCompare(bSize)
-        }
-
-        return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
-      }
-
-      /**
-       * Sort group.
-       */
-      return groupSort
-    })
+    classes.typography = sortTypography(classes.typography)
   }
 
   /**
@@ -91,7 +66,16 @@ function findTokens(tokens, variables) {
 function iterateObject({ classes, object, parent, type, variables }) {
   Object.entries(object).forEach(([name, value]) => {
     if (!value.type) {
-      iterateObject({ classes, object: value, parent: name, type, variables })
+      const newParent = parent ? `${parent}${config.delimiter}${name}` : name
+
+      iterateObject({
+        classes,
+        object: value,
+        parent: newParent,
+        type,
+        variables,
+      })
+
       return
     }
 
@@ -99,7 +83,13 @@ function iterateObject({ classes, object, parent, type, variables }) {
       return
     }
 
-    classes[type].push(formatClass({ name, parent, type, value, variables }))
+    classes[type].push(formatClass({
+      name,
+      parent,
+      type,
+      value,
+      variables,
+    }))
   })
 }
 
@@ -139,7 +129,7 @@ function formatClass({
 function formatProperties(value, variables) {
 
   /**
-   * OriginalProperty: fontFamily, textCase etc.
+   * OriginalProperty: fontFamilies, textCase etc.
    * Alias: {font-family.sans}, {text-case.none} etc.
    */
   return Object.entries(value).map(([originalProperty, alias]) => {
@@ -173,13 +163,13 @@ function formatProperties(value, variables) {
 
     const property = config.renameVariable[originalProperty]
       ? config.renameVariable[originalProperty]
-      : convertStringToHandle(originalProperty)
+      : convertStringToHandle(originalProperty, config)
 
     /**
      * Find variables object.
      */
     const variableObject = variables[property]?.find((object) => {
-      return object.name === name
+      return object.name.toLowerCase() === name.toLowerCase()
     })
 
     if (!variableObject) {
@@ -211,6 +201,48 @@ function formatProperties(value, variables) {
 }
 
 /**
+ * Sort typography classes.
+ * @param {Array} typography - Typography classes to sort.
+ * @returns {Array}
+ */
+function sortTypography(typography) {
+  const groupSorting = Object.keys(config.sorting.typography)
+
+  return typography.sort((a, b) => {
+    const aGroup = a.className.replace('text-', '').split('-')[0]
+    const bGroup = b.className.replace('text-', '').split('-')[0]
+
+    const aSize = a.className.replace('text-', '').split('-')[1]
+    const bSize = b.className.replace('text-', '').split('-')[1]
+
+    const groupSort = groupSorting.indexOf(aGroup) - groupSorting.indexOf(bGroup)
+
+    /**
+     * If groups are equal then sort by size.
+     */
+    if (groupSort === 0 && config.sorting.typography[aGroup]) {
+      const sizeSorting = config.sorting.typography[aGroup]
+      const aSizeSort = sizeSorting.indexOf(aSize)
+      const bSizeSort = sizeSorting.indexOf(bSize)
+
+      /**
+       * If either don't exist in sizeSorting then sort alphabetically.
+       */
+      if (aSizeSort < 0 && bSizeSort < 0) {
+        return aSize.localeCompare(bSize)
+      }
+
+      return sizeSorting.indexOf(aSize) - sizeSorting.indexOf(bSize)
+    }
+
+    /**
+     * Sort group.
+     */
+    return groupSort
+  })
+}
+
+/**
  * Build classes stylesheet content.
  * @param {Object} classes - Converted classes object.yarn
  * @param {Object} variables - Converted variables object.
@@ -226,54 +258,57 @@ function buildStyles(classes, variables, stylesheet) {
    */
   if (
     classes[config.defaultsType] &&
-    classes[config.defaultsType][0].className !== config.special.htmlBody
+    classes[config.defaultsType][0]?.className !== config.special.htmlBody
   ) {
     const bodyObject = classes[config.defaultsType].find((object) => {
       return hasDefaultClass(object.className, config.defaults.body)
     })
 
-    /**
-     * Find base scale variable.
-     */
-    const baseScale = variables[config.special.baseScale.split('.')[0]][0]
+    if (bodyObject) {
 
-    /**
-     * Replace font size property with base scale variable.
-     */
-    const fontSize = bodyObject.properties.find((property) => {
-      return property.property === config.special.fontSize
-    })
+      /**
+       * Find base scale variable.
+       */
+      const baseScale = variables[config.special.baseScale.toLowerCase().split('.')?.[0]]?.[0]
 
-    const fontSizeCopy = { ...fontSize }
-    fontSizeCopy.value = `var(${baseScale.variable})`
-    fontSizeCopy.variable = baseScale
+      /**
+       * Replace font size property with base scale variable.
+       */
+      const fontSize = bodyObject.properties.find((property) => {
+        return property.property === config.special.fontSize
+      })
 
-    /**
-     * Update properties array with new font size object.
-     */
-    const properties = bodyObject.properties.map((property) => {
-      if (property.property === config.special.fontSize) {
-        return fontSizeCopy
-      }
+      const fontSizeCopy = { ...fontSize }
+      fontSizeCopy.value = `var(${baseScale?.variable})`
+      fontSizeCopy.variable = baseScale
 
-      return property
-    })
+      /**
+       * Update properties array with new font size object.
+       */
+      const properties = bodyObject.properties.map((property) => {
+        if (property.property === config.special.fontSize) {
+          return fontSizeCopy
+        }
 
-    /**
-     * Add html, body class.
-     */
-    classes[config.defaultsType].unshift({
-      className: config.special.htmlBody,
-      description: bodyObject.description,
-      properties,
-    })
+        return property
+      })
+
+      /**
+       * Add html, body class.
+       */
+      classes[config.defaultsType].unshift({
+        className: config.special.htmlBody,
+        description: bodyObject.description,
+        properties,
+      })
+    }
   }
 
   /**
    * Build CSS declarations.
    */
   Object.entries(classes).forEach(([key, value], index) => {
-    if (isExcludedAndNotIncluded(key, stylesheet)) {
+    if (isExcludedAndNotIncluded(key, stylesheet, config)) {
       return
     }
 
@@ -309,7 +344,7 @@ function buildCssDeclarations({ key, stylesheet, value }) {
   let content = `// ${convertCamelCaseToTitleCase(key)}\n`
 
   value.forEach(({ className, properties }, valueIndex) => {
-    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet)) {
+    if (isExcludedAndNotIncluded(`${key}.${className}`, stylesheet, config)) {
       return
     }
 
@@ -379,7 +414,13 @@ function buildCriticalStyles({ className, properties }) {
 
   if (!defaultObject) {
     content += `${formattedClassName} {\n`
-    content += buildCssDeclarationBlock(properties)
+
+    if (className.includes(',')) {
+      content += buildCssDeclarationBlock(properties)
+    } else {
+      content += `  @include ${className};\n}\n`
+    }
+
     return content
   }
 
@@ -443,7 +484,7 @@ function buildCriticalDefaultDeclaration({ defaultName, formattedClassName, prop
       return object.property === config.special.fontSize
     })
 
-    htmlBodyFontSize = `  font-size: ${fontSizeProperty.value};\n`
+    htmlBodyFontSize = `  font-size: ${fontSizeProperty?.value};\n`
   }
 
   content += `${formattedClassName} {\n`
@@ -544,23 +585,26 @@ function buildDefaultStyles({ className, properties }) {
   }
 
   /**
-   * Use mixins.
+   * Output text and hover classes.
    */
-  content += `${formattedClassName} {\n`
-  content += `  @include ${className};\n\n`
+  content += `${formattedClassName},\n`
+  content += `${formattedClassName}-hover:hover {\n`
+  content += `  @include ${className};\n`
+  content += `}\n\n`
 
   if (config.textTabletBreakpoint) {
     content += `  @include mq($from: ${config.breakpoint.tablet}, $until: ${config.breakpoint.desktop}) {\n`
-    content += `    &-tablet.${className}-tablet {\n`
-    content += `      @include ${className};\n`
-    content += `    }\n`
-    content += `  }\n\n`
+    content += `  ${formattedClassName}-tablet.${className}-tablet,\n`
+    content += `  ${formattedClassName}-tablet-hover:hover.${className}-tablet-hover:hover {\n`
+    content += `    @include ${className};\n`
+    content += `  }\n`
+    content += `}\n`
   }
 
-  content += `  @include mq($from: ${config.breakpoint.desktop}) {\n`
-  content += `    &-desktop.${className}-desktop {\n`
-  content += `      @include ${className};\n`
-  content += `    }\n`
+  content += `@include mq($from: ${config.breakpoint.desktop}) {\n`
+  content += `  ${formattedClassName}-desktop.${className}-desktop,\n`
+  content += `  ${formattedClassName}-desktop-hover:hover.${className}-desktop-hover:hover {\n`
+  content += `    @include ${className};\n`
   content += `  }\n`
   content += `}\n`
 
@@ -653,7 +697,7 @@ function outputBrandColours(type, variables) {
  * @returns {String}
  */
 function convertStringToClassName(string, parent = false, type) {
-  let className = convertStringToHandle(convertOrdinal(string), parent)
+  let className = convertStringToHandle(convertOrdinal(string), config, true, parent)
   const parts = className.split(config.delimiter)
 
   if (type === config.defaultsType && parts.length) {
@@ -665,32 +709,6 @@ function convertStringToClassName(string, parent = false, type) {
   }
 
   return className
-}
-
-/**
- * Convert a string into handle (kebab-case).
- * @param {String} string - String to convert.
- * @param {String|Boolean} [parent] - String parent to combine.
- * @returns {String}
- */
-function convertStringToHandle(string, parent = false) {
-  let handle = string && string.replaceAll('+', 'Plus')
-
-  handle = handle
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  if (!parent) {
-    return handle
-  }
-
-  const parentHandle = parent
-    .match(/[A-Z0-9]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z0-9]+[0-9]*|[A-Z]|[0-9]+/g)
-    .map((part) => part.toLowerCase())
-    .join(config.delimiter)
-
-  return `${parentHandle}${config.delimiter}${handle}`
 }
 
 /**
@@ -711,79 +729,6 @@ function convertOrdinal(string) {
   const xCharacter = match[0].slice(0, 1)
 
   return string.replace(match[0], `${length}${xCharacter}`)
-}
-
-/**
- * Converts a camelCase to Title Case.
- * @param {String} string - String to convert.
- * @return {String}
- */
-function convertCamelCaseToTitleCase(string) {
-  let titleCase = string
-    .trim()
-    .replace(/(?<capitals>[A-Z])/g, ' $<capitals>')
-
-  titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1)
-
-  return titleCase.trim()
-}
-
-/**
- * Checks if key is excluded and not included.
- * - Can target specific values, e.g. 'text.text-body-m'.
- * - Used to determine if current key shouldn't be rendered.
- * - Returns true if key is excluded or is not included.
- * @param {String} key - Type of class, e.g. 'text'. If testing value then pass
- * in format `[key].[className]`, e.g. 'text.text-body-m'.
- * @param {Object} stylesheet - Stylesheet object.
- * @returns {Boolean}
- */
-function isExcludedAndNotIncluded(key, stylesheet) {
-  if (stylesheet.include.length) {
-    const included = stylesheet.include.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[0]
-        : item
-
-      return test === key
-    })
-
-    return !included
-  }
-
-  if (stylesheet.exclude.length) {
-    const excluded = stylesheet.exclude.some((item) => {
-      const test = item.includes('.') && !key.includes('.')
-        ? item.split('.')[1]
-        : item
-
-      return test === key
-    })
-
-    return excluded
-  }
-
-  /**
-   * If critical stylesheet and matches default class name or html, body then
-   * include in stylesheet render.
-   * - Only check when in format `[key].[className]`.
-   */
-  if (key.includes('.') && stylesheet.handle === 'classes-critical') {
-    const included = Object.entries(config.defaults).some(([defaultName, defaultClassName]) => {
-      if (defaultName === 'button') {
-        return false
-      }
-
-      return (
-        `${config.defaultsType}.${config.special.htmlBody}` === key ||
-        `${config.defaultsType}.${defaultClassName}` === key
-      )
-    })
-
-    return !included
-  }
-
-  return false
 }
 
 /**

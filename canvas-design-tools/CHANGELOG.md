@@ -2,6 +2,22 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.0.0 - 2023-04-11
+
+* Added `-hover` text classes
+* Updated to support new design tokens
+* Updated forms styleguide template
+
+## 1.4.0 - 2023-02-28
+
+* Added support for utility stylesheets
+* Added `--no-js` and `--no-storybook` flags
+
+## 1.3.1 - 2023-02-01
+
+* Fixed Storybook text styles being affected by tokens
+* Fixed `include` array setting in critical stylesheet overriding default text classes
+
 ## 1.3.0 - 2023-01-31
 
 * Updated command to output version of the tool instead of Canvas

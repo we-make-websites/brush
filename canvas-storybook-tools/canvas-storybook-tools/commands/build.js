@@ -12,8 +12,10 @@ const Tny = require('@we-make-websites/tannoy')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
+const getPackageVersion = require('../helpers/get-package-version')
 const getVariablesUpdated = require('../helpers/get-variables-updated')
 const Paths = require('../helpers/paths')
+const templatesApi = require('../apis/templates')
 
 /**
  * Execute commands in node.
@@ -30,6 +32,7 @@ const argv = yargs(hideBin(process.argv)).argv
  * Set global variables.
  */
 let iframeScripts = []
+let version = '{{canvas version}}'
 
 /**
  * Configure compiling spinner frames.
@@ -43,6 +46,7 @@ const frames = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', 
 async function init() {
   const start = performance.now()
   const variablesUpdated = await getVariablesUpdated()
+  version = getPackageVersion()
 
   try {
     logBanner()
@@ -107,7 +111,8 @@ async function init() {
  */
 function logBanner() {
   const messages = [
-    Tny.colour('bgCyan', 'Canvas Storybook Tools v{{storybook version}}'),
+    Tny.colour('bgCyan', `Canvas storybook tools v${version}`),
+    Tny.colour('bgCyan', 'Build command'),
     Tny.colour('bgCyan', 'Running build-storybook --output-dir storybook'),
   ]
 
@@ -159,7 +164,7 @@ function updateIndex() {
       file = file
         .replace('</head>', `{% capture shopify_header_content %}{{ content_for_header }}{% endcapture %}{{ shopify_header_content | remove: 'previewBarInjector.init();' }}</head>`)
         .replace('</body>', '{{ content_for_layout }}</body>')
-        .replace('<title>Webpack App</title>', getTitle())
+        .replace('<title>Webpack App</title>', templatesApi.title())
         .replace(
           /assets\/(?<url>[a-z0-9.-]*\.(?:js|png))/g,
           (_, $1) => {
@@ -180,34 +185,6 @@ function updateIndex() {
       reject(error)
     }
   })
-}
-
-/**
- * Get title and OpenGraph tags.
- * @returns {String}
- */
-function getTitle() {
-  return `
-    {%- liquid
-      assign og_description = 'Storybook of all styles and components built for # by We Make Websites.' | replace: '#', shop.name
-      assign og_title = 'Storybook'
-      assign og_type = 'website'
-      assign og_url = canonical_url | default: request.origin
-    -%}
-
-    <title>{{ og_title }}</title>
-
-    <meta property="og:description" content="{{ og_description | escape }}">
-    <meta property="og:site_name" content="{{ shop.name }}">
-    <meta property="og:title" content="{{ og_title | escape }}">
-    <meta property="og:type" content="{{ og_type }}">
-    <meta property="og:url" content="{{ og_url }}">
-    <meta property="og:image" content="http:{{ 'storybook-social.jpg' | asset_img_url: '1200x' }}">
-    <meta property="og:image:alt" content="">
-    <meta property="og:image:height" content="628">
-    <meta property="og:image:secure_url" content="https:{{ 'storybook-social.jpg' | asset_img_url: '1200x' }}">
-    <meta property="og:image:width" content="1200">
-  `
 }
 
 /**
@@ -241,15 +218,11 @@ function createLiquidFiles() {
     try {
 
       /**
-       * Create index.json template.
+       * Create required templates.
        */
       await fs.mkdirSync(Paths.templates.root)
-
-      await fs.writeFile(
-        Paths.templates.index,
-        '{\n  "sections": {},\n  "order": []\n}',
-        'utf-8',
-      )
+      await fs.writeFile(Paths.templates.index, templatesApi.index(), 'utf-8')
+      await fs.writeFile(Paths.templates.giftCard, templatesApi.giftCard(), 'utf-8')
 
       /**
        * Create settings_schema.json config.
