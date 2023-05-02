@@ -3,6 +3,7 @@
 ## 3.2.0 - 2023-05-02
 
 * Added dependabot check
+* Updated dependencies
 
 ## 3.1.0 - 2023-02-01
 
