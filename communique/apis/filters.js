@@ -5,6 +5,12 @@
  *
  */
 /* eslint-disable camelcase */
+const getEmailConfig = require('../helpers/get-email-config')
+
+/**
+ * Set variables.
+ */
+const config = getEmailConfig()
 
 /**
  * Format address filter.
@@ -38,7 +44,7 @@ function money(cents, format) {
   }
 
   // eslint-disable-next-line no-template-curly-in-string
-  const formatString = format || '${{amount}}'
+  const formatString = format || config.moneyFormat || '${{amount}}'
   let formattedCents = cents
 
   if (typeof formattedCents === 'string') {

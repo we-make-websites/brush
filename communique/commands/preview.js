@@ -16,8 +16,8 @@ const filtersApi = require('../apis/filters')
 const messagesApi = require('../apis/messages')
 
 const getBrowsersyncConfig = require('../helpers/get-browsersync-config')
-const getPorts = require('../helpers/get-ports')
 const getFilesInFolder = require('../helpers/get-files-in-folder')
+const getPorts = require('../helpers/get-ports')
 const Paths = require('../helpers/paths')
 
 /**

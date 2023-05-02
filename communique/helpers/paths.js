@@ -17,6 +17,7 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  * @returns {Object}
  */
 module.exports = {
+  config: path.resolve(rootFolder, 'emails', 'email.config.js'),
   context: {
     index: path.resolve(rootFolder, 'emails', 'src', 'context', 'index.json'),
     root: path.resolve(rootFolder, 'emails', 'src', 'context'),
