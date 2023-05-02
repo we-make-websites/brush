@@ -1,5 +1,9 @@
 # 📅 Branch Naming Check Changelog
 
+## 3.2.0 - 2023-05-02
+
+* Added dependabot check
+
 ## 3.1.0 - 2023-02-01
 
 * Added early return if no branch name provided to support commit message updates
