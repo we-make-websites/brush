@@ -25,7 +25,10 @@ const Paths = require('../helpers/paths')
  */
 const engine = new Liquid({
   extname: '.liquid',
-  root: Paths.templates,
+  root: [
+    Paths.templates,
+    Paths.snippets,
+  ],
 })
 
 /**
