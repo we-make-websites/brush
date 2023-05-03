@@ -46,5 +46,5 @@ module.exports = (hex) => {
     return `rgb(${red} ${green} ${blue})`
   }
 
-  return `rgb(${red} ${green} ${blue} ${Math.round(alphaFromHex * 100)}%)`
+  return `rgb(${red} ${green} ${blue} / ${Math.round(alphaFromHex * 100)}%)`
 }
