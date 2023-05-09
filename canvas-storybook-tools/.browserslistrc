@@ -1,0 +1,7 @@
+# Browsers list
+# ---
+# To test browsers run npx browserslist
+# To update browserslist database run npx browserslist@latest --update-db
+last 2 major versions
+> 2%
+not dead
