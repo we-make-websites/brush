@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.2.1. - 2023-05-11
+
+* Fixed ESLint extend config
+
 ## 1.2.0 - 2023-05-11
 
 * Updated dependencies
