@@ -18,6 +18,7 @@ Linting is shared across all tools.
 | `@we-make-websites/communique` | Local Shopify notification email development | [README](communique/README.md) |
 | `@we-make-websites/eslint-config` | ESLint config for Webpack projects | [README](eslint-config/README.md) |
 | `@we-make-websites/eslint-config-module` | ESLint config for non-Webpack projects | [README](eslint-config-module/README.md) |
+| `@we-make-websites/file-sync` | Find filepaths in folder in Node | [README](file-sync/README.md) |
 | `@we-make-websites/stylelint-config` | Stylelint config | [README](stylelint-config/README.md) |
 | `@we-make-websites/tannoy` | Pretty terminal messaging | [README](tannoy/README.md) |
 | `@we-make-websites/theme-currency` | Updated fork of `@shopify/theme-currency` | [README](theme-currency/README.md) |
