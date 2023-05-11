@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.1.0 - 2023-05-10
+
+* Added list of tools to _README.md_
+
 ## 1.0.2 - 2022-11-14
 
 * Removed shared `devDependencies` from individual packages
