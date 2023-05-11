@@ -2,8 +2,11 @@
 
 ## 3.3.1 - 2022-11-14
 
-* Added `no-new-native-nonconstructor` and `no-empty-static-block` rules
 * Fixing bad npm publish
+
+## 3.3.0 - 2022-11-14
+
+* Added `no-new-native-nonconstructor` and `no-empty-static-block` rules
 
 ## 3.2.0 - 2022-10-19
 
