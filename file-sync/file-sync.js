@@ -14,7 +14,7 @@ const path = require('path')
  * @param {Boolean} namesOnly - Return only the filename, not the full path.
  * @returns {Array}
  */
-export function *walkSync(folder, filetypes = [], namesOnly = false) {
+function *walkSync(folder, filetypes = [], namesOnly = false) {
   const files = fs.readdirSync(folder, { withFileTypes: true })
 
   for (const file of files) {
@@ -38,4 +38,15 @@ export function *walkSync(folder, filetypes = [], namesOnly = false) {
 
     yield path.join(folder, file.name)
   }
+}
+
+/**
+ * Export.
+ * @param {String} folder - Path of folder to look in.
+ * @param {Array} filetypes - Filetypes to filter.
+ * @param {Boolean} namesOnly - Return only the filename, not the full path.
+ * @returns {Array}
+ */
+module.exports = (folder, filetypes, namesOnly) => {
+  return walkSync(folder, filetypes, namesOnly)
 }
