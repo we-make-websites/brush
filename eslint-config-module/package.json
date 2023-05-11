@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/eslint-config-module",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "We Make Website's eslint rules and config for non-Webpack projects.",
   "repository": "https://github.com/we-make-websites/eslint-config",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
