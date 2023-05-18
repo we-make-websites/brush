@@ -23,6 +23,7 @@ extends: [
 
 ## Versions
 
+* `4.#.#` - Future support for stylelint 16
 * `3.#.#` - Canvas projects
 * `2.#.#` - Frame projects using stylelint 13 or older
 * `1.#.#` - Do not use
