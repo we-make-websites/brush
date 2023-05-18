@@ -2,6 +2,11 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.3.0 - 2023-05-18
+
+* Removed package _.npmrc_ files
+* Removed `canvas-library-tools` package
+
 ## 1.2.1. - 2023-05-11
 
 * Fixed ESLint extend config
