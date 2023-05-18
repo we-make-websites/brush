@@ -2,6 +2,10 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
+## 1.4.0 - 2023-05-18
+
+* Replaced _get-files-in-folder.js_ helper with `@we-make-websites/file-sync`
+
 ## 1.3.0 - 2023-04-11
 
 * Added support for _settings_schema.js_ schema file
