@@ -1,7 +1,7 @@
 /**
- * Helper: Get files in folder
+ * File Sync
  * -----------------------------------------------------------------------------
- * 'glob-fs' has become unreliable on Windows machines, replaces functionality.
+ * Finds all files in folder and sub-folders with support for filtering.
  *
  */
 const fs = require('fs-extra')
