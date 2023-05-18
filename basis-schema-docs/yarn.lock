@@ -2,6 +2,14 @@
 # yarn lockfile v1
 
 
+"@we-make-websites/file-sync@1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.0.0/625a0a528f571b370defc961b474e7545a6a1b5b#625a0a528f571b370defc961b474e7545a6a1b5b"
+  integrity sha512-W/Gs9ftgP6cP4L2pZdr8BQKM0D4sAZe7l5j2hy1rylWifGR88JbNUMCqjDoje3NTLmHiCteAP5VwjoZqqD9bZg==
+  dependencies:
+    fs-extra "11.1.1"
+    path "0.12.7"
+
 "@we-make-websites/tannoy@1.12.0":
   version "1.12.0"
   resolved "https://registry.yarnpkg.com/@we-make-websites/tannoy/-/tannoy-1.12.0.tgz#2069030f8c525c9174f37d2864f161e3f0ee4240"
@@ -129,6 +137,15 @@ fs-extra@10.1.0:
   version "10.1.0"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
   integrity sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
+fs-extra@11.1.1:
+  version "11.1.1"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.1.1.tgz#da69f7c39f3b002378b0954bb6ae7efdc0876e2d"
+  integrity sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"
