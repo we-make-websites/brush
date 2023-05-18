@@ -1,6 +1,6 @@
-# eslint-config
+# 🔧 Eslint Config Module
 
-We Make Website's eslint rules and config.
+We Make Website's eslint rules and config for non-Webpack projects.
 
 ## Installation
 
@@ -11,19 +11,12 @@ yarn add eslint @we-make-websites/eslint-config --dev
 ```
 
 ## Usage
-We Make Website's eslint rules come bundled in `@we-make-websites/eslint-config`.
+We Make Website's eslint rules come bundled in `@we-make-websites/eslint-config-module`.
 
 To enable these rules add the following to your _.eslintrc_ root file:
 
 ```js
 extends: [
-  '@we-make-websites/eslint-config',
+  '@we-make-websites/eslint-config-module',
 ],
 ```
-
-## Versions
-
-* `3.#.#-module` - Non-webpack projects
-* `3.#.#` - Canvas `3.8.0` or newer
-* `2.#.#` - Canvas `3.7.0` or older
-* `1.#.#` - Do not use

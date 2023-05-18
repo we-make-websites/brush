@@ -1,6 +1,6 @@
 # 🔧 Eslint Config
 
-We Make Website's eslint rules and config.
+We Make Website's eslint rules and config for Webpack-based projects.
 
 ## Installation
 
@@ -23,7 +23,6 @@ extends: [
 
 ## Versions
 
-* `3.#.#-module` - Non-webpack projects
 * `3.#.#` - Canvas `3.8.0` or newer
 * `2.#.#` - Canvas `3.7.0` or older
 * `1.#.#` - Do not use

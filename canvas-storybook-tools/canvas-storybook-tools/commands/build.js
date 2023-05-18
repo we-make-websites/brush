@@ -6,8 +6,8 @@
  *
  */
 /* eslint-disable no-console */
+const fileSync = require('@we-make-websites/file-sync')
 const fs = require('fs-extra')
-const glob = require('glob-fs')({ gitignore: true })
 const Tny = require('@we-make-websites/tannoy')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
@@ -247,10 +247,13 @@ function createLiquidFiles() {
  * Finds all assets and updates file references to use asset_url Liquid.
  * @returns {Promise}
  */
-async function updateAssets() {
-  const queue = await glob.readdirPromise('storybook/assets/**/*').map((filepath) => {
-    return updateAssetFile(filepath)
-  }).filter(Boolean)
+function updateAssets() {
+  const assetFilepaths = fileSync(Paths.assets.root)
+  const queue = []
+
+  for (const filepath of assetFilepaths) {
+    queue.push(updateAssetFile(filepath))
+  }
 
   return Promise.all(queue)
 }

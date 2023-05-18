@@ -118,11 +118,11 @@ function buildAnimation(variables) {
     const styleObjectArray = []
     const styleEachArray = []
 
-    variables[config.styleguide.animation.easing].forEach((easing) => {
+    variables[config.styleguide.animation.easing]?.forEach((easing) => {
       const timingProperties = variables[config.styleguide.animation.timing]
       const objectValues = []
 
-      timingProperties.forEach((timing) => {
+      timingProperties?.forEach((timing) => {
         const variableName = `${easing.variable.replace('--', '')}-${timing.variable.replace('--', '')}`
         objectValues.push(`'${variableName}': var(${timing.variable}) var(${easing.variable})`)
       })
@@ -148,13 +148,13 @@ function buildAnimation(variables) {
      * - Go through each easing item, combine with each timing item to create
      *   preview animation.
      */
-    const groupArray = variables[config.styleguide.animation.easing].map((easing, easingIndex) => {
+    const groupArray = variables[config.styleguide.animation.easing]?.map((easing, easingIndex) => {
       const timingProperties = variables[config.styleguide.animation.timing]
 
       /**
        * Build grid property rows.
        */
-      const propertiesArray = timingProperties.map((timing, timingIndex) => {
+      const propertiesArray = timingProperties?.map((timing, timingIndex) => {
         const propertyClass = `sb-animation__label--${easing.variable.replace('--', '')}-${timing.variable.replace('--', '')}`
 
         const template = `
@@ -191,7 +191,7 @@ function buildAnimation(variables) {
           <td className="sb-group-table__properties">
             <table class="sb-property-table">
               <tbody>
-                ${propertiesArray.join('\n')}
+                ${propertiesArray?.join('\n')}
               </tbody>
             </table>
           </td>
@@ -201,7 +201,7 @@ function buildAnimation(variables) {
       return template.replaceAll('  ', '').replaceAll('\n', '')
     })
 
-    templates.animation = templates.animation.replace('<%= animation %>', groupArray.join('\n\n'))
+    templates.animation = templates.animation.replace('<%= animation %>', groupArray?.join('\n\n'))
     resolve()
   })
 }
@@ -534,7 +534,7 @@ function buildGrid(variables) {
         /**
          * Build group table template.
          */
-        const template = `
+        let template = `
           <tr className="sb-group-table__row">
             <td className="sb-group-table__title">
               <strong>${title}</strong>
@@ -549,6 +549,32 @@ function buildGrid(variables) {
             </td>
           </tr>
         `
+
+        /**
+         * Add custom responsive layout variables.
+         */
+        if (title.toLowerCase() === 'layout') {
+          const responsivePropertiesArray = ['column', 'gutter', 'margin', 'padding-bottom', 'padding-top', 'page-spacing'].map((property) => {
+            return `<tr class="sb-property-table__row"><td class="sb-property-table__variable sb-token">--layout-${property}</td><td class="sb-property-table__value sb-property-table__value--half" colspan="2">var(--layout-[breakpoint]-${property})</td></tr>`
+          })
+
+          template += `
+            <tr className="sb-group-table__row">
+              <td className="sb-group-table__title">
+                <strong>Layout (responsive)</strong><br /><br/ >
+                <span class="sb-subtitle">Manually added in <em>styles/base/critical.scss</em>, uses above variables based on current breakpoint</span>
+              </td>
+
+              <td className="sb-group-table__properties">
+                <table className="sb-property-table">
+                  <tbody>
+                    ${responsivePropertiesArray.join('\n')}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          `
+        }
 
         return template.replaceAll('  ', '').replaceAll('\n', '')
       }).filter(Boolean)
@@ -722,11 +748,11 @@ function buildIcons(variables) {
     /**
      * Build object of icon sizes and update stylesheet.
      */
-    const iconSizesObject = variables[config.styleguide.icon].map((property) => {
+    const iconSizesObject = variables[config.styleguide.icon]?.map((property) => {
       return `'${property.variable.replace('--', '')}': var(${property.variable})`
     })
 
-    templates.styles = templates.styles.replace('<%= icon-sizes %>', iconSizesObject.join(','))
+    templates.styles = templates.styles.replace('<%= icon-sizes %>', iconSizesObject?.join(','))
 
     /**
      * Build template.
@@ -790,7 +816,7 @@ function buildIcons(variables) {
  * @returns {String}
  */
 function buildIconTemplate(icon, sizes) {
-  const iconsTemplate = sizes.map(({ variable }) => {
+  const iconsTemplate = sizes?.map(({ variable }) => {
     const className = variable.replace('--', '')
 
     return `
@@ -804,7 +830,7 @@ function buildIconTemplate(icon, sizes) {
     <tr className="sb-property-table__row">
       <td className="sb-property-table__value">
         <div className="sb-icons__icons">
-          ${iconsTemplate.join('\n')}
+          ${iconsTemplate?.join('\n')}
         </div>
       </td>
 
@@ -830,11 +856,11 @@ function buildSpacing(variables) {
     const styleObjectArray = Object.values(config.styleguide.spacing).map((variable) => {
       const object = variables[variable]
 
-      const objectValues = object.map((property) => {
+      const objectValues = object?.map((property) => {
         return `'${property.variable.replace('--', '')}': var(${property.variable})`
       })
 
-      return `  $${variable}: (${objectValues.join(',')});`
+      return `  $${variable}: (${objectValues?.join(',')});`
     })
 
     /**
@@ -866,7 +892,7 @@ function buildSpacing(variables) {
       /**
        * Build inner template for each property.
        */
-      const propertiesArray = object.map((property) => {
+      const propertiesArray = object?.map((property) => {
         return `
           <tr className="sb-property-table__row">
             <td className="sb-property-table__variable">
@@ -895,7 +921,7 @@ function buildSpacing(variables) {
           <td className="sb-group-table__properties">
             <table className="sb-property-table">
               <tbody>
-                ${propertiesArray.join('\n')}
+                ${propertiesArray?.join('\n')}
               </tbody>
             </table>
           </td>

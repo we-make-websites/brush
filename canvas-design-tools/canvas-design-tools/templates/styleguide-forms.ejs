@@ -8,49 +8,46 @@ import { Meta, Preview } from '@storybook/addon-docs';
 
 <p className="sb-tooltip">ℹ&nbsp;&nbsp;&nbsp;When showing code note that MDX requires some custom attributes, these are not recommendations for changing your HTML attributes.</p>
 
-## Checkbox
-
-<Preview>
-<div className="checkbox">
-  <input id="checkbox-1" className="checkbox__input" type="checkbox" />
-  <label className="checkbox__label text-body-s" htmlFor="checkbox-1">Default</label>
-</div>
-<div className="checkbox">
-  <input id="checkbox-2" className="checkbox__input" checked readOnly type="checkbox" />
-  <label className="checkbox__label text-body-s" htmlFor="checkbox-2">Checked</label>
-</div>
-<div className="checkbox">
-  <input id="checkbox-3" className="checkbox__input" disabled type="checkbox" />
-  <label className="checkbox__label text-body-s" htmlFor="checkbox-3">Disabled</label>
-</div>
-</Preview>
-
-## Form group
+## Form groups
 
 <Preview>
 <div className="form-group">
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-email">Email</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-email">
+      Email
+      <span class="form-group__optional">Optional text</span>
+    </label>
     <input id="form-group-email" placeholder="Placeholder" type="email" defaultValue="test@test.com" />
+    <p class="form-group__note text-body-s-regular">Input note</p>
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-number">Number</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-number">Number</label>
     <input id="form-group-number" placeholder="Placeholder" type="number" defaultValue="1234" />
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-password">Password</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-password">Password</label>
     <input id="form-group-password" placeholder="Placeholder" type="password" defaultValue="password" />
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-tel">Tel</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-tel">Tel</label>
     <input id="form-group-tel" placeholder="Placeholder" type="tel" defaultValue="02036967828" />
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-text">Text</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-text">Text</label>
     <input id="form-group-text" placeholder="Placeholder" type="text" defaultValue="Lorem ipsum" />
   </div>
+  <div className="form-group__field has-success">
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-success">Success</label>
+    <input id="form-group-success" placeholder="Placeholder" type="text" defaultValue="Lorem ipsum" />
+    <p class="form-group__note text-body-s-regular">Input note</p>
+  </div>
+  <div className="form-group__field has-error">
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-error">Error</label>
+    <input id="form-group-error" placeholder="Placeholder" type="text" defaultValue="Lorem ipsum" />
+    <p class="form-group__note text-body-s-regular">Input note</p>
+  </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="form-group-disabled">Disabled</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="form-group-disabled">Disabled</label>
     <input id="form-group-disabled" disabled placeholder="Placeholder" type="text" defaultValue="Lorem ipsum" />
   </div>
   <div className="form-group__footer">
@@ -59,29 +56,12 @@ import { Meta, Preview } from '@storybook/addon-docs';
 </div>
 </Preview>
 
-## Radio
-
-<Preview>
-<div className="radio">
-  <input id="radio-1" className="radio__input" name="styleguide" type="radio" />
-  <label className="radio__label text-body-s" htmlFor="radio-1">Default</label>
-</div>
-<div className="radio">
-  <input id="radio-2" className="radio__input" checked readOnly name="styleguide" type="radio" />
-  <label className="radio__label text-body-s" htmlFor="radio-2">Checked</label>
-</div>
-<div className="radio">
-  <input id="radio-3" className="radio__input" disabled name="styleguide" type="radio" />
-  <label className="radio__label text-body-s" htmlFor="radio-3">Disabled</label>
-</div>
-</Preview>
-
 ## Select
 
 <Preview>
 <div className="form-group">
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="select-default">Default</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="select-default">Default</label>
     <select id="select-default">
       <option value="">First option</option>
       <option value="">Second option</option>
@@ -90,7 +70,7 @@ import { Meta, Preview } from '@storybook/addon-docs';
     </select>
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="select-disabled">Disabled</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="select-disabled">Disabled</label>
     <select id="select-disabled" disabled>
       <option value="">First option</option>
       <option value="">Second option</option>
@@ -106,11 +86,11 @@ import { Meta, Preview } from '@storybook/addon-docs';
 <Preview>
 <div className="form-group">
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="textarea-default">Default</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="textarea-default">Default</label>
     <textarea id="textarea-default" placeholder="Textarea"></textarea>
   </div>
   <div className="form-group__field">
-    <label className="form-group__label text-body-s" htmlFor="textarea-disabled">Disabled</label>
+    <label className="form-group__label text-body-m-regular" htmlFor="textarea-disabled">Disabled</label>
     <textarea id="textarea-disabled" disabled placeholder="Textarea"></textarea>
   </div>
 </div>
