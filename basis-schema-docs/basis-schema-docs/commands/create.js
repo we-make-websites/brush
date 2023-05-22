@@ -188,7 +188,13 @@ function buildDocumentationTemplate(schema) {
   let section = ''
   let blocks = ''
 
-  if (schema.settings?.length) {
+  if (
+    schema.settings?.length ||
+    schema.disabled_on?.groups?.length ||
+    schema.disabled_on?.templates?.length ||
+    schema.enabled_on?.groups?.length ||
+    schema.enabled_on?.templates?.length
+  ) {
     section = buildSectionTemplate(schema)
   }
 
@@ -225,12 +231,30 @@ function buildSectionTemplate(schema, name = 'Section') {
     buildSettingOrGroupTemplate(schema.settings),
   )
 
+  if (schema.enabled_on?.groups.length || schema.enabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'enabledOn',
+      buildEnabledDisabled(schema.enabled_on, 'Enabled on'),
+    )
+  }
+
+  if (schema.disabled_on?.groups.length || schema.disabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'disabledOn',
+      buildEnabledDisabled(schema.disabled_on, 'Disabled on'),
+    )
+  }
+
   /**
    * Remove unused shortcodes.
    */
   template = template
     .replaceAll(templateTag('name'), '')
     .replaceAll(templateTagString('limit'), '')
+    .replaceAll(templateTag('enabledOn'), '')
+    .replaceAll(templateTag('disabledOn'), '')
 
   return template
 }
@@ -460,6 +484,38 @@ function buildOptionsTemplate(options) {
     /<%= repeat %>.+/g,
     optionsTemplate,
   )
+
+  return template
+}
+
+/**
+ * Build markup for section enabled/disabled on settings.
+ * @param {Object} schema - Section schema object.
+ * @param {String} label - Label value.
+ * @returns {String}
+ */
+function buildEnabledDisabled(schema, label) {
+  let template = templates.enabledDisabled
+  template = tagReplace(template, 'label', label)
+  const settings = []
+
+  Object.keys(schema).forEach((key) => {
+    if (!schema[key].length) {
+      return
+    }
+
+    schema[key].forEach((value) => {
+      if (value === '*') {
+        settings.push(`<li>All ${key}</li>`)
+        return
+      }
+
+      const formattedKey = key === 'groups' ? 'group' : 'template'
+      settings.push(`<li>${value} (${formattedKey})</li>`)
+    })
+  })
+
+  template = tagReplace(template, 'enabledDisabledSettings', settings.join('\n'))
 
   return template
 }
