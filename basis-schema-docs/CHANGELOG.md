@@ -6,6 +6,7 @@ Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
 * Added support for `disabled_on`/`enabled_on` section settings
 * Updated dependencies
+* Fixed heading settings template not nesting correctly
 
 ## 1.4.0 - 2023-05-18
 
