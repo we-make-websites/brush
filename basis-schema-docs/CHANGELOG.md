@@ -2,6 +2,12 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
+## 1.5.0 - 2023-05-22
+
+* Added support for `disabled_on`/`enabled_on` section settings
+* Updated dependencies
+* Fixed heading settings template not nesting correctly
+
 ## 1.4.0 - 2023-05-18
 
 * Replaced _get-files-in-folder.js_ helper with `@we-make-websites/file-sync`
