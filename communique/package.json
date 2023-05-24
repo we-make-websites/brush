@@ -2,7 +2,7 @@
   "name": "@we-make-websites/communique",
   "version": "0.1.0-beta.1",
   "description": "We Make Website's eslint rules and config",
-  "repository": "https://github.com/we-make-websites/brush/src/master/communique",
+  "repository": "https://github.com/we-make-websites/brush/tree/master/communique",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
