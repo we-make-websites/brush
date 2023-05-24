@@ -8,6 +8,8 @@ Linting is shared across all tools.
 
 ## 🔧 Tools
 
+🔒 indicates that a package is published internally.
+
 | Package | | |
 |---|---|---|
 | `@we-make-websites/basis-schema-docs` | 🔒 Builds markdown docs from schemas | [README](basis-schema-docs/README.md) |
@@ -30,6 +32,6 @@ See *CHANGELOG.md* for a history of changes.
 
 ## 🤝 Contribution
 
-Before making any updates to Canvas Storybook Tools please talk to Craig Baldwin (craig@wemakewebsites.com)
+Before making any updates to Brush please talk to Craig Baldwin (craig@wemakewebsites.com)
 
 Once any work is completed send a pull request to Craig for review.
