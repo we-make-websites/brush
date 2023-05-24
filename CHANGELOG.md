@@ -2,6 +2,11 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.4.0 - 2023-05-24
+
+* Updated _README.md_
+* Fixed version
+
 ## 1.3.0 - 2023-05-18
 
 * Removed package _.npmrc_ files
