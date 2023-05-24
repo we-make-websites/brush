@@ -2,7 +2,7 @@
   "name": "@we-make-websites/branch-naming-check",
   "version": "3.2.0",
   "description": "Enforce We Make Website's branch naming conventions.",
-  "repository": "https://github.com/we-make-websites/brush/src/master/branch-naming-check",
+  "repository": "https://github.com/we-make-websites/brush/tree/master/branch-naming-check",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
