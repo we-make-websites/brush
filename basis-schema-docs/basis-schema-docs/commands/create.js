@@ -135,7 +135,15 @@ function createFiles(schemas) {
 
         if (handle === 'settings_schema') {
           fileContents = buildSettingsSchemaTemplate(schema)
-        } else if (schema.blocks?.length || schema.settings?.length) {
+
+        } else if (
+          schema.settings?.length ||
+          schema.blocks?.length ||
+          schema.disabled_on?.groups?.length ||
+          schema.disabled_on?.templates?.length ||
+          schema.enabled_on?.groups?.length ||
+          schema.enabled_on?.templates?.length
+        ) {
           fileContents = buildDocumentationTemplate(schema)
         }
 
