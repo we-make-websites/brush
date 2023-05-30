@@ -2,7 +2,7 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
-## 1.6.0 - 2023-05-30
+## 1.5.1 - 2023-05-30
 
 * Fixed markdown file not being generated for sections with `disabled_on`/`enabled_on` setting but no section settings
 
