@@ -4,7 +4,8 @@
  * Get all schema files in component folders.
  *
  */
-const getFilesInFolder = require('../helpers/get-files-in-folder')
+const fileSync = require('@we-make-websites/file-sync')
+
 const Paths = require('../helpers/paths')
 
 /**
@@ -14,8 +15,8 @@ const Paths = require('../helpers/paths')
 function getSchemas() {
   return new Promise((resolve, reject) => {
     try {
-      const componentSchemas = getFilesInFolder(Paths.components.root, ['schema.js'])
-      const sectionSchemas = getFilesInFolder(Paths.schemas.root, ['js'])
+      const componentSchemas = fileSync(Paths.components.root, ['schema.js'])
+      const sectionSchemas = fileSync(Paths.schemas.root, ['js'])
 
       const schemas = [
         ...componentSchemas,

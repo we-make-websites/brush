@@ -2,7 +2,7 @@
   "name": "@we-make-websites/canvas-component-tools",
   "version": "1.3.0",
   "description": "Component command line tool to create components.",
-  "repository": "https://bitbucket.org/we-make-websites/canvas-component-tools",
+  "repository": "https://github.com/we-make-websites/brush/tree/master/canvas-component-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
