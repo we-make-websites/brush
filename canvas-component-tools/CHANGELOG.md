@@ -5,6 +5,8 @@ Canvas Component Tools uses [semantic versioning](https://semver.org/).
 ## 1.4.0 - 2023-05-30
 
 * Updated `disabled_on` property to be disabled on all section groups
+* Fixed description not wrapping in Vue template causing eslint errors
+* Fixed description not being formatted correctly
 
 ## 1.3.0 - 2023-04-11
 
