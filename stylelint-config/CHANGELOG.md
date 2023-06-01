@@ -3,6 +3,7 @@
 ## 4.1.0 - 2023-06-01
 
 * Added `overflow: scroll` to disallowed property values list
+* Updated dependencies
 
 ## 4.0.0 - 2023-05-02
 
