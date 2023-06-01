@@ -2,6 +2,10 @@
 
 Theme Currency uses [semantic versioning](https://semver.org/).
 
+## 4.3.0 - 2023-04-27
+
+* Increased minimum Node version to match Canvas
+
 ## 4.2.1 - 2023-04-26
 
 * Reduced minimum Node version to support Grau

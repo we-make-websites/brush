@@ -46,7 +46,8 @@ function getComponentTemplate(component, filename) {
        */
       template = template
         .replaceAll('<%= customContent %>', replacementTemplate)
-        .replaceAll('<%= description %>', component.description)
+        .replaceAll('<%= description %>', component.formatted.description)
+        .replaceAll('<%= storyDescription %>', component.description)
         .replaceAll('<%= folder %>', component.folder)
         .replaceAll('<%= folderTitleCase %>', component.formatted.folder)
         .replaceAll('<%= handle %>', component.handle)
