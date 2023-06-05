@@ -14,6 +14,7 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:vue/vue3-recommended',
+    'plugin:import/recommended',
   ],
   globals: {
     geoip2: true,
@@ -30,6 +31,7 @@ module.exports = {
   root: true,
   rules: merge(
     require('./rules/formatting'),
+    require('./rules/import'),
     require('./rules/problems'),
     require('./rules/suggestions'),
     require('./rules/vue'),
