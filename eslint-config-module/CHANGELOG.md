@@ -1,5 +1,10 @@
 # 📅 Eslint Config Module Changelog
 
+## 3.5.0 - 2023-06-05
+
+* Re-added `eslint-plugin-import`
+* Updated dependencies
+
 ## 3.4.0 - 2023-05-11
 
 * Updated dependencies
