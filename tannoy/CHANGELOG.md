@@ -2,6 +2,12 @@
 
 Tannoy uses [semantic versioning](https://semver.org/).
 
+## 1.13.0 - 2023-05-18
+
+* Added `Tny.write()` function
+* Updated documentation
+* Removed support for `{{library version}}` shortcode
+
 ## 1.12.0 - 2022-10-03
 
 * Updated dependencies
