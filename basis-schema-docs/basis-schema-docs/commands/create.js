@@ -451,10 +451,29 @@ function buildSettingTemplate(setting) {
       template = tagReplace(template, key, buildOptionsTemplate(setting.options))
     }
 
-    template = tagReplace(template, key, setting[key])
+    template = tagReplace(template, key, formatValue(setting[key]))
   })
 
   return template
+}
+
+/**
+ * Formats boolean and number values to be wrapped in <code> tags.
+ * @param {String} value - Setting or option value.
+ * @returns {String}
+ */
+function formatValue(value) {
+  if (!isNaN(Number(value))) {
+    return `<code>${value}</code>`
+  }
+
+  switch (value.toLowerCase()) {
+    case 'true':
+    case 'false':
+      return `<code>${value}</code>`
+    default:
+      return value
+  }
 }
 
 /**
@@ -484,7 +503,7 @@ function buildOptionsTemplate(options) {
         return
       }
 
-      optionsTemplate += tagReplace(repeatTemplate, key, option[key])
+      optionsTemplate += tagReplace(repeatTemplate, key, formatValue(option[key]))
     })
   })
 
