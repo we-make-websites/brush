@@ -6,8 +6,7 @@
  */
 const fs = require('fs-extra')
 const path = require('path')
-
-const getFilesInFolder = require('../helpers/get-files-in-folder')
+const fileSync = require('@we-make-websites/file-sync')
 
 /**
  * Export.
@@ -19,7 +18,7 @@ function getTemplates(templatePath, templateFolder) {
   return new Promise(async(resolve, reject) => {
     try {
       const styleFolder = path.join(templatePath, templateFolder)
-      const files = getFilesInFolder(styleFolder, ['ejs'])
+      const files = fileSync(styleFolder, ['ejs'])
       const templates = {}
 
       for (const filepath of files) {
@@ -27,6 +26,8 @@ function getTemplates(templatePath, templateFolder) {
           .split(/[\\/]{1,2}/g)
           .reverse()[0]
           .replace('.ejs', '')
+          .replace(/-\w/g, ($1) => $1.toUpperCase())
+          .replaceAll('-', '')
 
         // eslint-disable-next-line no-await-in-loop
         const template = await fs.readFile(filepath, 'utf-8')
