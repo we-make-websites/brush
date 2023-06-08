@@ -55,11 +55,10 @@ async function init() {
   if (libraryJson.installed[packageJson.name]) {
     if (libraryJson.installed[packageJson.name] === packageJson.version) {
       await Tny.write(
-        'init - ⚠️ Component version already installed',
+        'init - 🚩 Component version already installed',
         Paths.libraryLog,
       )
 
-      await open(Paths.libraryLog)
       process.exit()
     }
 
@@ -83,8 +82,7 @@ async function init() {
     return
   }
 
-  await Tny.write('init - ⚠️ Manual install required', Paths.libraryLog)
-  await open(Paths.libraryLog)
+  await Tny.write('init - 🚩 Manual install required', Paths.libraryLog)
 }
 
 /**
