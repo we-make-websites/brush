@@ -2,6 +2,11 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.4.0 - 2023-08-06
+
+* Updated command to not open _library.log_ file when component already exists or requires manual install
+* Fixed warning emoji on Mac
+
 ## 1.3.0 - 2023-05-24
 
 * Moved package to Brush repo
