@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/copy-component",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Helper package to copy component from package files.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/copy-component",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",

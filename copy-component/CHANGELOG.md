@@ -2,7 +2,11 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
-## 1.4.0 - 2023-08-06
+## 1.4.1 - 2023-06-14
+
+* Fixed opening _README.md_ files on the `development` branch
+
+## 1.4.0 - 2023-06-12
 
 * Updated command to not open _library.log_ file when component already exists or requires manual install
 * Fixed warning emoji on Mac
