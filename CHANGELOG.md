@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.5.0 - 2023-06-26
+
+* Added _.github/_ folder files (_CODEOWNERS_, _CONTRIBUTING.md_, and _dependabot.yml_)
+
 ## 1.4.2 - 2023-05-24
 
 * Fixed `repository` value in package _README.md_ files
