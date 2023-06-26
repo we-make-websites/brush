@@ -2,6 +2,15 @@
 
 Canvas Storybook Tools uses [semantic versioning](https://semver.org/).
 
+## 1.15.0 - 2023-06-06
+
+* Updated dependencies
+* Fixed security issues
+
+## 1.14.0 - 2023-05-18
+
+* Replaced `glob-fs` with `@we-make-websites/file-sync`
+
 ## 1.13.0 - 2023-04-11
 
 * Updated branding
