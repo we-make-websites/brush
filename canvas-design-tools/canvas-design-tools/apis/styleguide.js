@@ -1069,7 +1069,10 @@ function formatName(name, prefix, group = false) {
     formattedName = `${group}${config.delimiter}${formattedName}`
   }
 
-  return convertStringToHandle(formattedName, config)
+  return convertStringToHandle({
+    config,
+    string: formattedName,
+  })
 }
 
 /**
