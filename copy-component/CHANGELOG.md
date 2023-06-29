@@ -2,6 +2,9 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.4.2 - 2023-06-28
+* Fixed log reporting the theme stylesheet has been updated when no updates were made
+
 ## 1.4.1 - 2023-06-14
 
 * Fixed opening _README.md_ files on the `development` branch
