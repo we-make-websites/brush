@@ -1,0 +1,42 @@
+<template>
+  <div class="<%= handle %>" />
+</template>
+
+<script>
+
+/**
+ * Vue: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * <%= description %>
+ * - Limited interactivity section.
+ *
+ * @param {String} liquid.sectionId - Section's Liquid ID.
+ *
+ */
+export default {
+  name: '<%= pascalCase %>',
+
+  props: {
+    // liquid: {
+    //   type: Object,
+    //   default: () => ({
+    //     sectionId: '',
+    //   }),
+    // },
+  },
+
+  data() {
+    return {
+
+    }
+  },
+
+  mounted() {
+    // Not empty
+  },
+
+  methods: {
+    // Not empty
+  },
+}
+</script>

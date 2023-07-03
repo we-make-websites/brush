@@ -534,7 +534,7 @@ function buildGrid(variables) {
         /**
          * Build group table template.
          */
-        const template = `
+        let template = `
           <tr className="sb-group-table__row">
             <td className="sb-group-table__title">
               <strong>${title}</strong>
@@ -549,6 +549,32 @@ function buildGrid(variables) {
             </td>
           </tr>
         `
+
+        /**
+         * Add custom responsive layout variables.
+         */
+        if (title.toLowerCase() === 'layout') {
+          const responsivePropertiesArray = ['column', 'gutter', 'margin', 'padding-bottom', 'padding-top', 'page-spacing'].map((property) => {
+            return `<tr class="sb-property-table__row"><td class="sb-property-table__variable sb-token">--layout-${property}</td><td class="sb-property-table__value sb-property-table__value--half" colspan="2">var(--layout-[breakpoint]-${property})</td></tr>`
+          })
+
+          template += `
+            <tr className="sb-group-table__row">
+              <td className="sb-group-table__title">
+                <strong>Layout (responsive)</strong><br /><br/ >
+                <span class="sb-subtitle">Manually added in <em>styles/base/critical.scss</em>, uses above variables based on current breakpoint</span>
+              </td>
+
+              <td className="sb-group-table__properties">
+                <table className="sb-property-table">
+                  <tbody>
+                    ${responsivePropertiesArray.join('\n')}
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          `
+        }
 
         return template.replaceAll('  ', '').replaceAll('\n', '')
       }).filter(Boolean)
@@ -1043,7 +1069,10 @@ function formatName(name, prefix, group = false) {
     formattedName = `${group}${config.delimiter}${formattedName}`
   }
 
-  return convertStringToHandle(formattedName, config)
+  return convertStringToHandle({
+    config,
+    string: formattedName,
+  })
 }
 
 /**
