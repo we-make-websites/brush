@@ -625,7 +625,7 @@ async function buildComponent() {
 
     if (component.template === 'limited-interactivity') {
       templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-limited-interactivity`
-      templateFilepath.vue = 'vue-limited-interactivity'
+      templateFilepath.vue = `vue-${component.folder}-limited-interactivity`
     }
 
     if (component.template === 'static') {
