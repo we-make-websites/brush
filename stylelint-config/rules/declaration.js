@@ -10,6 +10,10 @@ const message = (rule, unit) => {
       return `Do not use "${unit}" units, use "em" or "px" units`
     case 'line-height':
       return `Do not use "${unit}" units, instead use "%" or decimal values`
+    case 'overflow':
+    case 'overflow-x':
+    case 'overflow-y':
+      return `Do not use "${unit}" as this will always display scrollbars, use "auto" instead`
   }
 
   return 'Error'
@@ -47,6 +51,9 @@ module.exports = {
     {
       animation: ['linear'],
       '/^border$/': ['none'],
+      overflow: ['scroll'],
+      'overflow-x': ['scroll'],
+      'overflow-y': ['scroll'],
     },
     { message },
   ],
