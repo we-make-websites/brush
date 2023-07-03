@@ -15,8 +15,14 @@
  */
 function deepAssign(source, extra) {
   for (const key in extra) {
-    if (Object.prototype.toString.call(extra[key]) === '[object Object]') {
-      source[key] = deepAssign(source[key] || {}, extra[key])
+    if (
+      Object.prototype.toString.call(extra[key]) ===
+      '[object Object]'
+    ) {
+      source[key] = deepAssign(
+        source[key] || {},
+        extra[key],
+      )
       continue
     }
 

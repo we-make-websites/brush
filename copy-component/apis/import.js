@@ -7,56 +7,90 @@
 /* eslint-disable no-await-in-loop, prefer-promise-reject-errors */
 const fs = require('fs-extra')
 const path = require('path')
+const Tny = require('@we-make-websites/tannoy')
 
 const Paths = require('../helpers/paths')
 
 /**
- * Import async and global components.
+ * Import async and global components and stores.
  * @param {Object} imports - Components to import.
  * @returns {Promise}
  */
 function importComponents(imports) {
   return new Promise(async(resolve, reject) => {
     try {
-      if (
-        !imports.async.length &&
-        !imports.global.length &&
-        !imports.stores.length
-      ) {
+      if (!imports.length) {
+        await Tny.write(
+          'importComponents - No components to import',
+          Paths.libraryLog,
+        )
+
         resolve()
-        return
       }
 
       if (
-        !fs.existsSync(Paths.src.scripts.core.import) ||
-        !fs.existsSync(Paths.src.styles.layout.theme)
+        !fs.existsSync(Paths.src.canvasImports) ||
+        !fs.existsSync(Paths.src.themeStyles)
       ) {
         reject('Can\'t import files as necessary files are missing')
         return
       }
 
+      /**
+       * Split imports into types.
+       */
+      const types = {
+        async: [],
+        global: [],
+        stores: [],
+      }
+
+      let updatedStylesheet = false
+
+      imports.forEach((importName) => {
+        const parts = importName.split('/')
+        types[parts[0]].push(parts[1])
+      })
+
       const components = [
-        ...formatImports(imports.async, 'async'),
-        ...formatImports(imports.global, 'global'),
-        ...formatImports(imports.stores, 'stores'),
+        ...formatImports(types.async, 'async'),
+        ...formatImports(types.global, 'global'),
+        ...formatImports(types.stores, 'stores'),
       ]
 
-      let scripts = await fs.readFile(Paths.src.scripts.core.import, 'utf-8')
-      let styles = await fs.readFile(Paths.src.styles.layout.theme, 'utf-8')
+      let scripts = await fs.readFile(Paths.src.canvasImports, 'utf-8')
+      let styles = await fs.readFile(Paths.src.themeStyles, 'utf-8')
 
       for (const component of components) {
         scripts = await importComponent(component, scripts)
 
+        await Tny.write(
+          `importComponents - Imported "${component.handle}" component script`,
+          Paths.libraryLog,
+        )
+
         if (component.folder === 'global') {
           styles = await importStylesheet(component, styles)
+          updatedStylesheet = true
+
+          await Tny.write(
+            `importComponents - Imported "${component.handle}" component stylesheet`,
+            Paths.libraryLog,
+          )
         }
       }
 
       /**
        * Write file.
        */
-      await fs.writeFile(Paths.src.scripts.core.import, scripts, 'utf-8')
-      await fs.writeFile(Paths.src.styles.layout.theme, styles, 'utf-8')
+      await fs.writeFile(Paths.src.canvasImports, scripts, 'utf-8')
+      await Tny.write('importComponents - Updated Canvas imports', Paths.libraryLog)
+
+      if (updatedStylesheet) {
+        await fs.writeFile(Paths.src.themeStyles, styles, 'utf-8')
+        await Tny.write('importComponents - Updated theme stylesheet', Paths.libraryLog)
+      }
+
       resolve()
 
     } catch (error) {

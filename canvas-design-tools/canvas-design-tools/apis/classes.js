@@ -163,7 +163,10 @@ function formatProperties(value, variables) {
 
     const property = config.renameVariable[originalProperty]
       ? config.renameVariable[originalProperty]
-      : convertStringToHandle(originalProperty, config)
+      : convertStringToHandle({
+        config,
+        string: originalProperty,
+      })
 
     /**
      * Find variables object.
@@ -697,7 +700,13 @@ function outputBrandColours(type, variables) {
  * @returns {String}
  */
 function convertStringToClassName(string, parent = false, type) {
-  let className = convertStringToHandle(convertOrdinal(string), config, true, parent)
+  let className = convertStringToHandle({
+    config,
+    isClass: true,
+    parent,
+    string,
+  })
+
   const parts = className.split(config.delimiter)
 
   if (type === config.defaultsType && parts.length) {
@@ -709,26 +718,6 @@ function convertStringToClassName(string, parent = false, type) {
   }
 
   return className
-}
-
-/**
- * Convert ordinal to correct naming convention.
- * - E.g. XXXL -> 3XL.
- * - Matches existing casing.
- * @param {String} string - Original string.
- * @returns {String}
- */
-function convertOrdinal(string) {
-  const match = string?.match(/x+/giu)
-
-  if (!string || !match || match[0]?.length < 2) {
-    return string
-  }
-
-  const length = match[0].length
-  const xCharacter = match[0].slice(0, 1)
-
-  return string.replace(match[0], `${length}${xCharacter}`)
 }
 
 /**

@@ -23,7 +23,6 @@ extends: [
 
 ## Versions
 
-* `3.#.#-module` - Non-webpack projects
 * `3.#.#` - Canvas `3.8.0` or newer
 * `2.#.#` - Canvas `3.7.0` or older
 * `1.#.#` - Do not use
