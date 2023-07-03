@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/branch-naming-check",
-  "version": "3.3.0-beta.0",
+  "version": "3.3.0",
   "description": "Enforce We Make Website's branch naming conventions.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/branch-naming-check",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
