@@ -3602,13 +3602,6 @@
   resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.2.47.tgz#e597ef75086c6e896ff5478a6bfc0a7aa4bbd14c"
   integrity sha512-BHGyyGN3Q97EZx0taMQ+OLNuZcW3d37ZEVmEAyeoA9ERdGvm9Irc/0Fua8SNyOtV1w6BS4q25wbMzJujO9HIfQ==
 
-"@we-make-websites/tannoy@1.13.0":
-  version "1.13.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.13.0/d48632beacbbf116450e1f06b26e0f96c63a86d6#d48632beacbbf116450e1f06b26e0f96c63a86d6"
-  integrity sha512-BeeLkF6psjPODJSKOW/woExHPCW26LhxrV54yNELF9YvSdjOO6j/zSUzMaDnIueXB9n+JIqYTi4a10GsMX2i+g==
-  dependencies:
-    console-clear "1.1.1"
-
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
@@ -4764,11 +4757,6 @@ concat-stream@^1.6.2:
     inherits "^2.0.3"
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
-
-console-clear@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/console-clear/-/console-clear-1.1.1.tgz#995e20cbfbf14dd792b672cde387bd128d674bf7"
-  integrity sha512-pMD+MVR538ipqkG5JXeOEbKWS5um1H4LUUccUQG68qpeqBYbzYy79Gh55jkd2TtPdRfUaLWdv6LPP//5Zt0aPQ==
 
 console-control-strings@^1.0.0, console-control-strings@^1.1.0:
   version "1.1.0"
