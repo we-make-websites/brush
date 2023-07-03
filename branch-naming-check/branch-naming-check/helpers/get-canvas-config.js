@@ -13,13 +13,23 @@ const path = require('path')
  */
 module.exports = () => {
   const rootFolder = path.resolve(path.dirname('src'))
-  const configPath = path.resolve(rootFolder, 'canvas.config.js')
+  const basisConfig = path.resolve(rootFolder, 'adapter.config.js')
+  const canvasConfig = path.resolve(rootFolder, 'canvas.config.js')
 
-  if (!fs.existsSync(configPath)) {
+  if (
+    !fs.existsSync(basisConfig) &&
+    !fs.existsSync(canvasConfig)
+  ) {
     return false
   }
 
-  const config = require(configPath)
+  let config = false
+
+  if (fs.existsSync(canvasConfig)) {
+    config = require(canvasConfig)
+  } else if (fs.existsSync(basisConfig)) {
+    config = require(basisConfig)
+  }
 
   if (!config) {
     return false
