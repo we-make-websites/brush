@@ -37,7 +37,10 @@ function getAliasValue({ config, key, value, variables } = {}) {
    * Exclude if both the type and its original key are not found in config.
    */
   if (
-    !config.variablesByName.includes(convertStringToHandle(nonRenamedType, config)) &&
+    !config.variablesByName.includes(convertStringToHandle({
+      config,
+      string: nonRenamedType,
+    })) &&
     !config.variablesByName.includes(key) &&
     !config.variablesByType.includes(nonRenamedType) &&
     !config.variablesByType.includes(key)
@@ -47,7 +50,10 @@ function getAliasValue({ config, key, value, variables } = {}) {
 
   let property = config.renameVariable[type]
     ? config.renameVariable[type]
-    : convertStringToHandle(type, config)
+    : convertStringToHandle({
+      config,
+      string: type,
+    })
 
   if (key === config.special.color) {
     property = key

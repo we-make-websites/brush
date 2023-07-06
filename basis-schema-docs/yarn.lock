@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@we-make-websites/file-sync@1.0.0":
-  version "1.0.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.0.0/625a0a528f571b370defc961b474e7545a6a1b5b#625a0a528f571b370defc961b474e7545a6a1b5b"
-  integrity sha512-W/Gs9ftgP6cP4L2pZdr8BQKM0D4sAZe7l5j2hy1rylWifGR88JbNUMCqjDoje3NTLmHiCteAP5VwjoZqqD9bZg==
+"@we-make-websites/file-sync@1.1.0":
+  version "1.1.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.1.0/c3501a8b6b046a013f02f13657bc794164bef419#c3501a8b6b046a013f02f13657bc794164bef419"
+  integrity sha512-qoNVuwppMLuv7QSJT6YbR7Yd8L/8fZ/6J9zewRaNTlfHyZE5m7UN7da6nbcsqaGWxXwSd7bwEqUR2JW1K6762w==
   dependencies:
     fs-extra "11.1.1"
     path "0.12.7"
