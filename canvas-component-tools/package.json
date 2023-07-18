@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-component-tools",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Component command line tool to create components.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/canvas-component-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
