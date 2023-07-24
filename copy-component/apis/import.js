@@ -45,6 +45,8 @@ function importComponents(imports) {
         stores: [],
       }
 
+      let updatedStylesheet = false
+
       imports.forEach((importName) => {
         const parts = importName.split('/')
         types[parts[0]].push(parts[1])
@@ -69,6 +71,7 @@ function importComponents(imports) {
 
         if (component.folder === 'global') {
           styles = await importStylesheet(component, styles)
+          updatedStylesheet = true
 
           await Tny.write(
             `importComponents - Imported "${component.handle}" component stylesheet`,
@@ -82,8 +85,12 @@ function importComponents(imports) {
        */
       await fs.writeFile(Paths.src.canvasImports, scripts, 'utf-8')
       await Tny.write('importComponents - Updated Canvas imports', Paths.libraryLog)
-      await fs.writeFile(Paths.src.themeStyles, styles, 'utf-8')
-      await Tny.write('importComponents - Updated theme stylesheet', Paths.libraryLog)
+
+      if (updatedStylesheet) {
+        await fs.writeFile(Paths.src.themeStyles, styles, 'utf-8')
+        await Tny.write('importComponents - Updated theme stylesheet', Paths.libraryLog)
+      }
+
       resolve()
 
     } catch (error) {
