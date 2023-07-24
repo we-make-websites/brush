@@ -2,6 +2,14 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 1.5.0 - 2023-07-18
+
+* Updated Liquid templates to include _.min_ extension
+
+## 1.4.1 - 2023-07-03
+
+* Fixed global limited interactivity template causing compile errors
+
 ## 1.4.0 - 2023-05-30
 
 * Updated `disabled_on` property to be disabled on all section groups

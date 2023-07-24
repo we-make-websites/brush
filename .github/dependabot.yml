@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "development"
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "CI"
+    schedule:
+      interval: "weekly"
+      time: "9:00"
+      timezone: "Europe/London"
+    versioning-strategy: lockfile-only
