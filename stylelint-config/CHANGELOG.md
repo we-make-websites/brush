@@ -1,5 +1,9 @@
 # 📅 Stylelint Config Changelog
 
+## 4.2.0 - 2023-07-24
+
+* Updated dependencies
+
 ## 4.1.0 - 2023-06-01
 
 * Added `overflow: scroll` to disallowed property values list
