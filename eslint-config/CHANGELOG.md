@@ -3,6 +3,7 @@
 ## 3.6.0 - 2023-07-24
 
 * Updated dependencies
+* Removed `eslint` from `devDependencies`
 
 ## 3.5.0 - 2023-06-05
 
