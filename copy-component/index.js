@@ -55,11 +55,10 @@ async function init() {
   if (libraryJson.installed[packageJson.name]) {
     if (libraryJson.installed[packageJson.name] === packageJson.version) {
       await Tny.write(
-        'init - ⚠️ Component version already installed',
+        'init - 🚩 Component version already installed',
         Paths.libraryLog,
       )
 
-      await open(Paths.libraryLog)
       process.exit()
     }
 
@@ -74,7 +73,7 @@ async function init() {
   await updateJson()
 
   if (packageJson.config.manualInstall || packageJson.config.openReadme) {
-    open(`https://github.com/we-make-websites/library-monorepo/blob/development/packages/${name}/README.md`)
+    open(`https://github.com/we-make-websites/library-monorepo/blob/master/packages/${name}/README.md`)
   }
 
   await Tny.write('init - Install complete', Paths.libraryLog)
@@ -83,8 +82,7 @@ async function init() {
     return
   }
 
-  await Tny.write('init - ⚠️ Manual install required', Paths.libraryLog)
-  await open(Paths.libraryLog)
+  await Tny.write('init - 🚩 Manual install required', Paths.libraryLog)
 }
 
 /**

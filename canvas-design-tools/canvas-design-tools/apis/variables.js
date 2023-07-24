@@ -93,7 +93,10 @@ function findVariableByName(name, tokens, variables) {
   let formattedName = name
 
   const matchingKey = Object.keys(tokens).find((key) => {
-    return convertStringToHandle(key, config) === formattedName
+    return convertStringToHandle({
+      config,
+      string: key,
+    }) === formattedName
   })
 
   const objectToSearch = tokens[matchingKey]
@@ -120,13 +123,21 @@ function findVariableByName(name, tokens, variables) {
   Object.entries(objectToSearch).forEach(([key, valueObject]) => {
     if (!valueObject.value && !valueObject.type) {
       Object.entries(valueObject).forEach(([subKey, subValueObject]) => {
-        if (!config.layoutNames?.includes(convertStringToHandle(subKey, config))) {
+        if (
+          !config.layoutNames?.includes(convertStringToHandle({
+            config,
+            string: subKey,
+          }))
+        ) {
           return
         }
 
         variables[formattedName].push(
           formatVariable({
-            group: convertStringToHandle(`${formattedName}${config.delimiter}${key}`, config),
+            group: convertStringToHandle({
+              config,
+              string: `${formattedName}${config.delimiter}${key}`,
+            }),
             name: subKey,
             type: formattedName,
             valueObject: subValueObject,
@@ -252,8 +263,14 @@ function formatVariable({ group = false, name, type, valueObject }) {
   let unit = ''
 
   const handle = type === config.special.layout?.base
-    ? convertStringToHandle(name.replace(/(?:mobile|tablet|desktop)/gi, ''), config)
-    : convertStringToHandle(name, config)
+    ? convertStringToHandle({
+      config,
+      string: name.replace(/(?:mobile|tablet|desktop)/gi, ''),
+    })
+    : convertStringToHandle({
+      config,
+      string: name,
+    })
 
   let { original, value } = convertValue(valueObject, handle, type)
 
@@ -437,15 +454,27 @@ function convertValue(valueObject, handle, type) {
  * @returns {String}
  */
 function convertPropertyNameToVariable({ group = false, name, type } = {}) {
-  let nameHandle = convertStringToHandle(name, config)
-  const typeHandle = convertStringToHandle(type, config)
+  let nameHandle = convertStringToHandle({
+    config,
+    string: name,
+  })
+
+  const typeHandle = convertStringToHandle({
+    config,
+    string: type,
+  })
 
   if (group) {
     const renamedGroup = config.renameVariable[group]
       ? config.renameVariable[group]
       : group
 
-    nameHandle = `${convertStringToHandle(renamedGroup, config)}${config.delimiter}${nameHandle}`
+    const nameHandleStart = convertStringToHandle({
+      config,
+      string: renamedGroup,
+    })
+
+    nameHandle = `${nameHandleStart}${config.delimiter}${nameHandle}`
   }
 
   /**
