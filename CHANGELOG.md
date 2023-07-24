@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.6.1 - 2023-07-24
+
+* Fixed eslint parsing
+
 ## 1.6.0 - 2023-07-20
 
 * Updated dependencies
