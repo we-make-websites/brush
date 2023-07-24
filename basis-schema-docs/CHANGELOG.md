@@ -2,6 +2,10 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
+## 1.6.1 - 2023-07-24
+
+* Fixed `select` type setting causing errors
+
 ## 1.6.0 - 2023-06-06
 
 * Updated boolean and number setting values to be wrapped in inline code tags
