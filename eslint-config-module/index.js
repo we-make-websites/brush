@@ -23,6 +23,9 @@ module.exports = {
     Shopify: true,
     URLSearchParams: true,
   },
+  parserOptions: {
+    ecmaVersion: 2020,
+  },
   plugins: [],
   root: true,
   rules: merge(
