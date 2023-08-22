@@ -3,9 +3,7 @@
   Section: <%= name %> (<%= handle %>)
 ------------------------------------------------------------------------------
 {% endcomment %}
-<section
-  aria-labelledby="section-title-{{ section.id }}"<%= customContent %>
->
+<section <%= customContent %>>
   <<%= handle %>
     v-show="getComponentVisible('<%= handle %>')"
     v-cloak
