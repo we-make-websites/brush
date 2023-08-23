@@ -2,6 +2,11 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 1.6.0 - 2023-08-22
+
+* Removed `aria-labelledby` attributes from default template `<section>` elements
+* Removed `id` attributes from default template titles
+
 ## 1.5.0 - 2023-07-18
 
 * Updated Liquid templates to include _.min_ extension
