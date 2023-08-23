@@ -2,6 +2,10 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.5.0 - 2023-08-23
+
+* Updated dependencies
+
 ## 1.4.2 - 2023-06-28
 * Fixed log reporting the theme stylesheet has been updated when no updates were made
 
