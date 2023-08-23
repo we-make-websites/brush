@@ -1,5 +1,14 @@
 # 📅 Branch Naming Check Changelog
 
+## 3.4.0 - 2023-08-03
+
+* Added `develop` as a valid default branch name
+
+## 3.3.0 - 2023-07-03
+
+* Updated to support _adapter.config.js_
+* Updated dependencies
+
 ## 3.2.0 - 2023-05-02
 
 * Added dependabot check

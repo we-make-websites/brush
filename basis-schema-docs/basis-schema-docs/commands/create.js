@@ -449,6 +449,7 @@ function buildSettingTemplate(setting) {
 
     if (key === 'options' && setting.options?.length) {
       template = tagReplace(template, key, buildOptionsTemplate(setting.options))
+      return
     }
 
     template = tagReplace(template, key, formatValue(setting[key]))

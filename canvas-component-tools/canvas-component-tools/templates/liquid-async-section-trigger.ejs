@@ -4,7 +4,6 @@
 ------------------------------------------------------------------------------
 {% endcomment %}
 <section
-  aria-labelledby="section-title-{{ section.id }}"
   data-component-handle="<%= handle %>"
   data-component-type="<%= load %>"<%= customContent %>
 >
@@ -23,10 +22,7 @@
   {% endcomment %}
   <div v-if="!getComponentActive('<%= handle %>')">
     <div class="<%= handle %> is-loading critical-component-hide liquid">
-      <h2
-        id="section-title-{{ section.id }}"
-        class="<%= handle %>__title"
-      >
+      <h2 class="<%= handle %>__title">
         Title
       </h2>
     </div>
