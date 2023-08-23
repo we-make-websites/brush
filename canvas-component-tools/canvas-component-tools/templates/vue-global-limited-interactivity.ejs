@@ -1,10 +1,5 @@
 <template>
-  <div class="<%= handle %>">
-    <h2
-      class="<%= handle %>__title"
-      v-text="$string('general.title')"
-    />
-  </div>
+  <div class="<%= handle %>" />
 </template>
 
 <script>
@@ -13,6 +8,7 @@
  * Vue: <%= name %> (<%= handle %>)
  * -----------------------------------------------------------------------------
  * <%= description %>
+ * - Limited interactivity section.
  *
  * @param {String} liquid.sectionId - Section's Liquid ID.
  *
@@ -31,7 +27,7 @@ export default {
 
   data() {
     return {
-      cnvsGlobal: true,
+
     }
   },
 
