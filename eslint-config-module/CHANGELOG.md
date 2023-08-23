@@ -1,5 +1,9 @@
 # 📅 Eslint Config Module Changelog
 
+## 3.7.0 - 2023-08-23
+
+* Updated dependencies
+
 ## 3.6.0 - 2023-07-24
 
 * Updated dependencies
