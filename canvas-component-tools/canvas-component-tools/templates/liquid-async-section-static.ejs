@@ -6,15 +6,9 @@
 {% endcomment %}
 {{ 'component.<%= handle %>.min.css' | asset_url | stylesheet_tag }}
 
-<section
-  aria-labelledby="section-title-{{ section.id }}"
-  data-component-handle="<%= handle %>"<%= customContent %>
->
+<section data-component-handle="<%= handle %>"<%= customContent %>>
   <div class="<%= handle %> critical-component-clear liquid">
-    <h2
-      id="section-title-{{ section.id }}"
-      class="<%= handle %>__title"
-    >
+    <h2 class="<%= handle %>__title">
       Title
     </h2>
   </div>
