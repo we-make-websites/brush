@@ -1,5 +1,9 @@
 # 📅 Stylelint Config Changelog
 
+## 4.2.1 - 2023-07-24
+
+* Removed stylistic to resolve missing module error
+
 ## 4.2.0 - 2023-07-24
 
 * Updated dependencies
