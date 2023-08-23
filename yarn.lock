@@ -319,6 +319,11 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
+"@we-make-websites/commitlint-config@1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/commitlint-config/1.0.0/66c69d67608fdb69f7acad7ffc82692247883eba#66c69d67608fdb69f7acad7ffc82692247883eba"
+  integrity sha512-TpbKzk2YI7iBnY21YKjg/LZMy8C/166y7eJGv3fSZCSoZiZXl8JDxSKVErBoPmalRYg7Ng7fE5QtSTsBklFtTg==
+
 "@we-make-websites/eslint-config-module@3.5.1":
   version "3.5.1"
   resolved "https://npm.pkg.github.com/download/@we-make-websites/eslint-config-module/3.5.1/0792286c284fe1b72d9b9af1db746443f2378415#0792286c284fe1b72d9b9af1db746443f2378415"
