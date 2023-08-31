@@ -135,7 +135,15 @@ function createFiles(schemas) {
 
         if (handle === 'settings_schema') {
           fileContents = buildSettingsSchemaTemplate(schema)
-        } else if (schema.blocks?.length || schema.settings?.length) {
+
+        } else if (
+          schema.settings?.length ||
+          schema.blocks?.length ||
+          schema.disabled_on?.groups?.length ||
+          schema.disabled_on?.templates?.length ||
+          schema.enabled_on?.groups?.length ||
+          schema.enabled_on?.templates?.length
+        ) {
           fileContents = buildDocumentationTemplate(schema)
         }
 
@@ -188,7 +196,13 @@ function buildDocumentationTemplate(schema) {
   let section = ''
   let blocks = ''
 
-  if (schema.settings?.length) {
+  if (
+    schema.settings?.length ||
+    schema.disabled_on?.groups?.length ||
+    schema.disabled_on?.templates?.length ||
+    schema.enabled_on?.groups?.length ||
+    schema.enabled_on?.templates?.length
+  ) {
     section = buildSectionTemplate(schema)
   }
 
@@ -225,12 +239,30 @@ function buildSectionTemplate(schema, name = 'Section') {
     buildSettingOrGroupTemplate(schema.settings),
   )
 
+  if (schema.enabled_on?.groups.length || schema.enabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'enabledOn',
+      buildEnabledDisabled(schema.enabled_on, 'Enabled on'),
+    )
+  }
+
+  if (schema.disabled_on?.groups.length || schema.disabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'disabledOn',
+      buildEnabledDisabled(schema.disabled_on, 'Disabled on'),
+    )
+  }
+
   /**
    * Remove unused shortcodes.
    */
   template = template
     .replaceAll(templateTag('name'), '')
     .replaceAll(templateTagString('limit'), '')
+    .replaceAll(templateTag('enabledOn'), '')
+    .replaceAll(templateTag('disabledOn'), '')
 
   return template
 }
@@ -417,12 +449,32 @@ function buildSettingTemplate(setting) {
 
     if (key === 'options' && setting.options?.length) {
       template = tagReplace(template, key, buildOptionsTemplate(setting.options))
+      return
     }
 
-    template = tagReplace(template, key, setting[key])
+    template = tagReplace(template, key, formatValue(setting[key]))
   })
 
   return template
+}
+
+/**
+ * Formats boolean and number values to be wrapped in <code> tags.
+ * @param {String} value - Setting or option value.
+ * @returns {String}
+ */
+function formatValue(value) {
+  if (!isNaN(Number(value))) {
+    return `<code>${value}</code>`
+  }
+
+  switch (value.toLowerCase()) {
+    case 'true':
+    case 'false':
+      return `<code>${value}</code>`
+    default:
+      return value
+  }
 }
 
 /**
@@ -452,7 +504,7 @@ function buildOptionsTemplate(options) {
         return
       }
 
-      optionsTemplate += tagReplace(repeatTemplate, key, option[key])
+      optionsTemplate += tagReplace(repeatTemplate, key, formatValue(option[key]))
     })
   })
 
@@ -460,6 +512,38 @@ function buildOptionsTemplate(options) {
     /<%= repeat %>.+/g,
     optionsTemplate,
   )
+
+  return template
+}
+
+/**
+ * Build markup for section enabled/disabled on settings.
+ * @param {Object} schema - Section schema object.
+ * @param {String} label - Label value.
+ * @returns {String}
+ */
+function buildEnabledDisabled(schema, label) {
+  let template = templates.enabledDisabled
+  template = tagReplace(template, 'label', label)
+  const settings = []
+
+  Object.keys(schema).forEach((key) => {
+    if (!schema[key].length) {
+      return
+    }
+
+    schema[key].forEach((value) => {
+      if (value === '*') {
+        settings.push(`<li>All ${key}</li>`)
+        return
+      }
+
+      const formattedKey = key === 'groups' ? 'group' : 'template'
+      settings.push(`<li>${value} (${formattedKey})</li>`)
+    })
+  })
+
+  template = tagReplace(template, 'enabledDisabledSettings', settings.join('\n'))
 
   return template
 }

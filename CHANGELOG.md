@@ -2,6 +2,35 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.7.0 - 2023-07-24
+
+* Added `@we-make-websites/commitlint-config` dependency
+
+## 1.6.1 - 2023-07-24
+
+* Fixed eslint parsing
+
+## 1.6.0 - 2023-07-20
+
+* Updated dependencies
+
+## 1.5.0 - 2023-06-26
+
+* Added _.github/_ folder files (_CODEOWNERS_, _CONTRIBUTING.md_, and _dependabot.yml_)
+
+## 1.4.2 - 2023-05-24
+
+* Fixed `repository` value in package _README.md_ files
+
+## 1.4.1 - 2023-05-24
+
+* Fixed _README.md_
+
+## 1.4.0 - 2023-05-24
+
+* Updated _README.md_
+* Fixed version
+
 ## 1.3.0 - 2023-05-18
 
 * Removed package _.npmrc_ files

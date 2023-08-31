@@ -9,7 +9,7 @@
  */
 /* eslint-disable default-case-last */
 const consoleClear = require('console-clear')
-const fs = require('fs')
+const fs = require('fs-extra')
 const path = require('path')
 
 /**
@@ -104,13 +104,11 @@ function outputMessage(messages, newline = true) {
   const basisPackagePath = path.resolve('node_modules', '@we-make-websites/basis/package.json')
   const docsPackagePath = path.resolve('node_modules', '@we-make-websites/basis-schema-docs/package.json')
   const canvasPackagePath = path.resolve('./', 'package.json')
-  const libraryPackagePath = path.resolve('node_modules', '@we-make-websites/canvas-library-tools/package.json')
   const storybookPackagePath = path.resolve('node_modules', '@we-make-websites/canvas-storybook-tools/package.json')
 
   let basisPackage = false
   let docsPackage = false
   let canvasPackage = false
-  let libraryPackage = false
   let storybookPackage = false
 
   if (fs.existsSync(basisPackagePath)) {
@@ -125,10 +123,6 @@ function outputMessage(messages, newline = true) {
     canvasPackage = require(canvasPackagePath)
   }
 
-  if (fs.existsSync(libraryPackagePath)) {
-    libraryPackage = require(libraryPackagePath)
-  }
-
   if (fs.existsSync(storybookPackagePath)) {
     storybookPackage = require(storybookPackagePath)
   }
@@ -137,7 +131,6 @@ function outputMessage(messages, newline = true) {
     basisPackage,
     docsPackage,
     canvasPackage,
-    libraryPackage,
     storybookPackage,
   }
 
@@ -177,7 +170,6 @@ function replaceShortcodes(line, packages) {
     .replaceAll('{{basis version}}', packages.basisPackage.version)
     .replaceAll('{{docs version}}', packages.docsPackage.version)
     .replaceAll('{{canvas version}}', packages.canvasPackage.version)
-    .replaceAll('{{library version}}', packages.libraryPackage.version)
     .replaceAll('{{storybook version}}', packages.storybookPackage.version)
 }
 
@@ -481,6 +473,70 @@ function getClock(duration, unit) {
 }
 
 /**
+ * Log file
+ * -----------------------------------------------------------------------------
+ * Log file function.
+ *
+ */
+
+/**
+ * Write to log file.
+ * @param {Array|Object|String} messages - Array of message lines.
+ * @param {String} filepath - Filepath to log file.
+ * @returns {Promise}
+ */
+function write(messages, filepath) {
+  return new Promise(async(resolve) => {
+    await fs.ensureFile(filepath)
+
+    /**
+     * Build timestamp.
+     */
+    const options = {
+      dateStyle: 'short',
+      timeStyle: 'medium',
+    }
+
+    const timestamp = new Intl.DateTimeFormat('en-GB', options)
+      .format(new Date())
+      .replace(', ', ' ')
+
+    /**
+     * Convert to array if not already.
+     */
+    let messageArray = messages
+
+    if (!Array.isArray(messages)) {
+      messageArray = [messages]
+    }
+
+    /**
+     * Iterate through each item and prefix with timestamp and convert.
+     */
+    const string = messageArray.map((item) => {
+      if (item === '---') {
+        return '--------------------------------------------------------------------------------'
+      }
+
+      switch (typeof item) {
+        case 'object':
+          return `${timestamp}: ${JSON.stringify(item)}`
+        default:
+          return `${timestamp}: ${item}`
+      }
+    }).join('\n')
+
+    /**
+     * Update and write log.
+     */
+    let contents = await fs.readFile(filepath, 'utf-8')
+    contents += `${string}\n`
+    await fs.writeFile(filepath, contents, 'utf-8')
+    resolve()
+  })
+}
+
+/**
  * Export tannoy CLI.
  */
 module.exports = {
@@ -492,4 +548,5 @@ module.exports = {
     stop: spinnerStop,
   },
   time,
+  write,
 }

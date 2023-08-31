@@ -2,7 +2,15 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
-## 2.2.1 - 2023-05-03
+## 2.2.0 - 2023-08-23
+
+* Updated dependencies
+
+## 2.1.2 - 2023-06-26
+
+* Fixed ordinals not being updated to the correct naming convention
+
+## 2.1.1 - 2023-05-03
 
 * Fixed alpha channel formatting in `rgb()`
 

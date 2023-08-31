@@ -26,6 +26,8 @@ function getTemplates(templatePath, templateFolder) {
           .split(/[\\/]{1,2}/g)
           .reverse()[0]
           .replace('.ejs', '')
+          .replace(/-\w/g, ($1) => $1.toUpperCase())
+          .replaceAll('-', '')
 
         // eslint-disable-next-line no-await-in-loop
         const template = await fs.readFile(filepath, 'utf-8')

@@ -16,7 +16,6 @@ module.exports = {
   plugins: [
     'stylelint-order',
     'stylelint-scss',
-    'stylelint-stylistic',
   ],
   extends: [
     'stylelint-config-standard',
