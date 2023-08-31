@@ -4,11 +4,12 @@ Node helper function to find all filepaths inside a folder and its sub-folders, 
 
 ## 👩‍💻 Usage
 
-`fileSync(folder, filetypes, namesOnly)`
+`fileSync(folder, filetypes, config)`
 
 * `folder` - String - Path to folder to search in
 * `filetypes` - Array - Filetypes to filter by, e.g. `['liquid']`
-* `namesOnly` - Boolean - Returns only the filenames instead of full paths
+* `config` - Object - Configuration object
+* `filenames` - Boolean - Returns only the filenames instead of full paths
 
 The function is asynchronous but does not require an `await`.
 
