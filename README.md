@@ -25,6 +25,7 @@ Linting is shared across all tools.
 | `@we-make-websites/stylelint-config` | Stylelint config | [README](stylelint-config/README.md) |
 | `@we-make-websites/tannoy` | Pretty terminal messaging | [README](tannoy/README.md) |
 | `@we-make-websites/theme-currency` | Updated fork of `@shopify/theme-currency` | [README](theme-currency/README.md) |
+| `@we-make-websites/track` | 🔒 Commands and error analytics | [README](track/README.md) |
 
 ## 📅 Changelog
 
