@@ -2,6 +2,10 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 1.7.0 - 2023-08-23
+
+* Updated dependencies
+
 ## 1.6.0 - 2023-08-22
 
 * Removed `aria-labelledby` attributes from default template `<section>` elements
