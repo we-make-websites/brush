@@ -5,7 +5,7 @@ Enforces We Make Websites naming conventions on git branches.
 ## 📚 Documentation
 
 ```
-[folder]/[key-id]-[name]
+[prefix]/[key-id]-[taskName]
 ```
 
 [See Notion for full documentation](https://www.notion.so/wemakewebsites/Naming-Conventions-3b426d0d1f414488a45dcf76e6d469b8#24619e035c814fc1b1c12866f1e6d9d3).
@@ -25,6 +25,8 @@ yarn branch-naming-check
 ```
 
 Version `3.0.0` is only compatible with Canvas.
+
+Use _canvas.config.js_ to configure whether you want `[name]` to support camelCase, kebab-case, or both.
 
 ## 📅 Changelog
 
