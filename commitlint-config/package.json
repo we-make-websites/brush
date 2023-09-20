@@ -1,0 +1,16 @@
+{
+  "name": "@we-make-websites/commitlint-config",
+  "version": "1.1.0",
+  "description": "We Make Website's commitlint rules and config",
+  "repository": "https://github.com/we-make-websites/brush/tree/master/commitlint-config",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "peerDependencies": {
+    "@commitlint/cli": "17.7.1"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": "^16.17.0"
+  }
+}

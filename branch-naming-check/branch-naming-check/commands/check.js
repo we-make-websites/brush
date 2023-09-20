@@ -34,9 +34,21 @@ async function init() {
   }
 
   /**
+   * If dependabot then skip check.
+   */
+  if (branchName.includes('dependabot/')) {
+    Tny.message(
+      `${Tny.colour('bgMagenta', bannerMessage)} Dependabot branch, skipping check`,
+      { before: true },
+    )
+
+    return
+  }
+
+  /**
    * Set match conditions.
    */
-  const defaultBranch = branchName.match(/^(?<default>main|master|staging|development)$/g)
+  const defaultBranch = branchName.match(/^(?<default>main|master|staging|development|develop)$/g)
   const camelCaseBranch = branchName.match(/^(?<prefix>bugfix|feature|hotfix|release)\/(?<key>[A-Z0-9]+)-(?<id>[0-9]+)-(?<name>[\w]+)$/g)
   const kebabCaseBranch = branchName.match(/^(?<prefix>bugfix|feature|hotfix|release)\/(?<key>[A-Z0-9]+)-(?<id>[0-9]+)-(?<name>[a-z0-9-]+)$/g)
 

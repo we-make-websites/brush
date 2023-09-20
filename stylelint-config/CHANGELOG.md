@@ -1,6 +1,40 @@
 # 📅 Stylelint Config Changelog
 
-## 3.5.0 - 2022-110-14
+## 4.4.0 - 2023-09-19
+
+* Updated dependencies
+
+## 4.3.0 - 2023-08-23
+
+* Updated dependencies
+
+## 4.2.1 - 2023-07-24
+
+* Removed stylistic to resolve missing module error
+
+## 4.2.0 - 2023-07-24
+
+* Updated dependencies
+
+## 4.1.0 - 2023-06-01
+
+* Added `overflow: scroll` to disallowed property values list
+* Updated dependencies
+
+## 4.0.0 - 2023-05-02
+
+* Added `stylelint-stylistic` to keep soon to be removed stylistic rules
+* Added `stylelint-config-standard` and `stylelint-config-standard-scss` rulesets
+* Added name patterns for classes, mixins, functions, and keyframes
+* Updated rules so they're split between less separate files
+* Updated disallowed properties list
+* Updated declaration order to not autofix (properties will still be alphabetised)
+* Updated declaration order
+* Updated dependencies
+* Fixed weird newline interaction between CSS and SASS variables
+* Removed Shopify rule overrides
+
+## 3.5.0 - 2022-11-14
 
 * Added custom error messages to 'disallowed' rules
 * Added `stylelint` to `peerDependencies`

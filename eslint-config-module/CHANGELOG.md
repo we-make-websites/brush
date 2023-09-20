@@ -1,9 +1,38 @@
 # 📅 Eslint Config Module Changelog
 
+## 3.8.0 - 2023-09-19
+
+* Updated dependencies
+
+## 3.7.0 - 2023-08-23
+
+* Updated dependencies
+
+## 3.6.0 - 2023-07-24
+
+* Updated dependencies
+* Removed `eslint` from `devDependencies`
+
+## 3.5.1 - 2023-07-24
+
+* Fixed support for parsing `?.`
+
+## 3.5.0 - 2023-06-05
+
+* Re-added `eslint-plugin-import`
+* Updated dependencies
+
+## 3.4.0 - 2023-05-11
+
+* Updated dependencies
+
 ## 3.3.1 - 2022-11-14
 
-* Added `no-new-native-nonconstructor` and `no-empty-static-block` rules
 * Fixing bad npm publish
+
+## 3.3.0 - 2022-11-14
+
+* Added `no-new-native-nonconstructor` and `no-empty-static-block` rules
 
 ## 3.2.0 - 2022-10-19
 

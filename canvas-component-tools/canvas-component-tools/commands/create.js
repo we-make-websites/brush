@@ -10,6 +10,7 @@ const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 
 const componentApi = require('../apis/component')
 const Paths = require('../helpers/paths')
@@ -27,6 +28,7 @@ const component = {
   handle: '',
   folder: '',
   formatted: {
+    description: '',
     folder: '',
     lowerCase: '',
     pascalCase: '',
@@ -89,6 +91,9 @@ async function init() {
  */
 async function askQuestions() {
   try {
+    await Track.init()
+    Track.reportMessage('Component command')
+
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
@@ -98,8 +103,9 @@ async function askQuestions() {
     await loadQuestion()
     await importQuestion()
 
-  } catch (promiseError) {
-    Tny.message(Tny.colour('red', promiseError), { before: true })
+  } catch (error) {
+    Tny.message(Tny.colour('red', error), { before: true })
+    Track.reportError(new Error(error))
   }
 }
 
@@ -287,7 +293,7 @@ async function descriptionQuestion() {
       name: 'answer',
       prefix: symbols.description,
       result(answer) {
-        return answer.slice(-1) === '.' ? answer : `${answer}.`
+        return answer.trim().slice(-1) === '.' ? answer.trim() : `${answer.trim()}.`
       },
       type: 'input',
       validate(answer) {
@@ -566,6 +572,25 @@ function formatAnswers() {
         return $1.toUpperCase() + $2.toLowerCase()
       },
     )
+
+  /**
+   * Split description onto multiple lines to avoid eslint errors.
+   */
+  const words = component.description.split(' ')
+  let lineLength = 0
+
+  const description = words.map((word, index) => {
+    lineLength += index === 0 ? word.length : word.length + 1
+
+    if (lineLength > 77) {
+      lineLength = word.length
+      return `\n * ${word}`
+    }
+
+    return index === 0 ? word : ` ${word}`
+  })
+
+  component.formatted.description = description.join('')
 }
 
 /**
@@ -605,7 +630,7 @@ async function buildComponent() {
 
     if (component.template === 'limited-interactivity') {
       templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-limited-interactivity`
-      templateFilepath.vue = 'vue-limited-interactivity'
+      templateFilepath.vue = `vue-${component.folder}-limited-interactivity`
     }
 
     if (component.template === 'static') {

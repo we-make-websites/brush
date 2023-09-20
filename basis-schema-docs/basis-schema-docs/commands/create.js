@@ -10,6 +10,7 @@ const fs = require('fs-extra')
 const { NodeHtmlMarkdown } = require('node-html-markdown')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -35,6 +36,9 @@ const templatePath = fs.existsSync(Paths.templates.project)
 function init() {
   return new Promise(async(resolve, reject) => {
     try {
+      await Track.init()
+      Track.reportMessage('Schema docs command')
+
       Tny.message([
         Tny.colour('bgCyan', 'Basis Schema Docs v{{docs version}}'),
         Tny.colour('bgCyan', 'Create documentation'),
@@ -68,6 +72,7 @@ function init() {
 
     } catch (error) {
       Tny.message(Tny.colour('red', '❌ Error creating documention'))
+      Track.reportError(new Error(error))
       reject(error)
     }
   })
@@ -135,7 +140,15 @@ function createFiles(schemas) {
 
         if (handle === 'settings_schema') {
           fileContents = buildSettingsSchemaTemplate(schema)
-        } else if (schema.blocks?.length || schema.settings?.length) {
+
+        } else if (
+          schema.settings?.length ||
+          schema.blocks?.length ||
+          schema.disabled_on?.groups?.length ||
+          schema.disabled_on?.templates?.length ||
+          schema.enabled_on?.groups?.length ||
+          schema.enabled_on?.templates?.length
+        ) {
           fileContents = buildDocumentationTemplate(schema)
         }
 
@@ -188,7 +201,13 @@ function buildDocumentationTemplate(schema) {
   let section = ''
   let blocks = ''
 
-  if (schema.settings?.length) {
+  if (
+    schema.settings?.length ||
+    schema.disabled_on?.groups?.length ||
+    schema.disabled_on?.templates?.length ||
+    schema.enabled_on?.groups?.length ||
+    schema.enabled_on?.templates?.length
+  ) {
     section = buildSectionTemplate(schema)
   }
 
@@ -225,12 +244,30 @@ function buildSectionTemplate(schema, name = 'Section') {
     buildSettingOrGroupTemplate(schema.settings),
   )
 
+  if (schema.enabled_on?.groups.length || schema.enabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'enabledOn',
+      buildEnabledDisabled(schema.enabled_on, 'Enabled on'),
+    )
+  }
+
+  if (schema.disabled_on?.groups.length || schema.disabled_on?.templates.length) {
+    template = tagReplace(
+      template,
+      'disabledOn',
+      buildEnabledDisabled(schema.disabled_on, 'Disabled on'),
+    )
+  }
+
   /**
    * Remove unused shortcodes.
    */
   template = template
     .replaceAll(templateTag('name'), '')
     .replaceAll(templateTagString('limit'), '')
+    .replaceAll(templateTag('enabledOn'), '')
+    .replaceAll(templateTag('disabledOn'), '')
 
   return template
 }
@@ -417,12 +454,32 @@ function buildSettingTemplate(setting) {
 
     if (key === 'options' && setting.options?.length) {
       template = tagReplace(template, key, buildOptionsTemplate(setting.options))
+      return
     }
 
-    template = tagReplace(template, key, setting[key])
+    template = tagReplace(template, key, formatValue(setting[key]))
   })
 
   return template
+}
+
+/**
+ * Formats boolean and number values to be wrapped in <code> tags.
+ * @param {String} value - Setting or option value.
+ * @returns {String}
+ */
+function formatValue(value) {
+  if (!isNaN(Number(value))) {
+    return `<code>${value}</code>`
+  }
+
+  switch (value.toLowerCase()) {
+    case 'true':
+    case 'false':
+      return `<code>${value}</code>`
+    default:
+      return value
+  }
 }
 
 /**
@@ -452,7 +509,7 @@ function buildOptionsTemplate(options) {
         return
       }
 
-      optionsTemplate += tagReplace(repeatTemplate, key, option[key])
+      optionsTemplate += tagReplace(repeatTemplate, key, formatValue(option[key]))
     })
   })
 
@@ -460,6 +517,38 @@ function buildOptionsTemplate(options) {
     /<%= repeat %>.+/g,
     optionsTemplate,
   )
+
+  return template
+}
+
+/**
+ * Build markup for section enabled/disabled on settings.
+ * @param {Object} schema - Section schema object.
+ * @param {String} label - Label value.
+ * @returns {String}
+ */
+function buildEnabledDisabled(schema, label) {
+  let template = templates.enabledDisabled
+  template = tagReplace(template, 'label', label)
+  const settings = []
+
+  Object.keys(schema).forEach((key) => {
+    if (!schema[key].length) {
+      return
+    }
+
+    schema[key].forEach((value) => {
+      if (value === '*') {
+        settings.push(`<li>All ${key}</li>`)
+        return
+      }
+
+      const formattedKey = key === 'groups' ? 'group' : 'template'
+      settings.push(`<li>${value} (${formattedKey})</li>`)
+    })
+  })
+
+  template = tagReplace(template, 'enabledDisabledSettings', settings.join('\n'))
 
   return template
 }

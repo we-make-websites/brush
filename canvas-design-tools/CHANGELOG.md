@@ -2,6 +2,29 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.3.0 - 2023-09-19
+
+* Added tracking for logging commands and error analytics
+
+## 2.2.0 - 2023-08-23
+
+* Updated dependencies
+
+## 2.1.2 - 2023-06-26
+
+* Fixed ordinals not being updated to the correct naming convention
+
+## 2.1.1 - 2023-05-03
+
+* Fixed alpha channel formatting in `rgb()`
+
+## 2.1.0 - 2023-05-02
+
+* Added responsive layout variables to grid page
+* Updated styleguide styles to follow new stylelint rules
+* Updated design tokens conversion to use `rgb(R G B / A%)` notation
+* Updated dependencies
+
 ## 2.0.0 - 2023-04-11
 
 * Added `-hover` text classes

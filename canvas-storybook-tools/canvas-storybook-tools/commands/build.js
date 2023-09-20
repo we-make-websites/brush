@@ -6,9 +6,10 @@
  *
  */
 /* eslint-disable no-console */
+const fileSync = require('@we-make-websites/file-sync')
 const fs = require('fs-extra')
-const glob = require('glob-fs')({ gitignore: true })
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -44,6 +45,9 @@ const frames = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', 
  * Initialises the storybook build functionality.
  */
 async function init() {
+  await Track.init()
+  Track.reportMessage('Storybook build')
+
   const start = performance.now()
   const variablesUpdated = await getVariablesUpdated()
   version = getPackageVersion()
@@ -103,6 +107,7 @@ async function init() {
   } catch (error) {
     Tny.spinner.stop('error')
     Tny.message(error)
+    Track.reportError(new Error(error))
   }
 }
 
@@ -247,10 +252,13 @@ function createLiquidFiles() {
  * Finds all assets and updates file references to use asset_url Liquid.
  * @returns {Promise}
  */
-async function updateAssets() {
-  const queue = await glob.readdirPromise('storybook/assets/**/*').map((filepath) => {
-    return updateAssetFile(filepath)
-  }).filter(Boolean)
+function updateAssets() {
+  const assetFilepaths = fileSync(Paths.assets.root)
+  const queue = []
+
+  for (const filepath of assetFilepaths) {
+    queue.push(updateAssetFile(filepath))
+  }
 
   return Promise.all(queue)
 }
