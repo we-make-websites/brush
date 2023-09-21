@@ -10,6 +10,7 @@ const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 
 const componentApi = require('../apis/component')
 const Paths = require('../helpers/paths')
@@ -90,6 +91,9 @@ async function init() {
  */
 async function askQuestions() {
   try {
+    await Track.init()
+    Track.reportMessage('Component command')
+
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
@@ -99,8 +103,9 @@ async function askQuestions() {
     await loadQuestion()
     await importQuestion()
 
-  } catch (promiseError) {
-    Tny.message(Tny.colour('red', promiseError), { before: true })
+  } catch (error) {
+    Tny.message(Tny.colour('red', error), { before: true })
+    Track.reportError(new Error(error))
   }
 }
 
