@@ -37,4 +37,4 @@ Before making any updates to Brush please speak to Craig Baldwin (craig@wemakewe
 
 Once any work is completed send a pull request to Craig for review.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on process and code quality when contributing.
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for more details on process and code quality when contributing.
