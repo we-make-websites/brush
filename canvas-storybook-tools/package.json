@@ -31,7 +31,7 @@
     "fs-extra": "11.1.1",
     "js-yaml": "4.1.0",
     "path": "0.12.7",
-    "postcss": "8.4.30",
+    "postcss": "8.4.31",
     "postcss-loader": "7.3.3",
     "postcss-preset-env": "9.1.4",
     "sass": "1.62.1",
