@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/basis-schema-docs",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Create documentation from section schemas automatically.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/basis-schema-docs",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -19,8 +19,7 @@
     "path": "0.12.7",
     "yargs": "17.7.2"
   },
-  "engineStrict": true,
   "engines": {
-    "node": "^16.17.0"
+    "node": "^18.18.2"
   }
 }

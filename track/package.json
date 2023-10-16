@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/track",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Commands and error analytics.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/track",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -15,8 +15,7 @@
     "path": "0.12.7",
     "yargs": "17.7.2"
   },
-  "engineStrict": true,
   "engines": {
-    "node": "^16.17.0"
+    "node": "^18.18.2"
   }
 }

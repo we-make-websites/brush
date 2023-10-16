@@ -1,5 +1,12 @@
 # 📅 Stylelint Config Changelog
 
+Stylelint Config uses [semantic versioning](https://semver.org/).
+
+## 4.5.0 - 2023-10-31
+
+* Updated Node version
+* Removed `engineStrict` setting
+
 ## 4.4.0 - 2023-09-19
 
 * Updated dependencies
