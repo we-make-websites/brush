@@ -2,9 +2,10 @@
 
 Track uses [semantic versioning](https://semver.org/).
 
-## 1.2.0 - 2023-10-31
+## 1.2.0 - 2023-10-16
 
 * Updated Node version
+* Updated dependencies
 * Removed `engineStrict` setting
 
 ## 1.1.0 - 2023-08-19

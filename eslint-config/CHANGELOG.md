@@ -2,7 +2,7 @@
 
 Eslint Config uses [semantic versioning](https://semver.org/).
 
-## 3.10.0 - 2023-10-31
+## 3.10.0 - 2023-10-16
 
 * Updated Node version
 * Removed `engineStrict` setting

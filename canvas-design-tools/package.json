@@ -6,12 +6,12 @@
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
-    "design-convert": "./canvas-design-tools/commands/convert.js"
+    "design-convert": "canvas-design-tools/commands/convert.js"
   },
   "devDependencies": {},
   "dependencies": {
-    "@we-make-websites/tannoy": "1.13.0",
-    "@we-make-websites/track": "1.1.0",
+    "@we-make-websites/tannoy": "1.14.0",
+    "@we-make-websites/track": "1.2.0",
     "fs-extra": "11.1.1",
     "path": "0.12.7",
     "yargs": "17.7.2"

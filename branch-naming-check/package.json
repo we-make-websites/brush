@@ -6,11 +6,11 @@
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
-    "branch-naming-check": "./branch-naming-check/commands/check.js"
+    "branch-naming-check": "branch-naming-check/commands/check.js"
   },
   "devDependencies": {},
   "dependencies": {
-    "@we-make-websites/tannoy": "1.13.0",
+    "@we-make-websites/tannoy": "1.14.0",
     "fs-extra": "11.1.1",
     "path": "0.12.7"
   },

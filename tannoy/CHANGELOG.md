@@ -2,7 +2,7 @@
 
 Tannoy uses [semantic versioning](https://semver.org/).
 
-## 1.14.0 - 2023-10-31
+## 1.14.0 - 2023-10-16
 
 * Updated Node version
 * Removed `engineStrict` setting
