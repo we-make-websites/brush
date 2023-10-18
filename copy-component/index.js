@@ -68,8 +68,11 @@ async function init() {
     )
   }
 
-  await updateFiles()
-  await updateImports()
+  if (packageJson.config.copy !== false) {
+    await updateFiles()
+    await updateImports()
+  }
+
   await updateJson()
 
   if (packageJson.config.manualInstall || packageJson.config.openReadme) {
