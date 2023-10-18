@@ -2,6 +2,10 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.7.0 - 2023-10-18
+
+* Updated `openReadme` to accept a string to define custom folder that contains _README.md_
+
 ## 1.6.0 - 2023-10-16
 
 * Updated Node version

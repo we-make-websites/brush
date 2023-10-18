@@ -73,7 +73,13 @@ async function init() {
   await updateJson()
 
   if (packageJson.config.manualInstall || packageJson.config.openReadme) {
-    open(`https://github.com/we-make-websites/library-monorepo/blob/master/packages/${name}/README.md`)
+    let folder = 'packages'
+
+    if (typeof packageJson.config.openReadme === 'string') {
+      folder = packageJson.config.openReadme.replace(/\/$/g, '')
+    }
+
+    open(`https://github.com/we-make-websites/library-monorepo/blob/master/${folder}/${name}/README.md`)
   }
 
   await Tny.write('init - Install complete', Paths.libraryLog)
