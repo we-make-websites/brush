@@ -27,6 +27,7 @@ const component = {
   description: '',
   handle: '',
   folder: '',
+  folderPath: '',
   formatted: {
     description: '',
     folder: '',
@@ -40,6 +41,7 @@ const component = {
   load: '',
   name: '',
   template: '',
+  webComponent: false,
 }
 
 const symbols = {
@@ -99,6 +101,7 @@ async function askQuestions() {
     await descriptionQuestion()
     await folderQuestion()
     await templateQuestion()
+    await webComponentTemplateQuestion()
     await liquidQuestion()
     await loadQuestion()
     await importQuestion()
@@ -348,6 +351,7 @@ async function folderQuestion() {
         { role: 'separator' },
         'Async',
         'Global',
+        'Web',
       ],
       footer: ({ index }) => footer('folder', index),
       message: 'Type',
@@ -366,9 +370,18 @@ async function folderQuestion() {
   }
 
   component.folder = question.answer
+  component.folderPath = question.answer
+
+  /**
+   * Web component pretends to be async component.
+   */
+  if (component.folder === 'web') {
+    component.folderPath = 'async'
+    component.webComponent = true
+  }
 
   const filepath = path.join(
-    Paths.components[component.folder],
+    Paths.components[component.folderPath],
     component.handle,
   )
 
@@ -407,6 +420,7 @@ async function templateQuestion() {
       result(answer) {
         return answer.toLowerCase().trim().replaceAll(' ', '-')
       },
+      skip: component.webComponent,
       type: 'select',
     })
 
@@ -417,7 +431,52 @@ async function templateQuestion() {
 
   component.template = question.answer
 
+  if (component.webComponent) {
+    component.template = 'dynamic'
+  }
+
   return new Promise((resolve) => {
+    resolve()
+  })
+}
+
+/**
+ * Ask web component template question.
+ * - Skip if not web component.
+ * @returns {Promise}
+ */
+async function webComponentTemplateQuestion() {
+  let question = {}
+
+  try {
+    question = await prompt({
+      choices: [
+        { role: 'separator' },
+        'Vanilla',
+        'Vue',
+      ],
+      hint: '(Select Vue for a Vue-inspired template with helpers)',
+      index: 2,
+      message: 'Template',
+      name: 'answer',
+      pointer: () => '',
+      prefix: symbols.template,
+      skip: !component.webComponent,
+      result(answer) {
+        return answer.toLowerCase().trim()
+      },
+      type: 'select',
+    })
+
+  } catch (error) {
+    Tny.message(Tny.colour('red', '⛔ Process exited'))
+    process.exit()
+  }
+
+  component.template = question.answer ? question.answer : 'template'
+
+  return new Promise((resolve) => {
+    complete = true
     resolve()
   })
 }
@@ -433,7 +492,7 @@ async function liquidQuestion() {
     'Section',
     {
       name: 'Snippet',
-      disabled: component.template === 'dynamic'
+      disabled: component.template === 'dynamic' || component.webComponent
         ? false
         : '(Only available with dynamic templates)',
     },
@@ -490,7 +549,7 @@ async function loadQuestion() {
       name: 'answer',
       pointer: () => '',
       prefix: symbols.load,
-      skip,
+      skip: skipLoadQuestion(),
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -598,7 +657,7 @@ function formatAnswers() {
  */
 async function buildComponent() {
   const filepath = path.join(
-    Paths.components[component.folder],
+    Paths.components[component.folderPath],
     component.handle,
   )
 
@@ -644,11 +703,20 @@ async function buildComponent() {
     }
 
     if (component.liquid === 'section') {
-      templateFilepath.schema = `${component.folder}-schema`
+      templateFilepath.schema = `schema-${component.folder}`
     }
 
     if (component.liquid === 'snippet') {
       templateFilepath.liquid = 'liquid-snippet'
+    }
+
+    /**
+     * Web component overrides.
+     */
+    if (component.folder === 'web') {
+      templateFilepath.liquid = `liquid-web-${component.liquid}`
+      templateFilepath.stories = 'stories-web'
+      templateFilepath.vue = `web-component-${component.template}`
     }
 
     /**
@@ -672,9 +740,9 @@ async function buildComponent() {
      */
     await componentApi.writeTemplate(filepath, `${component.handle}.${component.liquid}.liquid`, template.liquid)
     await componentApi.writeTemplate(filepath, `${component.handle}.scss`, template.styles)
-    await componentApi.writeTemplate(filepath, `${component.handle}.vue`, template.vue)
+    await componentApi.writeTemplate(filepath, `${component.handle}.${component.webComponent ? 'js' : 'vue'}`, template.vue)
 
-    if (component.template === 'dynamic') {
+    if (component.template === 'dynamic' || component.webComponent) {
       await componentApi.writeTemplate(filepath, `${component.handle}.stories.js`, template.stories)
     }
 
@@ -757,6 +825,7 @@ function footer(type, index) {
     folder: {
       async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
       global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
+      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
     },
     load: {
       load: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
@@ -781,11 +850,20 @@ function footer(type, index) {
     /**
      * Ignore load type if not applicable.
      */
-    if (key === 'load' && skip()) {
+    if (key === 'load' && skipLoadQuestion()) {
       return
     }
 
-    message += `${symbols[key]} ${links[key][value]}\n`
+    /**
+     * Override documentation URL for web components.
+     */
+    let docUrl = links[key][value]
+
+    if (component.webComponent && value === 'async') {
+      docUrl = links[key].web
+    }
+
+    message += `${symbols[key]} ${docUrl}\n`
   })
 
   /**
@@ -806,8 +884,9 @@ function footer(type, index) {
  * Skip load question?
  * @returns {Boolean}
  */
-function skip() {
+function skipLoadQuestion() {
   return (
+    component.webComponent ||
     (component.folder && component.folder !== 'async') ||
     (component.template && component.template !== 'dynamic') ||
     (component.liquid && component.liquid !== 'section')
