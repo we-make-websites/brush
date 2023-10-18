@@ -2,6 +2,17 @@
 
 Theme Currency uses [semantic versioning](https://semver.org/).
 
+## 4.5.0 - 2023-10-16
+
+* Updated Node version
+* Removed `engineStrict` setting
+
+## 4.4.0 - 2023-09-20
+
+* Added `amount_no_decimals_with_apostrophe_separator` support
+* Added `amount_with_space_separator` support
+* Added `amount_no_decimals_with_space_separator` support
+
 ## 4.3.0 - 2023-04-27
 
 * Increased minimum Node version to match Canvas

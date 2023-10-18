@@ -25,6 +25,7 @@ Linting is shared across all tools.
 | `@we-make-websites/stylelint-config` | Stylelint config | [README](stylelint-config/README.md) |
 | `@we-make-websites/tannoy` | Pretty terminal messaging | [README](tannoy/README.md) |
 | `@we-make-websites/theme-currency` | Updated fork of `@shopify/theme-currency` | [README](theme-currency/README.md) |
+| `@we-make-websites/track` | 🔒 Commands and error analytics | [README](track/README.md) |
 
 ## 📅 Changelog
 
@@ -36,4 +37,4 @@ Before making any updates to Brush please speak to Craig Baldwin (craig@wemakewe
 
 Once any work is completed send a pull request to Craig for review.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for more details on process and code quality when contributing.
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for more details on process and code quality when contributing.

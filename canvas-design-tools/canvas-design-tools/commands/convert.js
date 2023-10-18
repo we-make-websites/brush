@@ -9,6 +9,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -31,6 +32,9 @@ let version = '{{canvas version}}'
  * Initialises the design functionality.
  */
 async function init() {
+  await Track.init()
+  Track.reportMessage('Design command')
+
   version = getPackageVersion()
   logBanner()
   const start = performance.now()
@@ -74,6 +78,7 @@ async function init() {
       error.error,
     ])
 
+    Track.reportError(new Error(error))
     process.exit()
   }
 

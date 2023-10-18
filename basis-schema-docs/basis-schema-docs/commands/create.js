@@ -10,6 +10,7 @@ const fs = require('fs-extra')
 const { NodeHtmlMarkdown } = require('node-html-markdown')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -35,6 +36,9 @@ const templatePath = fs.existsSync(Paths.templates.project)
 function init() {
   return new Promise(async(resolve, reject) => {
     try {
+      await Track.init()
+      Track.reportMessage('Schema docs command')
+
       Tny.message([
         Tny.colour('bgCyan', 'Basis Schema Docs v{{docs version}}'),
         Tny.colour('bgCyan', 'Create documentation'),
@@ -68,6 +72,7 @@ function init() {
 
     } catch (error) {
       Tny.message(Tny.colour('red', '❌ Error creating documention'))
+      Track.reportError(new Error(error))
       reject(error)
     }
   })

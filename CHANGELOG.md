@@ -2,6 +2,16 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.9.0 - 2023-10-31
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
+## 1.8.0 - 2023-09-19
+
+* Updated dependencies
+
 ## 1.7.0 - 2023-07-24
 
 * Added `@we-make-websites/commitlint-config` dependency
