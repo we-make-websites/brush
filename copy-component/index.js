@@ -78,8 +78,8 @@ async function init() {
   if (packageJson.config.manualInstall || packageJson.config.openReadme) {
     let folder = 'packages'
 
-    if (typeof packageJson.config.openReadme === 'string') {
-      folder = packageJson.config.openReadme.replace(/\/$/g, '')
+    if (packageJson.config.readmePath) {
+      folder = packageJson.config.readmePath.replace(/\/$/g, '')
     }
 
     open(`https://github.com/we-make-websites/library-monorepo/blob/master/${folder}/${name}/README.md`)
