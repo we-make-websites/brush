@@ -1,5 +1,20 @@
 # 📅 Eslint Config Module Changelog
 
+Eslint Config Module uses [semantic versioning](https://semver.org/).
+
+## 3.10.0 - 2023-10-16
+
+* Updated Node version
+* Removed `engineStrict` setting
+
+## 3.9.0 - 2023-09-21
+
+* Added `eslint-plugin-vuejs-accessibility` plugin
+
+## 3.8.0 - 2023-09-19
+
+* Updated dependencies
+
 ## 3.7.0 - 2023-08-23
 
 * Updated dependencies
