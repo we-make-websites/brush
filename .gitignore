@@ -63,3 +63,4 @@ secrets.json
 .ruby-version
 TODO*
 debug.json
+debug.liquid

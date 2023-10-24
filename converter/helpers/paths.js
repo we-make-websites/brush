@@ -22,5 +22,8 @@ module.exports = {
     global: path.resolve(rootFolder, 'src', 'components', 'global'),
     root: path.resolve(rootFolder, 'src', 'components'),
   },
-  debug: path.resolve(packageFolder, 'debug.json'),
+  debug: {
+    json: path.resolve(packageFolder, 'debug.json'),
+    liquid: path.resolve(packageFolder, 'debug.liquid'),
+  },
 }

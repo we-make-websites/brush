@@ -49,7 +49,7 @@ async function init() {
    */
   try {
     convertPath = argv.debug
-      ? 'C:\\Users\\craig\\Documents\\Websites\\canvas\\src\\components\\global\\btn\\btn.vue'
+      ? 'C:\\Users\\craig\\Documents\\Websites\\canvas\\src\\components\\async\\main-product\\main-product.vue'
       : await askPathQuestion()
 
   } catch (error) {
@@ -63,7 +63,10 @@ async function init() {
   try {
     start = performance.now()
     astData = await vueApi.convertTemplate(convertPath)
-    fs.writeJson(Paths.debug, astData)
+
+    if (argv.debug) {
+      fs.writeJson(Paths.debug.json, astData)
+    }
 
   } catch (error) {
     Tny.message(Tny.colour('red', error), { before: true })
@@ -75,8 +78,11 @@ async function init() {
    */
   try {
     const template = await liquidApi.buildTemplate(astData)
-    console.log('template', [...template])
     // clipboardy.writeSync(template)
+
+    if (argv.debug) {
+      fs.writeFile(Paths.debug.liquid, template)
+    }
 
   } catch (error) {
     Tny.message(Tny.colour('red', error), { before: true })
