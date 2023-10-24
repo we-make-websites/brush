@@ -1,15 +1,14 @@
 /**
- * API: Convert
+ * API: Vue
  * -----------------------------------------------------------------------------
- * Extra functions for convert command.
+ * Functions to convert Vue template.
  *
  */
 const fs = require('fs-extra')
 const { parse } = require('@vue/compiler-sfc')
 
 /**
- * Open Vue template from path.
- * - Converts children and props into AST data.
+ * Convert Vue template into AST data.
  * @param {String} filepath - Path to Vue file.
  * @returns {Promise}
  */

@@ -6,14 +6,23 @@
  *
  */
 const { prompt } = require('enquirer')
+// const clipboardy = require('clipboardy')
 const fs = require('fs-extra')
 const path = require('path')
 const fileSync = require('@we-make-websites/file-sync')
 const Tny = require('@we-make-websites/tannoy')
 const Track = require('@we-make-websites/track')
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 
+const liquidApi = require('../apis/liquid')
 const vueApi = require('../apis/vue')
 const Paths = require('../helpers/paths')
+
+/**
+ * Set variables.
+ */
+const argv = yargs(hideBin(process.argv)).argv
 
 /**
  * Initialises the convert functionality.
@@ -22,6 +31,7 @@ async function init() {
   logBanner()
   let convertPath = ''
   let start = 0
+  let astData = {}
 
   /**
    * Check if required folder exists.
@@ -35,10 +45,12 @@ async function init() {
   }
 
   /**
-   * Determine component path.
+   * Determine component path to convert.
    */
   try {
-    convertPath = await askPathQuestion()
+    convertPath = argv.debug
+      ? 'C:\\Users\\craig\\Documents\\Websites\\canvas\\src\\components\\global\\btn\\btn.vue'
+      : await askPathQuestion()
 
   } catch (error) {
     Tny.message(Tny.colour('red', error), { before: true })
@@ -46,13 +58,25 @@ async function init() {
   }
 
   /**
-   * Convert template into Liquid.
+   * Convert Vue into AST.
    */
   try {
     start = performance.now()
-    const astData = await vueApi.convertTemplate(convertPath)
-    console.log('astData', astData)
+    astData = await vueApi.convertTemplate(convertPath)
     fs.writeJson(Paths.debug, astData)
+
+  } catch (error) {
+    Tny.message(Tny.colour('red', error), { before: true })
+    Track.reportError(new Error(error))
+  }
+
+  /**
+   * Build Liquid template.
+   */
+  try {
+    const template = await liquidApi.buildTemplate(astData)
+    console.log('template', [...template])
+    // clipboardy.writeSync(template)
 
   } catch (error) {
     Tny.message(Tny.colour('red', error), { before: true })
