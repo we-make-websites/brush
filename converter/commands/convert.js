@@ -64,7 +64,7 @@ async function init() {
     start = performance.now()
     astData = await vueApi.convertTemplate(convertPath)
 
-    if (argv.debug) {
+    if (argv.output) {
       fs.writeJson(Paths.debug.json, astData)
     }
 
@@ -80,7 +80,7 @@ async function init() {
     const template = await liquidApi.buildTemplate(astData)
     // clipboardy.writeSync(template)
 
-    if (argv.debug) {
+    if (argv.output) {
       fs.writeFile(Paths.debug.liquid, template)
     }
 

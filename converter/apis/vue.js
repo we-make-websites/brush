@@ -33,9 +33,6 @@ function convertTemplate(filepath) {
         },
       }
 
-      // Convert <script> tag data using Acorn
-      // https://astexplorer.net/
-
       resolve(data)
 
     } catch (error) {
