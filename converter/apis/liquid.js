@@ -108,14 +108,14 @@ function convertToLiquidAst(element) {
     }
 
     /**
-     * Handle v-if, v-else, and v-else-if.
+     * Handle conditional and list rendering.
      */
-    if (prop.name === 'if') {
-      // TODO: Handle other conditions
+    if (['if', 'for'].includes(prop.name)) {
+      // TODO: Handle other conditions v-else, v-else-if
       data.liquid = {
-        end: '{% endif %}',
+        end: `{% end${prop.name} %}`,
         start: buildPropValue({
-          condition: 'if',
+          condition: prop.name,
           liquidOutput: true,
           prop,
           propName: name,
@@ -127,8 +127,7 @@ function convertToLiquidAst(element) {
       continue
     }
 
-    // TODO: Handle <template> element
-    // TODO: Handle v-for
+    // TODO: Handle <template v-else> element
 
     /**
      * Handle v-text and v-html props.
@@ -184,7 +183,6 @@ function buildPropValue({
     // $variable()
     .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, snippet))
 
-  // TODO: Handle $string in template literal
   if (value.includes('$string')) {
     return handleString(value, snippet)
   }
@@ -201,11 +199,16 @@ function buildPropValue({
   })
 
   if (condition) {
-    return `{% ${condition} ${value} %}`
+    switch (condition) {
+      case 'if':
+        return `{% if ${value} %}`
+      case 'for':
+        return `{% for ${value.replace(/[()]/g, '')} %}`
+    }
   }
 
   /**
-   * Build global Liquid variable for $variable() and $string().
+   * Build global Liquid variable for $variable().
    */
   if (prop.exp.content.includes('$variable') && snippet) {
     const variable = `${tag}_${propName}_variable`
@@ -361,14 +364,28 @@ function buildLiquidTemplate(elements, template, level = 0) {
       template.push(parts.liquid.start)
     }
 
-    template.push(`${parts.openTagStart}${parts.attributes}${parts.openTagEnd}`)
+    // Don't render template tags
+    if (element.tag !== 'template') {
+      if (parts.openTagEnd) {
+        template.push(`${parts.openTagStart}${parts.attributes}${parts.openTagEnd}`)
+      } else {
+        // Handle no prop elements
+        template.push(parts.openTagStart)
+      }
+    }
 
     if (element.content) {
       template.push(parts.content)
     }
 
     if (element.children) {
-      const newLevel = element.liquid ? level + 2 : level + 1
+      let newLevel = element.liquid ? level + 2 : level + 1
+
+      // As no template tag is rendered the indent isn't increased
+      if (element.tag === 'template') {
+        newLevel = element.liquid ? level + 1 : level
+      }
+
       buildLiquidTemplate(element.children, template, newLevel)
     }
 
@@ -395,6 +412,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
 function getElementTemplateParts(element, level) {
   let data = {}
   const singleProp = Object.keys(element.props).length === 1
+  const noProps = !Object.keys(element.props).length
 
   /**
    * Build attributes HTML.
@@ -443,6 +461,14 @@ function getElementTemplateParts(element, level) {
         ? `{% render '${element.tag}' with\n`
         : `<${element.tag}\n`,
     }
+  }
+
+  if (noProps) {
+    data.openTagEnd = false
+
+    data.openTagStart = element.snippet
+      ? `{% render '${element.tag}' %}`
+      : `<${element.tag}>`
   }
 
   let currentIndent = Array.from(Array(level * 2)).fill(' ').join('')
