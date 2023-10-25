@@ -26,4 +26,5 @@ module.exports = {
     json: path.resolve(packageFolder, 'debug.json'),
     liquid: path.resolve(packageFolder, 'debug.liquid'),
   },
+  locales: path.resolve(rootFolder, 'src', 'shopify', 'locales', 'en.default.json'),
 }

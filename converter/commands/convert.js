@@ -48,9 +48,14 @@ async function init() {
    * Determine component path to convert.
    */
   try {
-    convertPath = argv.debug
-      ? 'C:\\Users\\craig\\Documents\\Websites\\canvas\\src\\components\\async\\main-product\\main-product.vue'
-      : await askPathQuestion()
+    if (argv.component) {
+      const folder = argv.component.split('/')[0]
+      const component = argv.component.split('/')[1]
+      convertPath = path.join(Paths.components.root, folder, component, `${component}.vue`)
+
+    } else {
+      convertPath = await askPathQuestion()
+    }
 
   } catch (error) {
     Tny.message(Tny.colour('red', error), { before: true })
@@ -64,7 +69,7 @@ async function init() {
     start = performance.now()
     astData = await vueApi.convertTemplate(convertPath)
 
-    if (argv.output) {
+    if (argv.debug) {
       fs.writeJson(Paths.debug.json, astData)
     }
 
@@ -80,7 +85,7 @@ async function init() {
     const template = await liquidApi.buildTemplate(astData)
     // clipboardy.writeSync(template)
 
-    if (argv.output) {
+    if (argv.debug) {
       fs.writeFile(Paths.debug.liquid, template)
     }
 
