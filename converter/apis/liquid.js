@@ -198,13 +198,19 @@ function buildPropValue({
     return convertToSnakeCase($1)
   })
 
+  /**
+   * Handle conditional and list rendering.
+   */
   if (condition) {
-    switch (condition) {
-      case 'if':
-        return `{% if ${value} %}`
-      case 'for':
-        return `{% for ${value.replace(/[()]/g, '')} %}`
+    if (condition === 'for') {
+      const conditionString = value
+        .replace(/[()]/g, '')
+        .replace(' of ', ' in ')
+
+      return `{% for ${conditionString} %}`
     }
+
+    return `{% ${condition} ${value} %}`
   }
 
   /**
