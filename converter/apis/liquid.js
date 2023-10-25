@@ -8,6 +8,11 @@ const convertToSnakeCase = require('../helpers/convert')
 const getValidHtmlTag = require('../helpers/get-valid-html-tag')
 
 /**
+ * Set variables.
+ */
+const globalLiquid = []
+
+/**
  * Build Liquid template from AST data.
  * @param {Object} astData - AST data.
  * @returns {Promise}
@@ -18,6 +23,7 @@ function buildTemplate(astData) {
       const liquidAst = []
       templateSync(astData.template.children, liquidAst)
       const template = []
+      buildGlobalLiquid(template)
       buildLiquidTemplate(liquidAst, template)
 
       resolve(template.join('\n'))
@@ -91,7 +97,7 @@ function convertToLiquidAst(element) {
         name = convertToSnakeCase(name)
       }
 
-      value = buildPropValue(prop, false)
+      value = buildPropValue({ prop, snippet, liquidOutput: false })
     }
 
     /**
@@ -101,7 +107,7 @@ function convertToLiquidAst(element) {
       // TODO: Handle other conditions
       data.liquid = {
         end: '{% endif %}',
-        start: buildPropValue(prop, true, 'if'),
+        start: buildPropValue({ prop, snippet, liquidOutput: true, condition: 'if' }),
       }
 
       continue
@@ -115,7 +121,7 @@ function convertToLiquidAst(element) {
      */
     if (prop.name === 'text' || prop.name === 'html') {
       name = 'content'
-      value = buildPropValue(prop, true)
+      value = buildPropValue({ prop, snippet, liquidOutput: true })
 
       data[name] = value
       continue
@@ -129,22 +135,29 @@ function convertToLiquidAst(element) {
 
 /**
  * Build prop value.
- * @param {Object} prop - Prop object from AST data.
- * @param {Boolean} liquid - If it's a Liquid snippet.
  * @param {String} [condition] - v-if, v-else, or v-else-if condition.
+ * @param {Boolean} [liquidOutput] - Output Liquid tags.
+ * @param {Object} prop - Prop object from AST data.
+ * @param {Boolean} [snippet] - Prop of Liquid render snippet.
  * @returns {String}
  */
-function buildPropValue(prop, liquid, condition) {
+function buildPropValue({ condition, liquidOutput = false, snippet = false, prop } = {}) {
   // TODO: Get $variable and $string values
   // TODO: Handle maths symbols (e.g. >)
   let value = prop.exp.content.replaceAll('?.', '.')
 
+  if (value.includes('$string')) {
+    return handleString(value, snippet)
+  }
+
+  // TODO: Use or/and logic
   if (value.includes('||')) {
     value = value
       .split('||')[0]
       .trim()
   }
 
+  // TODO: Convert to ==
   if (value.includes('===')) {
     return true
   }
@@ -158,11 +171,99 @@ function buildPropValue(prop, liquid, condition) {
     return `{% ${condition} ${value} %}`
   }
 
-  if (liquid) {
-    return `{{ ${value} }}`
+  return liquidOutput ? `{{ ${value} }}` : value
+}
+
+/**
+ * Handle $string value.
+ * @param {String} value - Prop value.
+ * @param {Boolean} snippet - Prop of Liquid render snippet.
+ * @returns {String}
+ */
+function handleString(value, snippet) {
+  const localePath = value
+    .match(/'[a-z0-9._]+'[),]/g)[0]
+    .replace(/[,)]/g, '')
+
+  const translate = []
+
+  /**
+   * Go through pluralise and replace and convert to translate filters.
+   */
+  if (value.includes('pluralise:')) {
+    const pluralise = value.matchAll(/pluralise: (?<value>.[a-z0-9._]+)/gs)
+    let pluraliseValue = false
+
+    for (const match of pluralise) {
+      pluraliseValue = match.groups.value
+    }
+
+    translate.push(`count: ${pluraliseValue}`)
   }
 
-  return value
+  if (value.includes('replace:')) {
+    const replace = value.matchAll(/replace: {(?<value>.[a-z0-9._:\s]+)}/gs)
+    let replaceValue = false
+
+    for (const match of replace) {
+      replaceValue = match.groups.value
+    }
+
+    replaceValue.split(',').forEach((property) => {
+      const key = property.split(':')[0].trim()
+      const propertyValue = property.split(':')[1].trim()
+
+      translate.push(`${key}: ${propertyValue}`)
+    })
+  }
+
+  /**
+   * Make unique.
+   */
+  const uniqueTranslate = []
+
+  if (translate.length) {
+    translate.forEach((item) => {
+      if (uniqueTranslate.includes(item)) {
+        return
+      }
+
+      uniqueTranslate.push(item)
+    })
+  }
+
+  const liquidObject = uniqueTranslate.length
+    ? `${localePath} | t: ${uniqueTranslate.join(', ')}`
+    : `${localePath} | t`
+
+  /**
+   * If Liquid snippet add variable to global Liquid.
+   */
+  if (snippet) {
+    const variable = `${convertToSnakeCase(localePath)}_string`
+    globalLiquid.push(`assign ${variable} = ${liquidObject}`)
+    return variable
+  }
+
+  return `{{ ${liquidObject} }}`
+}
+
+/**
+ * Build global Liquid.
+ * @param {Array} template - Template array to push into.
+ */
+function buildGlobalLiquid(template) {
+  if (!globalLiquid.length) {
+    return
+  }
+
+  template.push('{%- liquid')
+
+  globalLiquid.forEach((entry) => {
+    template.push(`  ${entry}`)
+  })
+
+  template.push('-%}\n')
 }
 
 /**
@@ -193,7 +294,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
     /**
      * Push template to array.
     */
-    const parts = getParts(element, level)
+    const parts = getElementTemplateParts(element, level)
 
     if (element.liquid) {
       template.push(parts.liquid.start)
@@ -225,12 +326,12 @@ function buildLiquidTemplate(elements, template, level = 0) {
 }
 
 /**
- * Get parts of each element.
+ * Get parts of each element template.
  * @param {Object} element - Element Liquid AST data.
  * @param {Number} level - Level of indent.
  * @returns {Object}
  */
-function getParts(element, level) {
+function getElementTemplateParts(element, level) {
   let data = {}
   const singleProp = Object.keys(element.props).length === 1
 
