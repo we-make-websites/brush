@@ -428,28 +428,61 @@ function buildLiquidTemplate(elements, template, level = 0) {
  */
 function getElementTemplateParts(element, level) {
   let data = {}
-  const singleProp = Object.keys(element.props).length === 1
+  let singleLine = Object.keys(element.props).length === 1
   const noProps = !Object.keys(element.props).length
+
+  /**
+   * Determine current and total indent.
+   * - Current indent isn't increased until after Liquid tags are rendered.
+   * - Total indent is increased before so we can calculate attribute line
+   *   length correctly.
+   */
+  let currentIndent = Array.from(Array(level * 2)).fill(' ').join('')
+  let totalIdent = currentIndent
+
+  if (element.liquid) {
+    totalIdent += '  '
+  }
 
   /**
    * Build attributes HTML.
    */
   const attributes = Object.entries(element.props).map(([key, value]) => {
-    const indent = singleProp ? '' : '  '
+    const indent = singleLine ? '' : '  '
 
     if (!value) {
       return `${indent}${key}`
     }
 
-    return element.snippet
+    const attribute = element.snippet
       ? `${indent}${key}: ${value}`
       : `${indent}${key}="${value}"`
+
+    /**
+     * Determine length of line.
+     * - If single line then include HTML tag.
+     */
+    let length = totalIdent.length + attribute.length
+
+    if (singleLine) {
+      length += `<${element.tag} >`.length
+    }
+
+    /**
+     * Break HTML class onto multiple lines if too long.
+     */
+    if (key === 'class' && !element.snippet && length > 80) {
+      singleLine = false
+      return `  ${key}="\n    ${value.replaceAll(' ', '\n    ')}\n  "`
+    }
+
+    return attribute
   })
 
   /**
    * Create data objects.
    */
-  if (singleProp) {
+  if (singleLine) {
     data = {
       attributes: attributes.join(''),
       closeTag: `</${element.tag}>`,
@@ -488,11 +521,8 @@ function getElementTemplateParts(element, level) {
       : `<${element.tag}>`
   }
 
-  let currentIndent = Array.from(Array(level * 2)).fill(' ').join('')
-
   /**
    * Add Liquid.
-   * - Increase indent to account for it.
    */
   if (element.liquid) {
     data.liquid = {
@@ -511,7 +541,7 @@ function getElementTemplateParts(element, level) {
   Object.entries(data).forEach(([key, value]) => {
     switch (key) {
       case 'attributes':
-        indentedData[key] = singleProp
+        indentedData[key] = singleLine
           ? value
           : `${currentIndent}${value.replaceAll('\n', `\n${currentIndent}`)}`
 
