@@ -111,15 +111,19 @@ function convertToLiquidAst(element) {
      * Handle conditional and list rendering.
      */
     if (config.vConditionals.includes(prop.name)) {
+      const condition = prop.name === 'show'
+        ? 'if'
+        : prop.name
+
       data.liquid = {
-        condition: prop.name,
-        end: config.vElseConditionals.includes(prop.name)
+        condition,
+        end: config.vElseConditionals.includes(condition)
           ? '{% endif %}'
-          : `{% end${prop.name} %}`,
-        start: prop.name === 'else'
+          : `{% end${condition} %}`,
+        start: condition === 'else'
           ? '{% else %}'
           : buildPropValue({
-            condition: prop.name,
+            condition,
             liquidOutput: true,
             prop,
             propName: name,

@@ -56,7 +56,7 @@ module.exports = {
     'ul',
     'video',
   ],
-  vConditionals: ['if', 'else-if', 'else', 'for'],
+  vConditionals: ['if', 'else-if', 'else', 'for', 'show'],
   VContent: ['html', 'text'],
   vElseConditionals: ['else-if', 'else'],
 }
