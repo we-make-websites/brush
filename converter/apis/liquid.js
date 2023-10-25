@@ -110,24 +110,26 @@ function convertToLiquidAst(element) {
     /**
      * Handle conditional and list rendering.
      */
-    if (['if', 'for'].includes(prop.name)) {
-      // TODO: Handle other conditions v-else, v-else-if
+    if (['if', 'else-if', 'else', 'for'].includes(prop.name)) {
       data.liquid = {
-        end: `{% end${prop.name} %}`,
-        start: buildPropValue({
-          condition: prop.name,
-          liquidOutput: true,
-          prop,
-          propName: name,
-          snippet,
-          tag: element.tag,
-        }),
+        condition: prop.name,
+        end: ['else-if', 'else'].includes(prop.name)
+          ? '{% endif %}'
+          : `{% end${prop.name} %}`,
+        start: prop.name === 'else'
+          ? '{% else %}'
+          : buildPropValue({
+            condition: prop.name,
+            liquidOutput: true,
+            prop,
+            propName: name,
+            snippet,
+            tag: element.tag,
+          }),
       }
 
       continue
     }
-
-    // TODO: Handle <template v-else> element
 
     /**
      * Handle v-text and v-html props.
@@ -202,6 +204,7 @@ function buildPropValue({
    * Handle conditional and list rendering.
    */
   if (condition) {
+    // TODO: Handle (item, index) of ...
     if (condition === 'for') {
       const conditionString = value
         .replace(/[()]/g, '')
@@ -210,7 +213,7 @@ function buildPropValue({
       return `{% for ${conditionString} %}`
     }
 
-    return `{% ${condition} ${value} %}`
+    return `{% ${condition.replace('else-if', 'elsif')} ${value} %}`
   }
 
   /**
@@ -367,6 +370,14 @@ function buildLiquidTemplate(elements, template, level = 0) {
     const parts = getElementTemplateParts(element, level)
 
     if (element.liquid) {
+      // Remove last endif if continuing conditional render
+      if (
+        ['else-if', 'else'].includes(element.liquid.condition) &&
+        template[template.length - 2].includes('{% endif %}')
+      ) {
+        template.splice(template.length - 2, 1)
+      }
+
       template.push(parts.liquid.start)
     }
 
@@ -455,7 +466,7 @@ function getElementTemplateParts(element, level) {
   } else {
     data = {
       attributes: element.snippet
-        ? `${attributes.join(',\n')}\n`
+        ? `${attributes.join(',\n')},\n`
         : `${attributes.join('\n')}\n`,
       closeTag: `</${element.tag}>`,
       content: `  ${element.content}`,
