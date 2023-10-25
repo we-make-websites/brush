@@ -10,7 +10,8 @@ const getValidHtmlTag = require('../helpers/get-valid-html-tag')
 /**
  * Set variables.
  */
-const globalLiquid = []
+const globalLiquidAssign = []
+const globalLiquidCapture = []
 
 /**
  * Build Liquid template from AST data.
@@ -97,7 +98,13 @@ function convertToLiquidAst(element) {
         name = convertToSnakeCase(name)
       }
 
-      value = buildPropValue({ prop, snippet, liquidOutput: false })
+      value = buildPropValue({
+        liquidOutput: false,
+        prop,
+        propName: name,
+        snippet,
+        tag: element.tag,
+      })
     }
 
     /**
@@ -107,7 +114,14 @@ function convertToLiquidAst(element) {
       // TODO: Handle other conditions
       data.liquid = {
         end: '{% endif %}',
-        start: buildPropValue({ prop, snippet, liquidOutput: true, condition: 'if' }),
+        start: buildPropValue({
+          condition: 'if',
+          liquidOutput: true,
+          prop,
+          propName: name,
+          snippet,
+          tag: element.tag,
+        }),
       }
 
       continue
@@ -121,7 +135,13 @@ function convertToLiquidAst(element) {
      */
     if (prop.name === 'text' || prop.name === 'html') {
       name = 'content'
-      value = buildPropValue({ prop, snippet, liquidOutput: true })
+      value = buildPropValue({
+        liquidOutput: true,
+        prop,
+        propName: name,
+        snippet,
+        tag: element.tag,
+      })
 
       data[name] = value
       continue
@@ -138,37 +158,62 @@ function convertToLiquidAst(element) {
  * @param {String} [condition] - v-if, v-else, or v-else-if condition.
  * @param {Boolean} [liquidOutput] - Output Liquid tags.
  * @param {Object} prop - Prop object from AST data.
+ * @param {String} propName - Standard name of prop.
  * @param {Boolean} [snippet] - Prop of Liquid render snippet.
+ * @param {String} tag - Element tag.
  * @returns {String}
  */
-function buildPropValue({ condition, liquidOutput = false, snippet = false, prop } = {}) {
-  // TODO: Get $variable and $string values
-  // TODO: Handle maths symbols (e.g. >)
-  let value = prop.exp.content.replaceAll('?.', '.')
+function buildPropValue({
+  condition,
+  liquidOutput = false,
+  prop,
+  propName,
+  snippet = false,
+  tag,
+} = {}) {
+  let value = prop.exp.content
+    // Optional chaining
+    .replaceAll('?.', '.')
+    // Conditions
+    .replaceAll('||', 'or')
+    .replaceAll('&&', 'and')
+    .replaceAll('===', '==')
+    // Template literals
+    .replaceAll('`', '')
+    .replaceAll(/\${(?<value>.+?)}/g, (_, $1) => $1)
+    // $variable()
+    .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, snippet))
 
+  // TODO: Handle $string in template literal
   if (value.includes('$string')) {
     return handleString(value, snippet)
   }
 
-  // TODO: Use or/and logic
-  if (value.includes('||')) {
-    value = value
-      .split('||')[0]
-      .trim()
-  }
+  /**
+   * Convert values to snake_case, ignoring strings and maths.
+   */
+  value = value.replace(/(?<value>['a-z_A-Z0-9]+)/g, (_, $1) => {
+    if ($1.includes('\'')) {
+      return $1
+    }
 
-  // TODO: Convert to ==
-  if (value.includes('===')) {
-    return true
-  }
-
-  value = value
-    .split('.')
-    .map((part) => convertToSnakeCase(part))
-    .join('.')
+    return convertToSnakeCase($1)
+  })
 
   if (condition) {
     return `{% ${condition} ${value} %}`
+  }
+
+  /**
+   * Build global Liquid variable for $variable() and $string().
+   */
+  if (prop.exp.content.includes('$variable') && snippet) {
+    const variable = `${tag}_${propName}_variable`
+
+    globalLiquidCapture.push(`{%- capture ${variable} -%}`)
+    globalLiquidCapture.push(`  ${value}`)
+    globalLiquidCapture.push('{%- endcapture -%}\n')
+    return variable
   }
 
   return liquidOutput ? `{{ ${value} }}` : value
@@ -241,7 +286,7 @@ function handleString(value, snippet) {
    */
   if (snippet) {
     const variable = `${convertToSnakeCase(localePath)}_string`
-    globalLiquid.push(`assign ${variable} = ${liquidObject}`)
+    globalLiquidAssign.push(`assign ${variable} = ${liquidObject}`)
     return variable
   }
 
@@ -249,21 +294,34 @@ function handleString(value, snippet) {
 }
 
 /**
- * Build global Liquid.
+ * Handle $variable value.
+ * @param {String} value - Prop value.
+ * @returns {String}
+ */
+function handleVariable(value) {
+  return `{{ ${value.replaceAll('\'', '')} }}`
+}
+
+/**
+ * Build global Liquid assign and capture.
  * @param {Array} template - Template array to push into.
  */
 function buildGlobalLiquid(template) {
-  if (!globalLiquid.length) {
+  if (!globalLiquidAssign.length) {
     return
   }
 
   template.push('{%- liquid')
 
-  globalLiquid.forEach((entry) => {
+  globalLiquidAssign.forEach((entry) => {
     template.push(`  ${entry}`)
   })
 
   template.push('-%}\n')
+
+  globalLiquidCapture.forEach((entry) => {
+    template.push(entry)
+  })
 }
 
 /**
@@ -286,7 +344,10 @@ function buildLiquidTemplate(elements, template, level = 0) {
     if (previousElement) {
       const previousElementSingleProp = Object.keys(previousElement.props).length === 1
 
-      if (!(previousElementSingleProp && !previousElement.children.length)) {
+      if (
+        !(previousElementSingleProp && !previousElement.children.length) ||
+        previousElement.content
+      ) {
         template.push('')
       }
     }
