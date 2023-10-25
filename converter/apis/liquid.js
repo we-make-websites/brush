@@ -5,7 +5,7 @@
  *
  */
 const convertToSnakeCase = require('../helpers/convert')
-const getValidHtmlTag = require('../helpers/get-valid-html-tag')
+const config = require('../helpers/config')
 
 /**
  * Set variables.
@@ -27,7 +27,7 @@ function buildTemplate(astData) {
       buildGlobalLiquid(template)
       buildLiquidTemplate(liquidAst, template)
 
-      resolve(template.join('\n'))
+      resolve(`${template.join('\n')}\n`)
 
     } catch (error) {
       reject(error)
@@ -63,7 +63,7 @@ function convertToLiquidAst(element) {
     return false
   }
 
-  const snippet = !getValidHtmlTag(element.tag)
+  const snippet = !config.validHtmlTags.includes(element.tag)
 
   const data = {
     children: [],
@@ -78,7 +78,7 @@ function convertToLiquidAst(element) {
       ? prop.arg.content
       : prop.name
 
-    if (prop.name === 'on') {
+    if (config.noRenderProps.includes(name)) {
       continue
     }
 
@@ -110,10 +110,10 @@ function convertToLiquidAst(element) {
     /**
      * Handle conditional and list rendering.
      */
-    if (['if', 'else-if', 'else', 'for'].includes(prop.name)) {
+    if (config.vConditionals.includes(prop.name)) {
       data.liquid = {
         condition: prop.name,
-        end: ['else-if', 'else'].includes(prop.name)
+        end: config.vElseConditionals.includes(prop.name)
           ? '{% endif %}'
           : `{% end${prop.name} %}`,
         start: prop.name === 'else'
@@ -134,7 +134,7 @@ function convertToLiquidAst(element) {
     /**
      * Handle v-text and v-html props.
      */
-    if (prop.name === 'text' || prop.name === 'html') {
+    if (config.VContent.includes(prop.name)) {
       name = 'content'
       value = buildPropValue({
         liquidOutput: true,
@@ -183,7 +183,7 @@ function buildPropValue({
     .replaceAll('`', '')
     .replaceAll(/\${(?<value>.+?)}/g, (_, $1) => $1)
     // $variable()
-    .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, snippet))
+    .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, condition))
 
   if (value.includes('$string')) {
     return handleString(value, snippet)
@@ -213,7 +213,17 @@ function buildPropValue({
       return `{% for ${conditionString} %}`
     }
 
-    return `{% ${condition.replace('else-if', 'elsif')} ${value} %}`
+    const formattedCondition = condition.replace('else-if', 'elsif')
+    let formattedValue = value.replace(/(?:{{\s|\s}})/g, '')
+
+    // Handle negative conditions
+    if (formattedValue.startsWith('!')) {
+      formattedValue = formattedValue.replaceAll(/(?<value>![^\s]+)/g, (_, $1) => {
+        return `${$1.replace('!', '')} == false`
+      })
+    }
+
+    return `{% ${formattedCondition} ${formattedValue} %}`
   }
 
   /**
@@ -308,10 +318,15 @@ function handleString(value, snippet) {
 /**
  * Handle $variable value.
  * @param {String} value - Prop value.
+ * @param {Boolean|String} condition - Conditional tag.
  * @returns {String}
  */
-function handleVariable(value) {
-  return `{{ ${value.replaceAll('\'', '')} }}`
+function handleVariable(value, condition) {
+  const formattedValue = value.replaceAll('\'', '')
+
+  return condition
+    ? formattedValue
+    : `{{ ${formattedValue} }}`
 }
 
 /**
@@ -372,7 +387,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
     if (element.liquid) {
       // Remove last endif if continuing conditional render
       if (
-        ['else-if', 'else'].includes(element.liquid.condition) &&
+        config.vElseConditionals.includes(element.liquid.condition) &&
         template[template.length - 2].includes('{% endif %}')
       ) {
         template.splice(template.length - 2, 1)
@@ -381,8 +396,8 @@ function buildLiquidTemplate(elements, template, level = 0) {
       template.push(parts.liquid.start)
     }
 
-    // Don't render template tags
-    if (element.tag !== 'template') {
+    // Don't output no render tags tags
+    if (!config.noRenderTags.includes(element.tag)) {
       if (parts.openTagEnd) {
         template.push(`${parts.openTagStart}${parts.attributes}${parts.openTagEnd}`)
       } else {
@@ -398,8 +413,8 @@ function buildLiquidTemplate(elements, template, level = 0) {
     if (element.children) {
       let newLevel = element.liquid ? level + 2 : level + 1
 
-      // As no template tag is rendered the indent isn't increased
-      if (element.tag === 'template') {
+      // As no render tags are not rendered the indent isn't increased
+      if (config.noRenderTags.includes(element.tag)) {
         newLevel = element.liquid ? level + 1 : level
       }
 

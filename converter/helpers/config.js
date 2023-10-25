@@ -1,17 +1,18 @@
 /**
- * Helper: Get valid HTML tag
+ * Helper: Config
  * -----------------------------------------------------------------------------
- * Get if a HTML tag is valid.
+ * Single source of truth for config settings in Converter.
  *
  */
 
 /**
- * Get valid HTML tag.
- * @param {String} tag - Tag to test.
- * @returns {Boolean}
+ * Export.
+ * @returns {Object}
  */
-function getValidHtmlTag(tag) {
-  const validHtml = [
+module.exports = {
+  noRenderProps: ['key', 'on', 'ref'],
+  noRenderTags: ['teleport', 'template'],
+  validHtmlTags: [
     'a',
     'abbr',
     'address',
@@ -44,6 +45,7 @@ function getValidHtmlTag(tag) {
     'p',
     'picture',
     'pre',
+    'section',
     'source',
     'span',
     'strong',
@@ -53,14 +55,8 @@ function getValidHtmlTag(tag) {
     'tr',
     'ul',
     'video',
-  ]
-
-  return validHtml.includes(tag)
-}
-
-/**
- * Export helper.
- */
-module.exports = (string) => {
-  return getValidHtmlTag(string)
+  ],
+  vConditionals: ['if', 'else-if', 'else', 'for'],
+  VContent: ['html', 'text'],
+  vElseConditionals: ['else-if', 'else'],
 }

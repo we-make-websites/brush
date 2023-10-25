@@ -6,7 +6,6 @@
  *
  */
 const { prompt } = require('enquirer')
-// const clipboardy = require('clipboardy')
 const fs = require('fs-extra')
 const path = require('path')
 const fileSync = require('@we-make-websites/file-sync')
@@ -83,7 +82,6 @@ async function init() {
    */
   try {
     const template = await liquidApi.buildTemplate(astData)
-    // clipboardy.writeSync(template)
 
     if (argv.debug) {
       fs.writeFile(Paths.debug.liquid, template)
