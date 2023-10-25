@@ -65,6 +65,8 @@ function convertToLiquidAst(element) {
 
   const snippet = !config.validHtmlTags.includes(element.tag)
 
+  // TODO: Handle <component>
+
   const data = {
     children: [],
     liquid: false,
@@ -85,6 +87,10 @@ function convertToLiquidAst(element) {
     let value = snippet
       ? `'${prop.value?.content}'`
       : prop.value?.content
+
+    if (!prop.value?.content) {
+      value = true
+    }
 
     /**
      * Handle v-bind/:bind props.
@@ -138,7 +144,7 @@ function convertToLiquidAst(element) {
     /**
      * Handle v-text and v-html props.
      */
-    if (config.VContent.includes(prop.name)) {
+    if (config.vContent.includes(prop.name)) {
       name = 'content'
       value = buildPropValue({
         liquidOutput: true,
@@ -183,14 +189,25 @@ function buildPropValue({
     .replaceAll('||', 'or')
     .replaceAll('&&', 'and')
     .replaceAll('===', '==')
+    .replaceAll('!==', '!=')
     // Template literals
     .replaceAll('`', '')
     .replaceAll(/\${(?<value>.+?)}/g, (_, $1) => $1)
+    // Length is called size in Liquid
+    .replaceAll('.length', '.size')
     // $variable()
     .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, condition))
 
+  /**
+   * Handle other helpers by themselves as we don't expect anything else in the
+   * prop value.
+   */
   if (value.includes('$string')) {
     return handleString(value, snippet)
+  }
+
+  if (value.includes('$formatMoney')) {
+    return handleFormatMoney(value, snippet)
   }
 
   /**
@@ -208,13 +225,20 @@ function buildPropValue({
    * Handle conditional and list rendering.
    */
   if (condition) {
-    // TODO: Handle (item, index) of ...
     if (condition === 'for') {
-      const conditionString = value
+      let conditionString = value
         .replace(/[()]/g, '')
         .replace(' of ', ' in ')
 
-      return `{% for ${conditionString} %}`
+      let assign = ''
+
+      if (conditionString.includes('index')) {
+        conditionString = conditionString.replace(', index', '')
+
+        assign = `{% assign index = forloop.index0 %}\n`
+      }
+
+      return `{% for ${conditionString} %}${assign}`
     }
 
     const formattedCondition = condition.replace('else-if', 'elsif')
@@ -246,13 +270,27 @@ function buildPropValue({
 }
 
 /**
+ * Handle $variable() helper function.
+ * @param {String} value - Prop value.
+ * @param {Boolean|String} condition - Conditional tag.
+ * @returns {String}
+ */
+function handleVariable(value, condition) {
+  const formattedValue = value.replaceAll('\'', '')
+
+  return condition
+    ? formattedValue
+    : `{{ ${formattedValue} }}`
+}
+
+/**
  * Handle $string value.
  * @param {String} value - Prop value.
  * @param {Boolean} snippet - Prop of Liquid render snippet.
  * @returns {String}
  */
 function handleString(value, snippet) {
-  const localePath = value
+  const locale = value
     .match(/'[a-z0-9._]+'[),]/g)[0]
     .replace(/[,)]/g, '')
 
@@ -303,34 +341,46 @@ function handleString(value, snippet) {
     })
   }
 
-  const liquidObject = uniqueTranslate.length
-    ? `${localePath} | t: ${uniqueTranslate.join(', ')}`
-    : `${localePath} | t`
+  const liquid = uniqueTranslate.length
+    ? `${locale} | t: ${uniqueTranslate.join(', ')}`
+    : `${locale} | t`
 
   /**
    * If Liquid snippet add variable to global Liquid.
    */
   if (snippet) {
-    const variable = `${convertToSnakeCase(localePath)}_string`
-    globalLiquidAssign.push(`assign ${variable} = ${liquidObject}`)
+    const variable = `${convertToSnakeCase(locale)}_string`
+    globalLiquidAssign.push(`assign ${variable} = ${liquid}`)
     return variable
   }
 
-  return `{{ ${liquidObject} }}`
+  return `{{ ${liquid} }}`
 }
 
 /**
- * Handle $variable value.
+ * Handle $formatMoney() helper function.
  * @param {String} value - Prop value.
- * @param {Boolean|String} condition - Conditional tag.
+ * @param {Boolean} snippet - Prop of Liquid render snippet.
  * @returns {String}
  */
-function handleVariable(value, condition) {
-  const formattedValue = value.replaceAll('\'', '')
+function handleFormatMoney(value, snippet) {
+  const money = value
+    .split('(')[1]
+    .replace(')', '')
+    .trim()
 
-  return condition
-    ? formattedValue
-    : `{{ ${formattedValue} }}`
+  const liquid = `${money} | money`
+
+  /**
+   * If Liquid snippet add variable to global Liquid.
+   */
+  if (snippet) {
+    const variable = `${convertToSnakeCase(money)}_string`
+    globalLiquidAssign.push(`assign ${variable} = ${liquid}`)
+    return money
+  }
+
+  return `{{ ${liquid} }}`
 }
 
 /**
@@ -546,7 +596,8 @@ function getElementTemplateParts(element, level) {
   if (element.liquid) {
     data.liquid = {
       end: `${currentIndent}${element.liquid.end}`,
-      start: `${currentIndent}${element.liquid.start}`,
+      // Handle forloop index which has the assign on the same line
+      start: `${currentIndent}${element.liquid.start.replace('%}{%', `%}\n${currentIndent}  {%`)}`,
     }
 
     currentIndent += '  '
