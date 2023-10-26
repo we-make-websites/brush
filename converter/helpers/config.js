@@ -78,6 +78,10 @@ module.exports = {
     'video',
   ],
   validLiquidObjects: [
+    // Truthy conditions
+    'true',
+    'false',
+    // Liquid objects
     'additional_checkout_buttons',
     'address',
     'all_country_option_tags',
@@ -206,4 +210,5 @@ module.exports = {
   vConditionals: ['if', 'else-if', 'else', 'for', 'show'],
   vContent: ['html', 'text'],
   vElseConditionals: ['else-if', 'else'],
+  vIfConditionals: ['if', 'else-if', 'else', 'show'],
 }

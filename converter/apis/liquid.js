@@ -12,8 +12,8 @@ const config = require('../helpers/config')
 /**
  * Set variables.
  */
-const globalLiquidAssign = []
-const globalLiquidCapture = []
+const globalLiquidAssigns = []
+const globalLiquidCaptures = []
 const globalLiquidConditionals = []
 
 /**
@@ -137,6 +137,7 @@ function convertToLiquidAst(element, parent) {
       }
 
       if (condition === 'for') {
+        // TODO: Handle destructured objects
         const scopedVariable = data.liquid.start
           .split(' in ')[0]
           .replace('{% for ', '')
@@ -220,7 +221,7 @@ function convertToLiquidAst(element, parent) {
         const liquidVariable = name
 
         handlerApi.ternaryOperators({
-          globalLiquidAssign,
+          globalLiquidAssigns,
           globalLiquidConditionals,
           liquidVariable,
           value: data.props.is,
@@ -229,7 +230,7 @@ function convertToLiquidAst(element, parent) {
 
     // Otherwise use defaults
     } else {
-      globalLiquidAssign.push(`assign ${name} = 'div'`)
+      globalLiquidAssigns.push(`assign ${name} = 'div'`)
 
       const conditionals = [
         'if CONDITION != blank',
@@ -300,13 +301,13 @@ function buildPropValue({
    * prop value.
    */
   if (value.includes('$string')) {
-    return handlerApi.string(value, snippet, globalLiquidAssign)
+    return handlerApi.string(value, snippet, globalLiquidAssigns)
   }
 
   if (value.includes('$formatMoney')) {
     return handlerApi.formatMoney({
       forloopVariables,
-      globalLiquidAssign,
+      globalLiquidAssigns,
       snippet,
       value,
     })
@@ -328,37 +329,78 @@ function buildPropValue({
   }
 
   /**
-   * Handle ternary operators.
+   * Handle ternary operators and equal conditions.
+   * - Ignore inside v- conditions.
    */
-  if (value.includes(' ? ')) {
-    if (snippet) {
-      const liquidVariable = `${propName}_conditional`
+  if (!config.vIfConditionals.includes(condition)) {
+    if (value.includes(' ? ')) {
+      if (snippet) {
+        const liquidVariable = `${propName}_conditional`
 
-      handlerApi.ternaryOperators({
-        globalLiquidAssign,
-        globalLiquidConditionals,
-        liquidVariable,
-        value,
-      })
+        handlerApi.ternaryOperators({
+          globalLiquidAssigns,
+          globalLiquidConditionals,
+          liquidVariable,
+          value,
+        })
 
-      value = liquidVariable
+        value = liquidVariable
 
-    } else {
-      const { formattedValue } = handlerApi.ternaryOperators({ value })
-      value = formattedValue
+      } else {
+        value = handlerApi.ternaryOperators({ value })
+      }
+
+    } else if (value.includes('==') || value.includes('!=')) {
+      if (snippet) {
+        const liquidVariable = `${propName}_conditional`
+
+        handlerApi.equals({
+          globalLiquidAssigns,
+          globalLiquidConditionals,
+          liquidVariable,
+          value,
+        })
+
+        value = liquidVariable
+
+      } else {
+        value = handlerApi.equals({ value })
+      }
+    }
+
+  }
+
+  /**
+   * Handle and/or condition for snippet props and Liquid output.
+   * - Ignore inside v-if conditions.
+   */
+  if (
+    !config.vIfConditionals.includes(condition) &&
+    (value.includes(' or ') || value.includes(' and '))
+  ) {
+    if (liquidOutput) {
+      value = value.split(' or ')[0]
+      value = value.replaceAll(' and ', ' | append: ')
+
+    } else if (snippet) {
+      value = value.split(/ (?:and|or) /g)[0]
     }
   }
 
   /**
    * Add variable to Liquid assign if it's not a valid Liquid object.
    * - And the variable hasn't been set in a forloop.
-   * - Don't split when assigning variable so we can use it to build assign
-   *   variable name.
+   * - Ignore inside v-if conditions and Liquid tags.
    */
-  if (!value.includes('{{ ') && !value.includes('{% ')) {
+  if (
+    !config.vIfConditionals.includes(condition) &&
+    !value.includes('{{ ') &&
+    !value.includes('{% ')
+  ) {
     let variableToTest = value
 
     if (condition === 'for') {
+      // TODO: Handle destructured objects
       variableToTest = value.split(' of ')[1]
     }
 
@@ -366,7 +408,7 @@ function buildPropValue({
       return handlerApi.validLiquid({
         condition,
         forloopVariables,
-        globalLiquidAssign,
+        globalLiquidAssigns,
         part: variablePart,
         value,
       })
@@ -376,7 +418,7 @@ function buildPropValue({
       return handlerApi.validLiquid({
         condition,
         forloopVariables,
-        globalLiquidAssign,
+        globalLiquidAssigns,
         part: variablePart,
         value,
       })
@@ -388,6 +430,8 @@ function buildPropValue({
    */
   if (condition) {
     if (condition === 'for') {
+      // TODO: Handle destructured objects
+      // line-item
       let conditionString = value
         .replace(/[()]/g, '')
         .replace(' of ', ' in ')
@@ -427,21 +471,18 @@ function buildPropValue({
       '{%- endcapture -%}\n',
     ]
 
-    globalLiquidCapture.push(capture)
+    globalLiquidCaptures.push(capture)
     return variable
   }
 
   /**
-   * Remove or conditions for Liquid output (content).
-   * - Append and content.
+   * Wrap Liquid output in Liquid object tags.
    */
   if (
     liquidOutput &&
     !value.includes('{{ ') &&
     !value.includes('{% ')
   ) {
-    value = value.split(' or ')[0]
-    value = value.replaceAll(' and ', ' | append: ')
     value = `{{ ${value} }}`
   }
 
@@ -453,39 +494,25 @@ function buildPropValue({
  * @param {Array} template - Template array to push into.
  */
 function buildGlobalLiquid(template) {
-  if (globalLiquidAssign.length || globalLiquidConditionals.length) {
+  if (globalLiquidAssigns.length || globalLiquidConditionals.length) {
     template.push('{%- liquid')
   }
 
   /**
    * Liquid assigns.
    */
-  const unique = []
+  const assign = sanitiseGlobalLiquid(globalLiquidAssigns, true)
 
-  const sanitisedAssign = globalLiquidAssign
-    .filter((entry) => {
-      const variable = entry
-        .split(' = ')[0]
-        .replace('assign', '')
-        .trim()
-
-      if (unique.includes(variable)) {
-        return false
-      }
-
-      unique.push(variable)
-      return true
-    })
-    .sort()
-
-  sanitisedAssign.forEach((entry) => {
+  assign.forEach((entry) => {
     template.push(`  ${entry}`)
   })
 
   /**
    * Liquid conditionals (array of arrays).
    */
-  globalLiquidConditionals.forEach((condition) => {
+  const conditionals = sanitiseGlobalLiquid(globalLiquidConditionals)
+
+  conditionals.forEach((condition) => {
     template.push('')
 
     condition.forEach((line) => {
@@ -493,20 +520,51 @@ function buildGlobalLiquid(template) {
     })
   })
 
-  if (globalLiquidAssign.length || globalLiquidConditionals.length) {
+  if (globalLiquidAssigns.length || globalLiquidConditionals.length) {
     template.push('-%}\n')
   }
 
   /**
    * Liquid captures.
    */
-  globalLiquidCapture.forEach((capture) => {
+  const captures = sanitiseGlobalLiquid(globalLiquidCaptures)
+
+  captures.forEach((capture) => {
     template.push('')
 
     capture.forEach((line) => {
       template.push(`  ${line}`)
     })
   })
+}
+
+/**
+ * Sanitise global Liquid arrays.
+ * - Checks that entries are unique and sorts.
+ * @param {Array} array - Array to sanitise.
+ * @param {Boolean} [sort] - Sort array.
+ */
+function sanitiseGlobalLiquid(array, sort) {
+  const unique = []
+
+  const sanitisedArray = array.filter((entry) => {
+    const formattedEntry = typeof entry === 'object'
+      ? JSON.stringify(entry)
+      : entry.split(' = ')[0].replace('assign', '').trim()
+
+    if (unique.includes(formattedEntry)) {
+      return false
+    }
+
+    unique.push(formattedEntry)
+    return true
+  })
+
+  if (sort) {
+    sanitisedArray.sort()
+  }
+
+  return sanitisedArray
 }
 
 /**
@@ -567,8 +625,6 @@ function buildLiquidTemplate(elements, template, level = 0) {
         template.push(parts.openTagStart)
       }
     }
-
-    // TODO: Handle non-Vue content?
 
     if (element.content && element.tag !== 'slot') {
       template.push(parts.content)

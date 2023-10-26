@@ -40,17 +40,59 @@ function conditions(split, currentConditions) {
 }
 
 /**
+ * Handle equals checks (condition == '').
+ * @param {Array} [globalLiquidAssigns] - Liquid assign header array.
+ * @param {Array} [globalLiquidConditionals] - Liquid conditional header array.
+ * @param {String} liquidVariable - Liquid assign variable name.
+ * @param {String} value - Current prop value.
+ * @returns {Object}
+ */
+function equals({
+  globalLiquidAssigns = false,
+  globalLiquidConditionals = false,
+  liquidVariable,
+  value,
+}) {
+  const condition = value.includes(' == ') ? ' == ' : ' != '
+  const equalParts = value.split(condition)
+  const conditionVariable = equalParts[0].split(' ')[0]
+  const conditionValue = equalParts[1]
+  let formattedValue = value
+
+  if (globalLiquidAssigns && globalLiquidConditionals) {
+    globalLiquidAssigns.push(`assign ${liquidVariable} = false`)
+
+    if (!config.validLiquidObjects.includes(conditionVariable)) {
+      globalLiquidAssigns.push(`assign ${conditionVariable} = 'TODO'`)
+    }
+
+    const conditionals = [
+      `if ${conditionVariable}${condition}${conditionValue}`,
+      `  assign ${liquidVariable} = true`,
+      `endif`,
+    ]
+
+    globalLiquidConditionals.push(conditionals)
+
+  } else {
+    formattedValue = `{% if ${conditionVariable}${condition}${conditionValue} %}true{% else %}false{% endif %}`
+  }
+
+  return formattedValue
+}
+
+/**
  * Handle $formatMoney() helper function.
  * @param {Array} forloopVariables- Array of variables scoped from forloop on
  * current or parent element.
- * @param {Array} globalLiquidAssign - Liquid header array.
+ * @param {Array} globalLiquidAssigns - Liquid header array.
  * @param {Boolean} snippet - Prop of Liquid render snippet.
  * @param {String} value - Prop value.
  * @returns {String}
  */
 function formatMoney({
   forloopVariables,
-  globalLiquidAssign,
+  globalLiquidAssigns,
   snippet,
   value,
 }) {
@@ -73,7 +115,7 @@ function formatMoney({
    */
   if (snippet) {
     const liquidVariable = `${convertToSnakeCase(money)}_string`
-    globalLiquidAssign.push(`assign ${liquidVariable} = ${liquid}`)
+    globalLiquidAssigns.push(`assign ${liquidVariable} = ${liquid}`)
     return money
   }
 
@@ -84,10 +126,10 @@ function formatMoney({
  * Handle $string() helper function.
  * @param {String} value - Prop value.
  * @param {Boolean} snippet - Prop of Liquid render snippet.
- * @param {Array} globalLiquidAssign - Liquid header array.
+ * @param {Array} globalLiquidAssigns - Liquid header array.
  * @returns {String}
  */
-function string(value, snippet, globalLiquidAssign) {
+function string(value, snippet, globalLiquidAssigns) {
   const locale = value
     .match(/'[a-z0-9._]+'[),]/g)[0]
     .replace(/[,)]/g, '')
@@ -148,7 +190,7 @@ function string(value, snippet, globalLiquidAssign) {
    */
   if (snippet) {
     const liquidVariable = `${convertToSnakeCase(locale)}_string`
-    globalLiquidAssign.push(`assign ${liquidVariable} = ${liquid}`)
+    globalLiquidAssigns.push(`assign ${liquidVariable} = ${liquid}`)
     return liquidVariable
   }
 
@@ -157,20 +199,20 @@ function string(value, snippet, globalLiquidAssign) {
 
 /**
  * Handle ternary operators.
- * @param {Array} [globalLiquidAssign] - Liquid assign header array.
+ * @param {Array} [globalLiquidAssigns] - Liquid assign header array.
  * @param {Array} [globalLiquidConditionals] - Liquid conditional header array.
  * @param {String} liquidVariable - Liquid assign variable name.
  * @param {String} value - Current prop value.
- * @returns {Object}
+ * @returns {String}
  */
 function ternaryOperators({
-  globalLiquidAssign = false,
+  globalLiquidAssigns = false,
   globalLiquidConditionals = false,
   liquidVariable,
   value,
 }) {
   const ternaryParts = value.split(/ (?:\?|:) /g)
-  const conditionVariable = ternaryParts[0]
+  const conditionVariable = ternaryParts[0].split(' ')[1]
   const ifCondition = ternaryParts[1]
   const elseCondition = ternaryParts[2]
   let conditionValue = ' != blank'
@@ -184,8 +226,12 @@ function ternaryOperators({
     }
   }
 
-  if (globalLiquidAssign && globalLiquidConditionals) {
-    globalLiquidAssign.push(`assign ${liquidVariable} = ${elseCondition.replace('null', false)}`)
+  if (globalLiquidAssigns && globalLiquidConditionals) {
+    globalLiquidAssigns.push(`assign ${liquidVariable} = ${elseCondition.replace('null', false)}`)
+
+    if (!config.validLiquidObjects.includes(conditionVariable)) {
+      globalLiquidAssigns.push(`assign ${conditionVariable} = 'TODO'`)
+    }
 
     const conditionals = [
       `if ${conditionVariable}${conditionValue}`,
@@ -199,13 +245,7 @@ function ternaryOperators({
     formattedValue = `{% if ${conditionVariable}${conditionValue} %}${ifCondition.replaceAll(`'`, '')}{% else %}${elseCondition.replaceAll(`'`, '')}{% endif %}`
   }
 
-  return {
-    conditionValue,
-    conditionVariable,
-    elseCondition,
-    formattedValue,
-    ifCondition,
-  }
+  return formattedValue
 }
 
 /**
@@ -213,7 +253,7 @@ function ternaryOperators({
  * @param {String} condition - v-if, v-else, or v-else-if condition.
  * @param {Array} forloopVariables- Array of variables scoped from forloop on
  * current or parent element.
- * @param {Array} globalLiquidAssign - Liquid header array.
+ * @param {Array} globalLiquidAssigns - Liquid header array.
  * @param {String} part - Test part.
  * @param {String} value - Original full value.
  * @param
@@ -221,7 +261,7 @@ function ternaryOperators({
 function validLiquid({
   condition,
   forloopVariables,
-  globalLiquidAssign,
+  globalLiquidAssigns,
   part,
   value,
 }) {
@@ -245,7 +285,7 @@ function validLiquid({
     updatedPart = `${value.split(' of ')[0]} of ${snakeCaseVariable}`
   }
 
-  globalLiquidAssign.push(`assign ${snakeCaseVariable} = 'TODO'`)
+  globalLiquidAssigns.push(`assign ${snakeCaseVariable} = 'TODO'`)
 
   return updatedPart
 }
@@ -269,6 +309,7 @@ function variable(value, condition) {
  */
 module.exports = {
   conditions,
+  equals,
   formatMoney,
   string,
   ternaryOperators,
