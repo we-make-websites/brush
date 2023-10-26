@@ -10,7 +10,12 @@
  * @returns {Object}
  */
 module.exports = {
-  noRenderProps: ['key', 'on', 'ref'],
+  noRenderProps: [
+    'is',
+    'key',
+    'on',
+    'ref',
+  ],
   noRenderTags: ['teleport', 'template'],
   validHtmlTags: [
     'a',
@@ -24,6 +29,7 @@ module.exports = {
     'button',
     'canvas',
     'caption',
+    'component',
     'div',
     'em',
     'footer',

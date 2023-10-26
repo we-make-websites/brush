@@ -65,16 +65,29 @@ function convertToLiquidAst(element) {
 
   const snippet = !config.validHtmlTags.includes(element.tag)
 
-  // TODO: Handle <component>
-
   const data = {
     children: [],
+    componentTag: false,
     liquid: false,
     props: {},
     snippet,
     tag: element.tag,
   }
 
+  /**
+   * Handle <component>.
+   */
+  if (element.tag === 'component') {
+    data.componentTag = true
+    data.tag = '{{ component_element }}'
+
+    globalLiquidAssign.push(`assign component_element = 'div'\n`)
+    globalLiquidAssign.push(`# if CONDITION\n  #   component_element = 'TODO'\n  # endif`)
+  }
+
+  /**
+   * Build element props.
+   */
   for (const prop of element.props) {
     let name = prop.name === 'bind'
       ? prop.arg.content
@@ -105,7 +118,7 @@ function convertToLiquidAst(element) {
       }
 
       value = buildPropValue({
-        liquidOutput: false,
+        liquidOutput: data.componentTag,
         prop,
         propName: name,
         snippet,
@@ -186,6 +199,8 @@ function buildPropValue({
     // Optional chaining
     .replaceAll('?.', '.')
     // Conditions
+    .replaceAll('|| null', '')
+    .replaceAll('|| undefined', '')
     .replaceAll('||', 'or')
     .replaceAll('&&', 'and')
     .replaceAll('===', '==')
@@ -197,6 +212,10 @@ function buildPropValue({
     .replaceAll('.length', '.size')
     // $variable()
     .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, condition))
+    // Slots
+    .replaceAll('$slots.', '')
+    // Clean up
+    .trim()
 
   /**
    * Handle other helpers by themselves as we don't expect anything else in the
@@ -453,6 +472,8 @@ function buildLiquidTemplate(elements, template, level = 0) {
 
       template.push(parts.liquid.start)
     }
+
+    // TODO: Handle <slot>, don't render if they have content
 
     // Don't output no render tags tags
     if (!config.noRenderTags.includes(element.tag)) {
