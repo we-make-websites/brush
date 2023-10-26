@@ -14,6 +14,7 @@ const config = require('../helpers/config')
  */
 const globalLiquidAssign = []
 const globalLiquidCapture = []
+const globalLiquidConditionals = []
 
 /**
  * Build Liquid template from AST data.
@@ -213,8 +214,36 @@ function convertToLiquidAst(element, parent) {
     data.componentTag = true
     data.tag = `{{ ${name} }}`
 
-    globalLiquidAssign.push(`assign ${name} = 'div'\n`)
-    globalLiquidAssign.push(`# if CONDITION\n  #   ${name} = 'TODO'\n  # endif`)
+    // Use :is value if it contains a ternary operator
+    if (data.props?.is.includes(' ? ')) {
+      if (data.props?.is.includes(' ? ')) {
+        const liquidVariable = name
+
+        handlerApi.ternaryOperators({
+          globalLiquidAssign,
+          globalLiquidConditionals,
+          liquidVariable,
+          value: data.props.is,
+        })
+      }
+
+    // Otherwise use defaults
+    } else {
+      globalLiquidAssign.push(`assign ${name} = 'div'`)
+
+      const conditionals = [
+        'if CONDITION != blank',
+        `  assign ${name} = 'TODO'`,
+        'endif',
+      ]
+
+      globalLiquidConditionals.push(conditionals)
+    }
+
+    // Delete is prop after use
+    if (data.props?.is) {
+      delete data.props.is
+    }
   }
 
   return data
@@ -294,13 +323,39 @@ function buildPropValue({
     return convertToSnakeCase($1)
   })
 
+  if (propName === 'is') {
+    return value
+  }
+
+  /**
+   * Handle ternary operators.
+   */
+  if (value.includes(' ? ')) {
+    if (snippet) {
+      const liquidVariable = `${propName}_conditional`
+
+      handlerApi.ternaryOperators({
+        globalLiquidAssign,
+        globalLiquidConditionals,
+        liquidVariable,
+        value,
+      })
+
+      value = liquidVariable
+
+    } else {
+      const { formattedValue } = handlerApi.ternaryOperators({ value })
+      value = formattedValue
+    }
+  }
+
   /**
    * Add variable to Liquid assign if it's not a valid Liquid object.
    * - And the variable hasn't been set in a forloop.
    * - Don't split when assigning variable so we can use it to build assign
    *   variable name.
    */
-  if (!value.includes('{{ ')) {
+  if (!value.includes('{{ ') && !value.includes('{% ')) {
     let variableToTest = value
 
     if (condition === 'for') {
@@ -366,9 +421,13 @@ function buildPropValue({
   if (prop.exp.content.includes('$variable') && snippet) {
     const variable = `${tag}_${propName}_variable`
 
-    globalLiquidCapture.push(`{%- capture ${variable} -%}`)
-    globalLiquidCapture.push(`  ${value}`)
-    globalLiquidCapture.push('{%- endcapture -%}\n')
+    const capture = [
+      `{%- capture ${variable} -%}`,
+      `  ${value}`,
+      '{%- endcapture -%}\n',
+    ]
+
+    globalLiquidCapture.push(capture)
     return variable
   }
 
@@ -376,7 +435,11 @@ function buildPropValue({
    * Remove or conditions for Liquid output (content).
    * - Append and content.
    */
-  if (liquidOutput && !value.includes('{{ ')) {
+  if (
+    liquidOutput &&
+    !value.includes('{{ ') &&
+    !value.includes('{% ')
+  ) {
     value = value.split(' or ')[0]
     value = value.replaceAll(' and ', ' | append: ')
     value = `{{ ${value} }}`
@@ -390,20 +453,59 @@ function buildPropValue({
  * @param {Array} template - Template array to push into.
  */
 function buildGlobalLiquid(template) {
-  if (!globalLiquidAssign.length) {
-    return
+  if (globalLiquidAssign.length || globalLiquidConditionals.length) {
+    template.push('{%- liquid')
   }
 
-  template.push('{%- liquid')
+  /**
+   * Liquid assigns.
+   */
+  const unique = []
 
-  globalLiquidAssign.forEach((entry) => {
+  const sanitisedAssign = globalLiquidAssign
+    .filter((entry) => {
+      const variable = entry
+        .split(' = ')[0]
+        .replace('assign', '')
+        .trim()
+
+      if (unique.includes(variable)) {
+        return false
+      }
+
+      unique.push(variable)
+      return true
+    })
+    .sort()
+
+  sanitisedAssign.forEach((entry) => {
     template.push(`  ${entry}`)
   })
 
-  template.push('-%}\n')
+  /**
+   * Liquid conditionals (array of arrays).
+   */
+  globalLiquidConditionals.forEach((condition) => {
+    template.push('')
 
-  globalLiquidCapture.forEach((entry) => {
-    template.push(entry)
+    condition.forEach((line) => {
+      template.push(`  ${line}`)
+    })
+  })
+
+  if (globalLiquidAssign.length || globalLiquidConditionals.length) {
+    template.push('-%}\n')
+  }
+
+  /**
+   * Liquid captures.
+   */
+  globalLiquidCapture.forEach((capture) => {
+    template.push('')
+
+    capture.forEach((line) => {
+      template.push(`  ${line}`)
+    })
   })
 }
 
@@ -465,6 +567,8 @@ function buildLiquidTemplate(elements, template, level = 0) {
         template.push(parts.openTagStart)
       }
     }
+
+    // TODO: Handle non-Vue content?
 
     if (element.content && element.tag !== 'slot') {
       template.push(parts.content)

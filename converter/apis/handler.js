@@ -156,6 +156,59 @@ function string(value, snippet, globalLiquidAssign) {
 }
 
 /**
+ * Handle ternary operators.
+ * @param {Array} [globalLiquidAssign] - Liquid assign header array.
+ * @param {Array} [globalLiquidConditionals] - Liquid conditional header array.
+ * @param {String} liquidVariable - Liquid assign variable name.
+ * @param {String} value - Current prop value.
+ * @returns {Object}
+ */
+function ternaryOperators({
+  globalLiquidAssign = false,
+  globalLiquidConditionals = false,
+  liquidVariable,
+  value,
+}) {
+  const ternaryParts = value.split(/ (?:\?|:) /g)
+  const conditionVariable = ternaryParts[0]
+  const ifCondition = ternaryParts[1]
+  const elseCondition = ternaryParts[2]
+  let conditionValue = ' != blank'
+  let formattedValue = value
+
+  if (conditionVariable.includes('.size')) {
+    if (conditionVariable.includes('<') || conditionVariable.includes('>')) {
+      conditionValue = ''
+    } else {
+      conditionValue = ' > 0'
+    }
+  }
+
+  if (globalLiquidAssign && globalLiquidConditionals) {
+    globalLiquidAssign.push(`assign ${liquidVariable} = ${elseCondition.replace('null', false)}`)
+
+    const conditionals = [
+      `if ${conditionVariable}${conditionValue}`,
+      `  assign ${liquidVariable} = ${ifCondition.replace('null', false)}`,
+      `endif`,
+    ]
+
+    globalLiquidConditionals.push(conditionals)
+
+  } else {
+    formattedValue = `{% if ${conditionVariable}${conditionValue} %}${ifCondition.replaceAll(`'`, '')}{% else %}${elseCondition.replaceAll(`'`, '')}{% endif %}`
+  }
+
+  return {
+    conditionValue,
+    conditionVariable,
+    elseCondition,
+    formattedValue,
+    ifCondition,
+  }
+}
+
+/**
  * Handle valid Liquid objects.
  * @param {String} condition - v-if, v-else, or v-else-if condition.
  * @param {Array} forloopVariables- Array of variables scoped from forloop on
@@ -192,13 +245,7 @@ function validLiquid({
     updatedPart = `${value.split(' of ')[0]} of ${snakeCaseVariable}`
   }
 
-  const existingAssign = globalLiquidAssign.some((item) => {
-    return item.includes(`assign ${snakeCaseVariable} =`)
-  })
-
-  if (!existingAssign) {
-    globalLiquidAssign.push(`assign ${snakeCaseVariable} = 'TODO'`)
-  }
+  globalLiquidAssign.push(`assign ${snakeCaseVariable} = 'TODO'`)
 
   return updatedPart
 }
@@ -224,6 +271,7 @@ module.exports = {
   conditions,
   formatMoney,
   string,
+  ternaryOperators,
   validLiquid,
   variable,
 }
