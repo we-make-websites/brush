@@ -48,9 +48,11 @@ async function init() {
    */
   try {
     if (argv.component) {
-      const folder = argv.component.split('/')[0]
-      const component = argv.component.split('/')[1]
-      convertPath = path.join(Paths.components.root, folder, component, `${component}.vue`)
+      const parts = argv.component.split('/')
+      const type = parts[0]
+      const handle = parts[parts.length - 1]
+      const folder = parts.length === 3 ? parts[1] : handle
+      convertPath = path.join(Paths.components.root, type, folder, `${handle}.vue`)
 
     } else {
       convertPath = await askPathQuestion()

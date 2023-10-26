@@ -221,6 +221,10 @@ function buildPropValue({
     return convertToSnakeCase($1)
   })
 
+  // TODO: Create list of valid Liquid objects and use that to determine if a
+  // global Liquid assign is required with a WIP
+  // Would need to keep track for forloop values...
+
   /**
    * Handle conditional and list rendering.
    */
