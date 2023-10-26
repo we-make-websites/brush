@@ -24,7 +24,7 @@ function buildTemplate(astData) {
   return new Promise((resolve, reject) => {
     try {
       const liquidAst = []
-      templateSync(astData.template.children, liquidAst)
+      convertAstToLiquidAst(astData.template.children, liquidAst)
       const template = []
       buildGlobalLiquid(template)
       buildLiquidTemplate(liquidAst, template)
@@ -38,41 +38,53 @@ function buildTemplate(astData) {
 }
 
 /**
- * Walk through template children recursively.
+ * Walk through template children recursively and build Liquid AST data.
  * @param {Array} children - AST data children.
  * @param {Array} [array] - Array to push into.
+ * @param {Object} parent - Parent element data.
  * @returns {Object}
  */
-function templateSync(children, array) {
+function convertAstToLiquidAst(children, array, parent) {
   children.forEach((child, index) => {
-    array.push(convertToLiquidAst(child))
+    array.push(convertToLiquidAst(child, parent))
 
     if (!child.children?.length) {
       return
     }
 
-    templateSync(child.children, array[index].children)
+    convertAstToLiquidAst(child.children, array[index].children, array[index])
   })
 }
 
 /**
  * Convert AST data to Liquid arrays.
  * @param {Object} element - Element to build.
+ * @param {Object} parent - Parent element data.
  * @returns {Array}
  */
-function convertToLiquidAst(element) {
+function convertToLiquidAst(element, parent) {
   if (!element.tag) {
     return false
   }
 
+  console.log('parent', parent?.tag, parent?.scopedVariable)
+
   const snippet = !config.validHtmlTags.includes(element.tag)
 
   const data = {
+    // Child elements (each contains the same data object)
     children: [],
+    // <component> element
     componentTag: false,
+    // Liquid tags to enclose element in
     liquid: false,
+    // Props/attributes
     props: {},
+    // Enclosing forloop variable
+    scopedVariable: false,
+    // Non-valid HTML so use {% render %}
     snippet,
+    // HTML element (or snippet name)
     tag: element.tag,
   }
 
@@ -94,27 +106,6 @@ function convertToLiquidAst(element) {
 
     if (!prop.value?.content) {
       value = true
-    }
-
-    /**
-     * Handle v-bind/:bind props.
-     */
-    if (prop.name === 'bind') {
-      if (name === 'class') {
-        continue
-      }
-
-      if (snippet) {
-        name = convertToSnakeCase(name)
-      }
-
-      value = buildPropValue({
-        liquidOutput: data.componentTag,
-        prop,
-        propName: name,
-        snippet,
-        tag: element.tag,
-      })
     }
 
     /**
@@ -142,7 +133,37 @@ function convertToLiquidAst(element) {
           }),
       }
 
+      if (condition === 'for') {
+        const scopedVariable = data.liquid.start
+          .split(' in ')[0]
+          .replace('{% for ', '')
+          .trim()
+
+        data.scopedVariable = scopedVariable
+      }
+
       continue
+    }
+
+    /**
+     * Handle v-bind/:bind props.
+     */
+    if (prop.name === 'bind') {
+      if (name === 'class') {
+        continue
+      }
+
+      if (snippet) {
+        name = convertToSnakeCase(name)
+      }
+
+      value = buildPropValue({
+        liquidOutput: data.componentTag,
+        prop,
+        propName: name,
+        snippet,
+        tag: element.tag,
+      })
     }
 
     /**
@@ -341,6 +362,7 @@ function buildGlobalLiquid(template) {
 
 /**
  * Build Liquid template.
+ * - Don't render any content of a <teleport> as it won't exist in the Liquid.
  * @param {Array} elements - Liquid AST elements data.
  * @param {Array} template - Template array to push into.
  * @param {Number} level - Level of indent.
@@ -349,7 +371,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
   let previousElement = false
 
   for (const element of elements) {
-    if (!element) {
+    if (!element || element.tag === 'teleport') {
       continue
     }
 
@@ -369,7 +391,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
 
     /**
      * Push template to array.
-    */
+     */
     const parts = getElementTemplateParts(element, level)
 
     if (element.liquid) {

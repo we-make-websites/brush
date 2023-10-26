@@ -16,7 +16,7 @@ module.exports = {
     'on',
     'ref',
   ],
-  noRenderTags: ['teleport', 'template'],
+  noRenderTags: ['template'],
   validHtmlTags: [
     'a',
     'abbr',
