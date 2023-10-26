@@ -244,8 +244,6 @@ function buildPropValue({
   // global Liquid assign is required with a WIP
   // Would need to keep track for forloop values...
 
-  // TODO: Add != blank to non-false variable conditions
-
   /**
    * Handle conditional and list rendering.
    */
@@ -269,12 +267,11 @@ function buildPropValue({
     const formattedCondition = condition.replace('else-if', 'elsif')
     let formattedValue = value.replace(/(?:{{\s|\s}})/g, '')
 
-    // Handle negative conditions
-    if (formattedValue.startsWith('!')) {
-      formattedValue = formattedValue.replaceAll(/(?<value>![^\s]+)/g, (_, $1) => {
-        return `${$1.replace('!', '')} == false`
-      })
-    }
+    /**
+     * Update condition for Liquid.
+     */
+    formattedValue = handleConditions('or', formattedValue)
+    formattedValue = handleConditions('and', formattedValue)
 
     return `{% ${formattedCondition} ${formattedValue} %}`
   }
@@ -406,6 +403,34 @@ function handleFormatMoney(value, snippet) {
   }
 
   return `{{ ${liquid} }}`
+}
+
+/**
+ * Handle conditions.
+ * @param {String} split - 'or' or 'and'.
+ * @param {String} conditions - Current conditions.
+ * @returns {String}
+ */
+function handleConditions(split, conditions) {
+  return conditions
+    .split(` ${split} `)
+    .map((part) => {
+      if (
+        part.includes('==') ||
+        part.includes('!=') ||
+        part.includes('>') ||
+        part.includes('<')
+      ) {
+        return part
+      }
+
+      if (part.startsWith('!')) {
+        return `${part.replace('!', '')} == false`
+      }
+
+      return `${part} != blank`
+    })
+    .join(` ${split} `)
 }
 
 /**
