@@ -244,6 +244,8 @@ function buildPropValue({
   // global Liquid assign is required with a WIP
   // Would need to keep track for forloop values...
 
+  // TODO: Add != blank to non-false variable conditions
+
   /**
    * Handle conditional and list rendering.
    */
@@ -473,10 +475,12 @@ function buildLiquidTemplate(elements, template, level = 0) {
       template.push(parts.liquid.start)
     }
 
-    // TODO: Handle <slot>, don't render if they have content
+    // Output name as variable for <slot> tags
+    if (element.tag === 'slot') {
+      template.push(parts.slotTag)
 
-    // Don't output no render tags tags
-    if (!config.noRenderTags.includes(element.tag)) {
+    // Don't output no render tags
+    } else if (!config.noRenderTags.includes(element.tag)) {
       if (parts.openTagEnd) {
         template.push(`${parts.openTagStart}${parts.attributes}${parts.openTagEnd}`)
       } else {
@@ -485,15 +489,19 @@ function buildLiquidTemplate(elements, template, level = 0) {
       }
     }
 
-    if (element.content) {
+    if (element.content && element.tag !== 'slot') {
       template.push(parts.content)
     }
 
-    if (element.children) {
+    if (element.children && element.tag !== 'slot') {
       let newLevel = element.liquid ? level + 2 : level + 1
 
       // As no render tags are not rendered the indent isn't increased
-      if (config.noRenderTags.includes(element.tag)) {
+      // Same for <slot> tags
+      if (
+        config.noRenderTags.includes(element.tag) ||
+        element.tag === 'slot'
+      ) {
         newLevel = element.liquid ? level + 1 : level
       }
 
@@ -613,6 +621,10 @@ function getElementTemplateParts(element, level) {
     data.openTagStart = element.snippet
       ? `{% render '${element.tag}' %}`
       : `<${element.tag}>`
+  }
+
+  if (element.tag === 'slot') {
+    data.slotTag = `{{ ${convertToSnakeCase(element.props.name)} }}`
   }
 
   /**
