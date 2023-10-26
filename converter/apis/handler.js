@@ -41,16 +41,16 @@ function conditions(split, currentConditions) {
 
 /**
  * Handle $formatMoney() helper function.
- * @param {Array} globalLiquidAssign - Liquid header array.
- * @param {Array} scopedVariables- Array of variables scoped from forloop on
+ * @param {Array} forloopVariables- Array of variables scoped from forloop on
  * current or parent element.
+ * @param {Array} globalLiquidAssign - Liquid header array.
  * @param {Boolean} snippet - Prop of Liquid render snippet.
  * @param {String} value - Prop value.
  * @returns {String}
  */
 function formatMoney({
+  forloopVariables,
   globalLiquidAssign,
-  scopedVariables,
   snippet,
   value,
 }) {
@@ -61,7 +61,7 @@ function formatMoney({
 
   if (
     !config.validLiquidObjects.includes(money.split('.')[0]) &&
-    !scopedVariables.includes(money.split('.')[0])
+    !forloopVariables.includes(money.split('.')[0])
   ) {
     money = convertToSnakeCase(money)
   }
@@ -158,23 +158,23 @@ function string(value, snippet, globalLiquidAssign) {
 /**
  * Handle valid Liquid objects.
  * @param {String} condition - v-if, v-else, or v-else-if condition.
+ * @param {Array} forloopVariables- Array of variables scoped from forloop on
+ * current or parent element.
  * @param {Array} globalLiquidAssign - Liquid header array.
  * @param {String} part - Test part.
- * @param {Array} scopedVariables- Array of variables scoped from forloop on
- * current or parent element.
  * @param {String} value - Original full value.
  * @param
  */
 function validLiquid({
   condition,
+  forloopVariables,
   globalLiquidAssign,
   part,
-  scopedVariables,
   value,
 }) {
   if (
     config.validLiquidObjects.includes(part.split('.')[0]) ||
-    scopedVariables.includes(part.split('.')[0]) ||
+    forloopVariables.includes(part.split('.')[0]) ||
     part.includes(' and ') ||
     part.includes(' or ')
   ) {

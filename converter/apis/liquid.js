@@ -76,13 +76,13 @@ function convertToLiquidAst(element, parent) {
     // <component> element
     componentTag: false,
     // Liquid tags to enclose element in
+    // Forloop variable of current level or parent
+    forloopVariables: parent?.forloopVariables.length
+      ? parent.forloopVariables
+      : [],
     liquid: false,
     // Props/attributes
     props: {},
-    // Forloop variable of current level or parent
-    scopedVariables: parent?.scopedVariables.length
-      ? parent.scopedVariables
-      : [],
     // Non-valid HTML so use {% render %}
     snippet,
     // HTML element (or snippet name)
@@ -126,10 +126,10 @@ function convertToLiquidAst(element, parent) {
           ? '{% else %}'
           : buildPropValue({
             condition,
+            forloopVariables: data.forloopVariables,
             liquidOutput: true,
             prop,
             propName: name,
-            scopedVariables: data.scopedVariables,
             snippet,
             tag: element.tag,
           }),
@@ -141,10 +141,10 @@ function convertToLiquidAst(element, parent) {
           .replace('{% for ', '')
           .trim()
 
-        data.scopedVariables.push(scopedVariable)
+        data.forloopVariables.push(scopedVariable)
 
         if (data.liquid.start.includes('assign index')) {
-          data.scopedVariables.push('index')
+          data.forloopVariables.push('index')
         }
       }
 
@@ -165,10 +165,10 @@ function convertToLiquidAst(element, parent) {
       }
 
       value = buildPropValue({
+        forloopVariables: data.forloopVariables,
         liquidOutput: data.componentTag || !snippet,
         prop,
         propName: name,
-        scopedVariables: data.scopedVariables,
         snippet,
         tag: element.tag,
       })
@@ -180,10 +180,10 @@ function convertToLiquidAst(element, parent) {
     if (config.vContent.includes(prop.name)) {
       name = 'content'
       value = buildPropValue({
+        forloopVariables: data.forloopVariables,
         liquidOutput: true,
         prop,
         propName: name,
-        scopedVariables: data.scopedVariables,
         snippet,
         tag: element.tag,
       })
@@ -223,11 +223,11 @@ function convertToLiquidAst(element, parent) {
 /**
  * Build prop value.
  * @param {String} [condition] - v-if, v-else, or v-else-if condition.
+ * @param {Array} [forloopVariables] - Array of variables scoped from forloop on
+ * current or parent element.
  * @param {Boolean} [liquidOutput] - Output value in Liquid object tags.
  * @param {Object} prop - Prop object from AST data.
  * @param {String} propName - Standard name of prop.
- * @param {Array} [scopedVariables] - Array of variables scoped from forloop on
- * current or parent element.
  * @param {Boolean} [snippet] - Prop of Liquid render snippet, used to determine
  * the template of the attribute.
  * @param {String} tag - Element tag.
@@ -235,10 +235,10 @@ function convertToLiquidAst(element, parent) {
  */
 function buildPropValue({
   condition,
+  forloopVariables = [],
   liquidOutput = false,
   prop,
   propName,
-  scopedVariables = [],
   snippet = false,
   tag,
 } = {}) {
@@ -276,8 +276,8 @@ function buildPropValue({
 
   if (value.includes('$formatMoney')) {
     return handlerApi.formatMoney({
+      forloopVariables,
       globalLiquidAssign,
-      scopedVariables,
       snippet,
       value,
     })
@@ -310,8 +310,8 @@ function buildPropValue({
     value = variableToTest.split(' or ').map((variablePart) => {
       return handlerApi.validLiquid({
         condition,
+        forloopVariables,
         globalLiquidAssign,
-        scopedVariables,
         part: variablePart,
         value,
       })
@@ -320,8 +320,8 @@ function buildPropValue({
     value = variableToTest.split(' and ').map((variablePart) => {
       return handlerApi.validLiquid({
         condition,
+        forloopVariables,
         globalLiquidAssign,
-        scopedVariables,
         part: variablePart,
         value,
       })
@@ -487,7 +487,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
 
     previousElement = element
 
-    if (!element.snippet) {
+    if (!element.snippet && !config.selfClosingTags.includes(element.tag)) {
       template.push(parts.closeTag)
     }
 
@@ -557,8 +557,6 @@ function getElementTemplateParts(element, level) {
 
     return attribute
   })
-
-  // TODO: Handle self-closing elements
 
   /**
    * Create data objects.
