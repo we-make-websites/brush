@@ -260,9 +260,6 @@ function buildPropValue({
   // Would need to keep track for forloop values...
   // accessibility
 
-  // TODO: Remove and/or condition from Liquid snippet prop values and content
-  // main-product
-
   /**
    * Handle conditional and list rendering.
    */
@@ -307,7 +304,17 @@ function buildPropValue({
     return variable
   }
 
-  return liquidOutput ? `{{ ${value} }}` : value
+  /**
+   * Remove or conditions for Liquid output (content).
+   * - Append and content.
+   */
+  if (liquidOutput) {
+    value = value.split(' or ')[0]
+    value = value.replaceAll(' and ', ' | append: ')
+    value = `{{ ${value} }}`
+  }
+
+  return value
 }
 
 /**
