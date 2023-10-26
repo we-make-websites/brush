@@ -4,6 +4,7 @@
  * Functions to handle prop values.
  *
  */
+const config = require('../helpers/config')
 const convertToSnakeCase = require('../helpers/convert')
 
 /**
@@ -40,16 +41,30 @@ function conditions(split, currentConditions) {
 
 /**
  * Handle $formatMoney() helper function.
- * @param {String} value - Prop value.
- * @param {Boolean} snippet - Prop of Liquid render snippet.
  * @param {Array} globalLiquidAssign - Liquid header array.
+ * @param {Array} scopedVariables- Array of variables scoped from forloop on
+ * current or parent element.
+ * @param {Boolean} snippet - Prop of Liquid render snippet.
+ * @param {String} value - Prop value.
  * @returns {String}
  */
-function formatMoney(value, snippet, globalLiquidAssign) {
-  const money = value
+function formatMoney({
+  globalLiquidAssign,
+  scopedVariables,
+  snippet,
+  value,
+}) {
+  let money = value
     .split('(')[1]
     .replace(')', '')
     .trim()
+
+  if (
+    !config.validLiquidObjects.includes(money.split('.')[0]) &&
+    !scopedVariables.includes(money.split('.')[0])
+  ) {
+    money = convertToSnakeCase(money)
+  }
 
   const liquid = `${money} | money`
 
@@ -141,6 +156,54 @@ function string(value, snippet, globalLiquidAssign) {
 }
 
 /**
+ * Handle valid Liquid objects.
+ * @param {String} condition - v-if, v-else, or v-else-if condition.
+ * @param {Array} globalLiquidAssign - Liquid header array.
+ * @param {String} part - Test part.
+ * @param {Array} scopedVariables- Array of variables scoped from forloop on
+ * current or parent element.
+ * @param {String} value - Original full value.
+ * @param
+ */
+function validLiquid({
+  condition,
+  globalLiquidAssign,
+  part,
+  scopedVariables,
+  value,
+}) {
+  if (
+    config.validLiquidObjects.includes(part.split('.')[0]) ||
+    scopedVariables.includes(part.split('.')[0]) ||
+    part.includes(' and ') ||
+    part.includes(' or ')
+  ) {
+    if (condition === 'for') {
+      return `${value.split(' of ')[0]} of ${part}`
+    }
+
+    return part
+  }
+
+  const snakeCaseVariable = convertToSnakeCase(part)
+  let updatedPart = snakeCaseVariable
+
+  if (condition === 'for') {
+    updatedPart = `${value.split(' of ')[0]} of ${snakeCaseVariable}`
+  }
+
+  const existingAssign = globalLiquidAssign.some((item) => {
+    return item.includes(`assign ${snakeCaseVariable} =`)
+  })
+
+  if (!existingAssign) {
+    globalLiquidAssign.push(`assign ${snakeCaseVariable} = 'TODO'`)
+  }
+
+  return updatedPart
+}
+
+/**
  * Handle $variable() helper function.
  * @param {String} value - Prop value.
  * @param {Boolean|String} condition - Conditional tag.
@@ -161,5 +224,6 @@ module.exports = {
   conditions,
   formatMoney,
   string,
+  validLiquid,
   variable,
 }

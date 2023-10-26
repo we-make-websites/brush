@@ -48,7 +48,7 @@ function convertAstToLiquidAst(children, array, parent) {
   children.forEach((child, index) => {
     array.push(convertToLiquidAst(child, parent))
 
-    if (!child.children?.length) {
+    if (!child.children?.length || child.tag === 'teleport') {
       return
     }
 
@@ -58,16 +58,15 @@ function convertAstToLiquidAst(children, array, parent) {
 
 /**
  * Convert AST data to Liquid arrays.
+ * - Don't render any content of a <teleport> as it won't exist in the Liquid.
  * @param {Object} element - Element to build.
  * @param {Object} parent - Parent element data.
  * @returns {Array}
  */
 function convertToLiquidAst(element, parent) {
-  if (!element.tag) {
+  if (!element.tag || element.tag === 'teleport') {
     return false
   }
-
-  console.log('parent', parent?.tag, parent?.scopedVariable)
 
   const snippet = !config.validHtmlTags.includes(element.tag)
 
@@ -80,8 +79,10 @@ function convertToLiquidAst(element, parent) {
     liquid: false,
     // Props/attributes
     props: {},
-    // Enclosing forloop variable
-    scopedVariable: false,
+    // Forloop variable of current level or parent
+    scopedVariables: parent?.scopedVariables.length
+      ? parent.scopedVariables
+      : [],
     // Non-valid HTML so use {% render %}
     snippet,
     // HTML element (or snippet name)
@@ -128,6 +129,7 @@ function convertToLiquidAst(element, parent) {
             liquidOutput: true,
             prop,
             propName: name,
+            scopedVariables: data.scopedVariables,
             snippet,
             tag: element.tag,
           }),
@@ -139,7 +141,11 @@ function convertToLiquidAst(element, parent) {
           .replace('{% for ', '')
           .trim()
 
-        data.scopedVariable = scopedVariable
+        data.scopedVariables.push(scopedVariable)
+
+        if (data.liquid.start.includes('assign index')) {
+          data.scopedVariables.push('index')
+        }
       }
 
       continue
@@ -149,6 +155,7 @@ function convertToLiquidAst(element, parent) {
      * Handle v-bind/:bind props.
      */
     if (prop.name === 'bind') {
+      // Ignore dynamic classes
       if (name === 'class') {
         continue
       }
@@ -158,9 +165,10 @@ function convertToLiquidAst(element, parent) {
       }
 
       value = buildPropValue({
-        liquidOutput: data.componentTag,
+        liquidOutput: data.componentTag || !snippet,
         prop,
         propName: name,
+        scopedVariables: data.scopedVariables,
         snippet,
         tag: element.tag,
       })
@@ -175,6 +183,7 @@ function convertToLiquidAst(element, parent) {
         liquidOutput: true,
         prop,
         propName: name,
+        scopedVariables: data.scopedVariables,
         snippet,
         tag: element.tag,
       })
@@ -214,10 +223,13 @@ function convertToLiquidAst(element, parent) {
 /**
  * Build prop value.
  * @param {String} [condition] - v-if, v-else, or v-else-if condition.
- * @param {Boolean} [liquidOutput] - Output Liquid tags.
+ * @param {Boolean} [liquidOutput] - Output value in Liquid object tags.
  * @param {Object} prop - Prop object from AST data.
  * @param {String} propName - Standard name of prop.
- * @param {Boolean} [snippet] - Prop of Liquid render snippet.
+ * @param {Array} [scopedVariables] - Array of variables scoped from forloop on
+ * current or parent element.
+ * @param {Boolean} [snippet] - Prop of Liquid render snippet, used to determine
+ * the template of the attribute.
  * @param {String} tag - Element tag.
  * @returns {String}
  */
@@ -226,6 +238,7 @@ function buildPropValue({
   liquidOutput = false,
   prop,
   propName,
+  scopedVariables = [],
   snippet = false,
   tag,
 } = {}) {
@@ -262,7 +275,12 @@ function buildPropValue({
   }
 
   if (value.includes('$formatMoney')) {
-    return handlerApi.formatMoney(value, snippet, globalLiquidAssign)
+    return handlerApi.formatMoney({
+      globalLiquidAssign,
+      scopedVariables,
+      snippet,
+      value,
+    })
   }
 
   /**
@@ -276,10 +294,39 @@ function buildPropValue({
     return convertToSnakeCase($1)
   })
 
-  // TODO: Create list of valid Liquid objects and use that to determine if a
-  // global Liquid assign is required with a WIP
-  // Would need to keep track for forloop values...
-  // accessibility
+  /**
+   * Add variable to Liquid assign if it's not a valid Liquid object.
+   * - And the variable hasn't been set in a forloop.
+   * - Don't split when assigning variable so we can use it to build assign
+   *   variable name.
+   */
+  if (!value.includes('{{ ')) {
+    let variableToTest = value
+
+    if (condition === 'for') {
+      variableToTest = value.split(' of ')[1]
+    }
+
+    value = variableToTest.split(' or ').map((variablePart) => {
+      return handlerApi.validLiquid({
+        condition,
+        globalLiquidAssign,
+        scopedVariables,
+        part: variablePart,
+        value,
+      })
+    }).join(' or ')
+
+    value = variableToTest.split(' and ').map((variablePart) => {
+      return handlerApi.validLiquid({
+        condition,
+        globalLiquidAssign,
+        scopedVariables,
+        part: variablePart,
+        value,
+      })
+    }).join(' and ')
+  }
 
   /**
    * Handle conditional and list rendering.
@@ -329,7 +376,7 @@ function buildPropValue({
    * Remove or conditions for Liquid output (content).
    * - Append and content.
    */
-  if (liquidOutput) {
+  if (liquidOutput && !value.includes('{{ ')) {
     value = value.split(' or ')[0]
     value = value.replaceAll(' and ', ' | append: ')
     value = `{{ ${value} }}`
@@ -362,7 +409,6 @@ function buildGlobalLiquid(template) {
 
 /**
  * Build Liquid template.
- * - Don't render any content of a <teleport> as it won't exist in the Liquid.
  * @param {Array} elements - Liquid AST elements data.
  * @param {Array} template - Template array to push into.
  * @param {Number} level - Level of indent.
@@ -371,7 +417,7 @@ function buildLiquidTemplate(elements, template, level = 0) {
   let previousElement = false
 
   for (const element of elements) {
-    if (!element || element.tag === 'teleport') {
+    if (!element) {
       continue
     }
 
@@ -511,6 +557,8 @@ function getElementTemplateParts(element, level) {
 
     return attribute
   })
+
+  // TODO: Handle self-closing elements
 
   /**
    * Create data objects.
