@@ -4,6 +4,8 @@
  * Functions to build Liquid from AST data.
  *
  */
+const handlerApi = require('../apis/handler')
+
 const convertToSnakeCase = require('../helpers/convert')
 const config = require('../helpers/config')
 
@@ -211,7 +213,9 @@ function buildPropValue({
     // Length is called size in Liquid
     .replaceAll('.length', '.size')
     // $variable()
-    .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => handleVariable($1, condition))
+    .replaceAll(/\$variable\((?<value>.+?)\)/g, (_, $1) => {
+      return handlerApi.variable($1, condition)
+    })
     // Slots
     .replaceAll('$slots.', '')
     // Clean up
@@ -222,11 +226,11 @@ function buildPropValue({
    * prop value.
    */
   if (value.includes('$string')) {
-    return handleString(value, snippet)
+    return handlerApi.string(value, snippet, globalLiquidAssign)
   }
 
   if (value.includes('$formatMoney')) {
-    return handleFormatMoney(value, snippet)
+    return handlerApi.formatMoney(value, snippet, globalLiquidAssign)
   }
 
   /**
@@ -243,6 +247,8 @@ function buildPropValue({
   // TODO: Create list of valid Liquid objects and use that to determine if a
   // global Liquid assign is required with a WIP
   // Would need to keep track for forloop values...
+
+  // TODO: Remove and/or condition from Liquid snippet prop values and content
 
   /**
    * Handle conditional and list rendering.
@@ -270,8 +276,8 @@ function buildPropValue({
     /**
      * Update condition for Liquid.
      */
-    formattedValue = handleConditions('or', formattedValue)
-    formattedValue = handleConditions('and', formattedValue)
+    formattedValue = handlerApi.conditions('or', formattedValue)
+    formattedValue = handlerApi.conditions('and', formattedValue)
 
     return `{% ${formattedCondition} ${formattedValue} %}`
   }
@@ -289,148 +295,6 @@ function buildPropValue({
   }
 
   return liquidOutput ? `{{ ${value} }}` : value
-}
-
-/**
- * Handle $variable() helper function.
- * @param {String} value - Prop value.
- * @param {Boolean|String} condition - Conditional tag.
- * @returns {String}
- */
-function handleVariable(value, condition) {
-  const formattedValue = value.replaceAll('\'', '')
-
-  return condition
-    ? formattedValue
-    : `{{ ${formattedValue} }}`
-}
-
-/**
- * Handle $string value.
- * @param {String} value - Prop value.
- * @param {Boolean} snippet - Prop of Liquid render snippet.
- * @returns {String}
- */
-function handleString(value, snippet) {
-  const locale = value
-    .match(/'[a-z0-9._]+'[),]/g)[0]
-    .replace(/[,)]/g, '')
-
-  const translate = []
-
-  /**
-   * Go through pluralise and replace and convert to translate filters.
-   */
-  if (value.includes('pluralise:')) {
-    const pluralise = value.matchAll(/pluralise: (?<value>.[a-z0-9._]+)/gs)
-    let pluraliseValue = false
-
-    for (const match of pluralise) {
-      pluraliseValue = match.groups.value
-    }
-
-    translate.push(`count: ${pluraliseValue}`)
-  }
-
-  if (value.includes('replace:')) {
-    const replace = value.matchAll(/replace: {(?<value>.[a-z0-9._:\s]+)}/gs)
-    let replaceValue = false
-
-    for (const match of replace) {
-      replaceValue = match.groups.value
-    }
-
-    replaceValue.split(',').forEach((property) => {
-      const key = property.split(':')[0].trim()
-      const propertyValue = property.split(':')[1].trim()
-
-      translate.push(`${key}: ${propertyValue}`)
-    })
-  }
-
-  /**
-   * Make unique.
-   */
-  const uniqueTranslate = []
-
-  if (translate.length) {
-    translate.forEach((item) => {
-      if (uniqueTranslate.includes(item)) {
-        return
-      }
-
-      uniqueTranslate.push(item)
-    })
-  }
-
-  const liquid = uniqueTranslate.length
-    ? `${locale} | t: ${uniqueTranslate.join(', ')}`
-    : `${locale} | t`
-
-  /**
-   * If Liquid snippet add variable to global Liquid.
-   */
-  if (snippet) {
-    const variable = `${convertToSnakeCase(locale)}_string`
-    globalLiquidAssign.push(`assign ${variable} = ${liquid}`)
-    return variable
-  }
-
-  return `{{ ${liquid} }}`
-}
-
-/**
- * Handle $formatMoney() helper function.
- * @param {String} value - Prop value.
- * @param {Boolean} snippet - Prop of Liquid render snippet.
- * @returns {String}
- */
-function handleFormatMoney(value, snippet) {
-  const money = value
-    .split('(')[1]
-    .replace(')', '')
-    .trim()
-
-  const liquid = `${money} | money`
-
-  /**
-   * If Liquid snippet add variable to global Liquid.
-   */
-  if (snippet) {
-    const variable = `${convertToSnakeCase(money)}_string`
-    globalLiquidAssign.push(`assign ${variable} = ${liquid}`)
-    return money
-  }
-
-  return `{{ ${liquid} }}`
-}
-
-/**
- * Handle conditions.
- * @param {String} split - 'or' or 'and'.
- * @param {String} conditions - Current conditions.
- * @returns {String}
- */
-function handleConditions(split, conditions) {
-  return conditions
-    .split(` ${split} `)
-    .map((part) => {
-      if (
-        part.includes('==') ||
-        part.includes('!=') ||
-        part.includes('>') ||
-        part.includes('<')
-      ) {
-        return part
-      }
-
-      if (part.startsWith('!')) {
-        return `${part.replace('!', '')} == false`
-      }
-
-      return `${part} != blank`
-    })
-    .join(` ${split} `)
 }
 
 /**
