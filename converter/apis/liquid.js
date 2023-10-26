@@ -77,17 +77,6 @@ function convertToLiquidAst(element) {
   }
 
   /**
-   * Handle <component>.
-   */
-  if (element.tag === 'component') {
-    data.componentTag = true
-    data.tag = '{{ component_element }}'
-
-    globalLiquidAssign.push(`assign component_element = 'div'\n`)
-    globalLiquidAssign.push(`# if CONDITION\n  #   component_element = 'TODO'\n  # endif`)
-  }
-
-  /**
    * Build element props.
    */
   for (const prop of element.props) {
@@ -176,6 +165,28 @@ function convertToLiquidAst(element) {
     data.props[name] = value
   }
 
+  /**
+   * Handle <component>.
+   */
+  if (element.tag === 'component') {
+    let name = 'component_element'
+
+    if (data.props.class) {
+      let firstClass = data.props.class.split(' ')[0]
+
+      if (firstClass) {
+        firstClass = convertToSnakeCase(firstClass)
+        name = `${firstClass}_element`
+      }
+    }
+
+    data.componentTag = true
+    data.tag = `{{ ${name} }}`
+
+    globalLiquidAssign.push(`assign ${name} = 'div'\n`)
+    globalLiquidAssign.push(`# if CONDITION\n  #   ${name} = 'TODO'\n  # endif`)
+  }
+
   return data
 }
 
@@ -247,8 +258,10 @@ function buildPropValue({
   // TODO: Create list of valid Liquid objects and use that to determine if a
   // global Liquid assign is required with a WIP
   // Would need to keep track for forloop values...
+  // accessibility
 
   // TODO: Remove and/or condition from Liquid snippet prop values and content
+  // main-product
 
   /**
    * Handle conditional and list rendering.
