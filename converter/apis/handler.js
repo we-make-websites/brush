@@ -25,6 +25,10 @@ function conditions(split, currentConditions) {
         return part
       }
 
+      if (part.includes('.size')) {
+        return `${part} > 0`
+      }
+
       if (part.startsWith('!')) {
         return `${part.replace('!', '')} == false`
       }
