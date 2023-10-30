@@ -293,7 +293,8 @@ function validLiquid({
     config.validLiquidObjects.includes(part.split('.')[0]) ||
     forloopVariables.includes(part.split('.')[0]) ||
     part.includes(' and ') ||
-    part.includes(' or ')
+    part.includes(' or ') ||
+    part.includes(' of ')
   ) {
     if (condition === 'for') {
       return `${value.split(' of ')[0]} of ${part}`
@@ -302,14 +303,35 @@ function validLiquid({
     return part
   }
 
-  const snakeCaseVariable = convertToSnakeCase(part)
-  let updatedPart = snakeCaseVariable
+  let snakeCasePart = convertToSnakeCase(part)
+  let updatedPart = snakeCasePart
 
-  if (condition === 'for') {
-    updatedPart = `${value.split(' of ')[0]} of ${snakeCaseVariable}`
+  const testCondition = config.liquidTestConditions.find((test) => {
+    return part.includes(test)
+  })
+
+  /**
+   * Handle == conditions.
+   */
+  if (testCondition) {
+    const conditionVariable = part.split(testCondition)[0].trim()
+
+    if (
+      !forloopVariables.includes(conditionVariable.split('.')[0]) &&
+      !config.validLiquidObjects.includes(conditionVariable.split('.')[0])
+    ) {
+      snakeCasePart = convertToSnakeCase(conditionVariable)
+      updatedPart = part.replace(conditionVariable, snakeCasePart)
+      globalLiquidAssigns.push(`assign ${snakeCasePart} = 'TODO'`)
+    }
+
+  } else {
+    if (condition === 'for') {
+      updatedPart = `${value.split(' of ')[0]} of ${snakeCasePart}`
+    }
+
+    globalLiquidAssigns.push(`assign ${snakeCasePart} = 'TODO'`)
   }
-
-  globalLiquidAssigns.push(`assign ${snakeCaseVariable} = 'TODO'`)
 
   return updatedPart
 }

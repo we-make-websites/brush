@@ -396,13 +396,8 @@ function buildPropValue({
   /**
    * Add variable to Liquid assign if it's not a valid Liquid object.
    * - And the variable hasn't been set in a forloop.
-   * - Ignore inside v-if conditions and Liquid tags.
    */
-  if (
-    !config.vIfConditionals.includes(condition) &&
-    !value.includes('{{ ') &&
-    !value.includes('{% ')
-  ) {
+  if (!value.includes('{{ ') && !value.includes('{% ')) {
     let variableToTest = value
 
     if (condition === 'for') {
@@ -419,6 +414,12 @@ function buildPropValue({
         value,
       })
     }).join(' or ')
+
+    if (condition === 'for') {
+      variableToTest = value.split(' of ')[1]
+    } else {
+      variableToTest = value
+    }
 
     value = variableToTest.split(' and ').map((variablePart) => {
       return handlerApi.validLiquid({
@@ -462,6 +463,7 @@ function buildPropValue({
     formattedValue = handlerApi.conditions('or', formattedValue)
     formattedValue = handlerApi.conditions('and', formattedValue)
 
+    // TODO: Handle index + 1 != .size (replace with forloop.last)
     return `{% ${formattedCondition} ${formattedValue} %}`
   }
 

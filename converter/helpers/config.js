@@ -10,6 +10,14 @@
  * @returns {Object}
  */
 module.exports = {
+  liquidTestConditions: [
+    '==',
+    '!=',
+    '>',
+    '>=',
+    '<',
+    '<=',
+  ],
   noRenderBoundProps: [
     'class',
     'style',
