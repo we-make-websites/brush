@@ -199,26 +199,36 @@ function string(value, snippet, globalLiquidAssigns) {
 
 /**
  * Handle ternary operators.
+ * @param {Array} [forloopVariables] - Array of variables scoped from forloop on
+ * current or parent element.
  * @param {Array} [globalLiquidAssigns] - Liquid assign header array.
  * @param {Array} [globalLiquidConditionals] - Liquid conditional header array.
  * @param {String} liquidVariable - Liquid assign variable name.
+ * @param {Boolean} [snippet] - If the value is being rendered in a snippet.
  * @param {String} value - Current prop value.
  * @returns {String}
  */
 function ternaryOperators({
+  forloopVariables = [],
   globalLiquidAssigns = false,
   globalLiquidConditionals = false,
   liquidVariable,
+  snippet,
   value,
 }) {
   const ternaryParts = value.split(/ (?:\?|:) /g)
-  const conditionVariable = ternaryParts[0].split(' ')[1]
+  const conditionVariable = ternaryParts[0]
   const ifCondition = ternaryParts[1]
   const elseCondition = ternaryParts[2]
   let conditionValue = ' != blank'
-  let formattedValue = value
+  let variableToCheck = conditionVariable
 
+  /**
+   * Handle ternary conditions which aren't truthy checks.
+   */
   if (conditionVariable.includes('.size')) {
+    variableToCheck = conditionVariable.split('.size')[0]
+
     if (conditionVariable.includes('<') || conditionVariable.includes('>')) {
       conditionValue = ''
     } else {
@@ -226,10 +236,16 @@ function ternaryOperators({
     }
   }
 
-  if (globalLiquidAssigns && globalLiquidConditionals) {
+  /**
+   * Add assign and condition if snippet then return variable.
+   */
+  if (snippet) {
     globalLiquidAssigns.push(`assign ${liquidVariable} = ${elseCondition.replace('null', false)}`)
 
-    if (!config.validLiquidObjects.includes(conditionVariable)) {
+    if (
+      !forloopVariables.includes(conditionVariable.split('.')[0]) &&
+      !config.validLiquidObjects.includes(conditionVariable.split('.')[0])
+    ) {
       globalLiquidAssigns.push(`assign ${conditionVariable} = 'TODO'`)
     }
 
@@ -240,12 +256,20 @@ function ternaryOperators({
     ]
 
     globalLiquidConditionals.push(conditionals)
-
-  } else {
-    formattedValue = `{% if ${conditionVariable}${conditionValue} %}${ifCondition.replaceAll(`'`, '')}{% else %}${elseCondition.replaceAll(`'`, '')}{% endif %}`
+    return value
   }
 
-  return formattedValue
+  /**
+   * If variable doesn't exist then add to Liquid assigns.
+   */
+  if (
+    !forloopVariables.includes(variableToCheck.split('.')[0]) &&
+    !config.validLiquidObjects.includes(variableToCheck.split('.')[0])
+  ) {
+    globalLiquidAssigns.push(`assign ${variableToCheck} = 'TODO'`)
+  }
+
+  return `{% if ${conditionVariable}${conditionValue} %}${ifCondition.replaceAll(`'`, '')}{% else %}${elseCondition.replaceAll(`'`, '')}{% endif %}`
 }
 
 /**
@@ -256,7 +280,7 @@ function ternaryOperators({
  * @param {Array} globalLiquidAssigns - Liquid header array.
  * @param {String} part - Test part.
  * @param {String} value - Original full value.
- * @param
+ * @returns {String}
  */
 function validLiquid({
   condition,

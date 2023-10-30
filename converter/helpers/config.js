@@ -10,6 +10,10 @@
  * @returns {Object}
  */
 module.exports = {
+  noRenderBoundProps: [
+    'class',
+    'style',
+  ],
   noRenderProps: [
     'key',
     'on',

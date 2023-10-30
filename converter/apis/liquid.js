@@ -158,7 +158,7 @@ function convertToLiquidAst(element, parent) {
      */
     if (prop.name === 'bind') {
       // Ignore dynamic classes
-      if (name === 'class') {
+      if (config.noRenderBoundProps.includes(name)) {
         continue
       }
 
@@ -216,17 +216,17 @@ function convertToLiquidAst(element, parent) {
     data.tag = `{{ ${name} }}`
 
     // Use :is value if it contains a ternary operator
-    if (data.props?.is.includes(' ? ')) {
-      if (data.props?.is.includes(' ? ')) {
-        const liquidVariable = name
+    if (data.props?.is?.includes(' ? ')) {
+      const liquidVariable = name
 
-        handlerApi.ternaryOperators({
-          globalLiquidAssigns,
-          globalLiquidConditionals,
-          liquidVariable,
-          value: data.props.is,
-        })
-      }
+      handlerApi.ternaryOperators({
+        forloopVariables: data.forloopVariables,
+        globalLiquidAssigns,
+        globalLiquidConditionals,
+        liquidVariable,
+        snippet: true,
+        value: data.props.is,
+      })
 
     // Otherwise use defaults
     } else {
@@ -333,24 +333,31 @@ function buildPropValue({
    * - Ignore inside v- conditions.
    */
   if (!config.vIfConditionals.includes(condition)) {
-    if (value.includes(' ? ')) {
+    if (value?.includes(' ? ')) {
       if (snippet) {
         const liquidVariable = `${propName}_conditional`
 
         handlerApi.ternaryOperators({
+          forloopVariables,
           globalLiquidAssigns,
           globalLiquidConditionals,
           liquidVariable,
+          snippet,
           value,
         })
 
         value = liquidVariable
 
       } else {
-        value = handlerApi.ternaryOperators({ value })
+        value = handlerApi.ternaryOperators({
+          forloopVariables,
+          globalLiquidAssigns,
+          globalLiquidConditionals,
+          value,
+        })
       }
 
-    } else if (value.includes('==') || value.includes('!=')) {
+    } else if (value?.includes('==') || value?.includes('!=')) {
       if (snippet) {
         const liquidVariable = `${propName}_conditional`
 
@@ -367,7 +374,6 @@ function buildPropValue({
         value = handlerApi.equals({ value })
       }
     }
-
   }
 
   /**
