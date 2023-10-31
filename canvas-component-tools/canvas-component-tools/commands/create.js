@@ -473,7 +473,9 @@ async function webComponentTemplateQuestion() {
     process.exit()
   }
 
-  component.template = question.answer ? question.answer : 'template'
+  if (question.answer) {
+    component.template = question.answer
+  }
 
   return new Promise((resolve) => {
     complete = true
