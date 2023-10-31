@@ -19,9 +19,10 @@ const globalLiquidConditionals = []
 /**
  * Build Liquid template from AST data.
  * @param {Object} astData - AST data.
+ * @param {String} filepath - Path to Vue file.
  * @returns {Promise}
  */
-function buildTemplate(astData) {
+function buildTemplate(astData, filepath) {
   return new Promise((resolve, reject) => {
     try {
       const liquidAst = []
@@ -33,7 +34,13 @@ function buildTemplate(astData) {
       resolve(`${template.join('\n')}\n`)
 
     } catch (error) {
-      reject(error)
+      const errorMessage = {
+        api: 'liquid',
+        error,
+        filepath,
+      }
+
+      reject(errorMessage)
     }
   })
 }
@@ -94,7 +101,7 @@ function convertToLiquidAst(element, parent) {
    * Build element props.
    */
   for (const prop of element.props) {
-    let name = prop.name === 'bind'
+    let name = prop.name === 'bind' && prop.arg?.content
       ? prop.arg.content
       : prop.name
 
@@ -397,7 +404,11 @@ function buildPropValue({
    * Add variable to Liquid assign if it's not a valid Liquid object.
    * - And the variable hasn't been set in a forloop.
    */
-  if (!value.includes('{{ ') && !value.includes('{% ')) {
+  if (
+    !value.includes('{{ ') &&
+    !value.includes('{% ') &&
+    value !== '{}'
+  ) {
     let variableToTest = value
 
     if (condition === 'for') {

@@ -62,5 +62,4 @@ secrets.json
 .jekyll-metadata
 .ruby-version
 TODO*
-debug.json
-debug.liquid
+converter/debug

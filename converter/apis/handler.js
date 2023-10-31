@@ -151,7 +151,7 @@ function string(value, snippet, globalLiquidAssigns) {
   }
 
   if (value.includes('replace:')) {
-    const replace = value.matchAll(/replace: {(?<value>.[a-z0-9._:\s]+)}/gs)
+    const replace = value.matchAll(/replace: {(?<value>.[a-zA-Z0-9._:\s]+)}/gs)
     let replaceValue = false
 
     for (const match of replace) {

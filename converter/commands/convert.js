@@ -5,6 +5,7 @@
  * Converts Vue template into Liquid
  *
  */
+/* eslint-disable no-await-in-loop */
 const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const path = require('path')
@@ -22,15 +23,16 @@ const Paths = require('../helpers/paths')
  * Set variables.
  */
 const argv = yargs(hideBin(process.argv)).argv
+let convertArray = []
+const debugMode = argv.debug || argv.allComponents
 
 /**
  * Initialises the convert functionality.
  */
 async function init() {
   logBanner()
-  let convertPath = ''
   let start = 0
-  let astData = {}
+  const messages = []
 
   /**
    * Check if required folder exists.
@@ -52,10 +54,10 @@ async function init() {
       const type = parts[0]
       const handle = parts[parts.length - 1]
       const folder = parts.length === 3 ? parts[1] : handle
-      convertPath = path.join(Paths.components.root, type, folder, `${handle}.vue`)
+      convertArray = [path.join(Paths.components.root, type, folder, `${handle}.vue`)]
 
     } else {
-      convertPath = await askPathQuestion()
+      convertArray = await askPathQuestion()
     }
 
   } catch (error) {
@@ -64,33 +66,41 @@ async function init() {
   }
 
   /**
-   * Convert Vue into AST.
+   * Convert each file into AST data then Liquid.
    */
   try {
     start = performance.now()
-    astData = await vueApi.convertTemplate(convertPath)
 
-    if (argv.debug) {
-      fs.writeJson(Paths.debug.json, astData)
+    if (debugMode) {
+      await fs.emptyDir(Paths.debug)
+    }
+
+    for (const filepath of convertArray) {
+      const file = path.parse(filepath)
+      const astData = await vueApi.convertTemplate(filepath)
+
+      if (!astData) {
+        messages.push(Tny.colour('red', `❌ ${file.name}.vue has no template to convert`))
+        continue
+      }
+
+      const template = await liquidApi.buildTemplate(astData, filepath)
+
+      const writePath = debugMode
+        ? path.resolve(Paths.debug, `${file.name}.liquid`)
+        : path.resolve(file.dir, 'converted.liquid')
+
+      fs.writeFile(writePath, template)
+      messages.push(Tny.colour('green', `🧪 ${file.name}.vue converted into Liquid`))
     }
 
   } catch (error) {
-    Tny.message(Tny.colour('red', error), { before: true })
-    Track.reportError(new Error(error))
-  }
+    Tny.message([
+      Tny.colour('red', error.error),
+      error.filepath,
+      `Error in the ${error.api} API`,
+    ])
 
-  /**
-   * Build Liquid template.
-   */
-  try {
-    const template = await liquidApi.buildTemplate(astData)
-
-    if (argv.debug) {
-      fs.writeFile(Paths.debug.liquid, template)
-    }
-
-  } catch (error) {
-    Tny.message(Tny.colour('red', error), { before: true })
     Track.reportError(new Error(error))
   }
 
@@ -98,7 +108,11 @@ async function init() {
    * Output results.
    */
   const end = performance.now()
-  const messages = [Tny.colour('green', '🚀 Vue converted into Liquid')]
+
+  if (debugMode) {
+    messages.push(Tny.colour('magenta', `💾 Converted file${convertArray.length === 1 ? '' : 's'} saved to dependency folder`))
+  }
+
   messages.push(Tny.time(start, end))
   Tny.message(messages)
 }
@@ -117,37 +131,49 @@ function logBanner() {
 
 /**
  * Ask path question.
+ * @returns {Promise}
  */
-async function askPathQuestion() {
-  let question = {}
+function askPathQuestion() {
+  return new Promise(async(resolve) => {
+    let question = {}
 
-  const filepaths = [...fileSync(Paths.components.root, ['vue'])]
+    const filepaths = [...fileSync(Paths.components.root, ['vue'])]
 
-  const choices = filepaths
-    .map((filepath) => path.parse(filepath).name)
-    .sort()
+    if (argv.allComponents) {
+      // Sort filepaths by filename
+      convertArray = filepaths
+        .map((filepath) => path.parse(filepath).name)
+        .sort()
+        .map((name) => filepaths.find((filepath) => path.parse(filepath).name === name))
 
-  try {
-    question = await prompt({
-      choices,
-      hint: '(Type to filter)',
-      message: 'Component',
-      name: 'answer',
-      pointer: () => '',
-      prefix: '📂',
-      result(answer) {
-        return filepaths.find((filepath) => filepath.includes(answer))
-      },
-      type: 'autocomplete',
-    })
+      resolve(convertArray)
+      return
+    }
 
-  } catch (error) {
-    Tny.message(Tny.colour('red', '⛔ Process exited'))
-    process.exit()
-  }
+    const choices = filepaths
+      .map((filepath) => path.parse(filepath).name)
+      .sort()
 
-  return new Promise((resolve) => {
-    resolve(question.answer)
+    try {
+      question = await prompt({
+        choices,
+        hint: '(Type to filter)',
+        message: 'Component',
+        name: 'answer',
+        pointer: () => '',
+        prefix: '📂',
+        result(answer) {
+          return filepaths.find((filepath) => filepath.includes(answer))
+        },
+        type: 'autocomplete',
+      })
+
+    } catch (error) {
+      Tny.message(Tny.colour('red', '⛔ Process exited'))
+      process.exit()
+    }
+
+    resolve([question.answer])
   })
 }
 

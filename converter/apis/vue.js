@@ -18,6 +18,11 @@ function convertTemplate(filepath) {
       const file = await fs.readFile(filepath, 'utf-8')
       const astData = parse(file)
 
+      if (!astData.descriptor.template) {
+        resolve(false)
+        return
+      }
+
       const templateData = astData.descriptor.template.ast
       delete templateData.loc
 
@@ -36,7 +41,13 @@ function convertTemplate(filepath) {
       resolve(data)
 
     } catch (error) {
-      reject(error)
+      const errorMessage = {
+        api: 'vue',
+        error,
+        filepath,
+      }
+
+      reject(errorMessage)
     }
   })
 }
