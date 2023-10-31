@@ -17,6 +17,7 @@ const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-website
  * @returns {Object}
  */
 module.exports = {
+  canvasConfig: path.resolve(rootFolder, 'canvas.config.js'),
   components: {
     async: path.resolve(rootFolder, 'src', 'components', 'async'),
     global: path.resolve(rootFolder, 'src', 'components', 'global'),

@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@we-make-websites/tannoy@1.13.0":
-  version "1.13.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.13.0/d48632beacbbf116450e1f06b26e0f96c63a86d6#d48632beacbbf116450e1f06b26e0f96c63a86d6"
-  integrity sha512-BeeLkF6psjPODJSKOW/woExHPCW26LhxrV54yNELF9YvSdjOO6j/zSUzMaDnIueXB9n+JIqYTi4a10GsMX2i+g==
+"@we-make-websites/tannoy@1.14.0":
+  version "1.14.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.14.0/50bc795469613cdd25a752a0910a77faac847603#50bc795469613cdd25a752a0910a77faac847603"
+  integrity sha512-IlrGWACDvcGU7qXed4Jq/fwGQcIvzX13s5VhPXxXYqKQjL0xljJ7XHkaV4xkaJbJtKT7OMI9g7AiUDBl/K3Xgw==
   dependencies:
     console-clear "1.1.1"
 

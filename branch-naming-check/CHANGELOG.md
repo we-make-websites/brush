@@ -1,5 +1,13 @@
 # 📅 Branch Naming Check Changelog
 
+Branch Naming Check uses [semantic versioning](https://semver.org/).
+
+## 3.5.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
 ## 3.4.0 - 2023-08-03
 
 * Added `develop` as a valid default branch name
