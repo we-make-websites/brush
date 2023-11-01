@@ -27,7 +27,10 @@ module.exports = {
     'on',
     'ref',
   ],
-  noRenderTags: ['template'],
+  noRenderTags: [
+    'template',
+    'transition',
+  ],
   selfClosingTags: [
     'area',
     'base',
