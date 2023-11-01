@@ -53,7 +53,12 @@ async function init() {
       const parts = argv.component.split('/')
       const type = parts[0]
       const handle = parts[parts.length - 1]
-      const folder = parts.length === 3 ? parts[1] : handle
+      let folder = parts.length === 3 ? parts[1] : handle
+
+      if (folder === 'utils') {
+        folder = `utils/${handle}`
+      }
+
       convertArray = [path.join(Paths.components.root, type, folder, `${handle}.vue`)]
 
     } else {
