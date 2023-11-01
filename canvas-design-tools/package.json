@@ -10,8 +10,8 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@we-make-websites/tannoy": "1.14.0",
-    "@we-make-websites/track": "1.2.0",
+    "@we-make-websites/tannoy": "1.14.1",
+    "@we-make-websites/track": "1.2.1",
     "fs-extra": "11.1.1",
     "path": "0.12.7",
     "yargs": "17.7.2"
