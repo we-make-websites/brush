@@ -12,9 +12,9 @@ const config = require('../helpers/config')
 /**
  * Set variables.
  */
-const globalLiquidAssigns = []
-const globalLiquidCaptures = []
-const globalLiquidConditionals = []
+let globalLiquidAssigns = []
+let globalLiquidCaptures = []
+let globalLiquidConditionals = []
 
 /**
  * Build Liquid template from AST data.
@@ -25,6 +25,11 @@ const globalLiquidConditionals = []
 function buildTemplate(astData, filepath) {
   return new Promise((resolve, reject) => {
     try {
+      // Clear arrays
+      globalLiquidAssigns = []
+      globalLiquidCaptures = []
+      globalLiquidConditionals = []
+
       const liquidAst = []
       convertAstToLiquidAst(astData.template.children, liquidAst)
       const template = []
