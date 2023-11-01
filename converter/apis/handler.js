@@ -289,11 +289,19 @@ function ternaryOperators({
   /**
    * Output Liquid variables.
    */
-  if (!ifCondition.includes('\'') && ifCondition !== 'false') {
+  if (
+    !ifCondition.includes('\'') &&
+    ifCondition !== 'false' &&
+    isNaN(Number(ifCondition))
+  ) {
     ifCondition = `{{ ${ifCondition} }}`
   }
 
-  if (!elseCondition.includes('\'') && elseCondition !== 'false') {
+  if (
+    !elseCondition.includes('\'') &&
+    elseCondition !== 'false' &&
+    isNaN(Number(elseCondition))
+  ) {
     elseCondition = `{{ ${elseCondition} }}`
   }
 

@@ -74,6 +74,7 @@ module.exports = {
     'label',
     'li',
     'main',
+    'nav',
     'ol',
     'p',
     'picture',

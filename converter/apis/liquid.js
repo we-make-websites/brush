@@ -335,6 +335,17 @@ function buildPropValue({
   }
 
   /**
+   * Remove function brackets.
+   */
+  value = value.replace(/(?<function>[$a-zA-Z0-9]+)\(.+?\)/g, (_, $1) => {
+    if ($1.includes('$')) {
+      return $1
+    }
+
+    return $1.replace(/[()]/g, '_')
+  })
+
+  /**
    * Convert values to snake_case, ignoring strings and maths.
    */
   value = value.replace(/(?<value>['a-z_A-Z0-9]+)/g, (_, $1) => {
