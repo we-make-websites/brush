@@ -124,7 +124,7 @@ function logBanner() {
   const version = getPackageVersion()
 
   Tny.message([
-    Tny.colour('bgCyan', `Convertor ${version}`),
+    Tny.colour('bgCyan', `Converter beta v${version}`),
     Tny.colour('bgCyan', 'Convert command'),
   ], { empty: true })
 }
