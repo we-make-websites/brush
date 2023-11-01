@@ -216,10 +216,27 @@ function ternaryOperators({
   snippet,
   value,
 }) {
-  const ternaryParts = value.split(/ (?:\?|:) /g)
-  const conditionVariable = ternaryParts[0]
-  const ifCondition = ternaryParts[1]
-  const elseCondition = ternaryParts[2]
+  let ternaryParts = value.split(/ (?:\?|:) /g)
+  let conditionVariable = ternaryParts[0]
+  let ifCondition = ternaryParts[1]
+  let elseCondition = ternaryParts[2]
+
+  /**
+   * Handle non-ternary conditions.
+   */
+  if (value.includes('or null') || value.includes('or undefined')) {
+    ternaryParts = value.split(' or ')
+    conditionVariable = ternaryParts[0]
+    ifCondition = ternaryParts[0]
+    elseCondition = ternaryParts[1]
+  }
+
+  /**
+   * Replace null and undefined.
+   */
+  ifCondition = ifCondition.replace(/(?:null|undefined)/g, false)
+  elseCondition = elseCondition.replace(/(?:null|undefined)/g, false)
+
   let conditionValue = ' != blank'
   let variableToCheck = conditionVariable
 
@@ -267,6 +284,17 @@ function ternaryOperators({
     !config.validLiquidObjects.includes(variableToCheck.split('.')[0])
   ) {
     globalLiquidAssigns.push(`assign ${variableToCheck} = 'TODO'`)
+  }
+
+  /**
+   * Output Liquid variables.
+   */
+  if (!ifCondition.includes('\'') && ifCondition !== 'false') {
+    ifCondition = `{{ ${ifCondition} }}`
+  }
+
+  if (!elseCondition.includes('\'') && elseCondition !== 'false') {
+    elseCondition = `{{ ${elseCondition} }}`
   }
 
   return `{% if ${conditionVariable}${conditionValue} %}${ifCondition.replaceAll(`'`, '')}{% else %}${elseCondition.replaceAll(`'`, '')}{% endif %}`

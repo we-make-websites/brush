@@ -293,12 +293,12 @@ function buildPropValue({
   snippet = false,
   tag,
 } = {}) {
-  let value = prop.exp.content
+  const originalValue = prop.exp.content
+
+  let value = originalValue
     // Optional chaining
     .replaceAll('?.', '.')
     // Conditions
-    .replaceAll('|| null', '')
-    .replaceAll('|| undefined', '')
     .replaceAll('||', 'or')
     .replaceAll('&&', 'and')
     .replaceAll('===', '==')
@@ -354,7 +354,11 @@ function buildPropValue({
    * - Ignore inside v- conditions.
    */
   if (!config.vIfConditionals.includes(condition)) {
-    if (value?.includes(' ? ')) {
+    if (
+      value?.includes(' ? ') ||
+      value?.includes('or null') ||
+      value?.includes('or undefined')
+    ) {
       if (snippet) {
         const liquidVariable = `${propName}_conditional`
 
@@ -481,6 +485,15 @@ function buildPropValue({
 
     const formattedCondition = condition.replace('else-if', 'elsif')
     let formattedValue = value.replace(/(?:{{\s|\s}})/g, '')
+
+    /**
+     * Handle forloop last checks.
+     */
+    if (originalValue.includes('index + 1') && originalValue.includes('.length')) {
+      return value.includes('==')
+        ? `{% ${formattedCondition} forloop.last %}`
+        : `{% ${formattedCondition} forloop.last == false %}`
+    }
 
     /**
      * Update condition for Liquid.
