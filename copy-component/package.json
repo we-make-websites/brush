@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/copy-component",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Helper package to copy component from package files.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/copy-component",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -19,8 +19,5 @@
     "open": "8.4.2",
     "path": "0.12.7",
     "yargs": "17.7.2"
-  },
-  "engines": {
-    "node": "^18.18.2"
   }
 }
