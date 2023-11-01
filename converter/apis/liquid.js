@@ -88,11 +88,11 @@ function convertToLiquidAst(element, parent) {
     children: [],
     // <component> element
     componentTag: false,
-    // Liquid tags to enclose element in
     // Forloop variable of current level or parent
     forloopVariables: parent?.forloopVariables.length
       ? parent.forloopVariables
       : [],
+    // Liquid tags to enclose element in
     liquid: false,
     // Props/attributes
     props: {},
@@ -205,6 +205,14 @@ function convertToLiquidAst(element, parent) {
 
       data[name] = value
       continue
+    }
+
+    /**
+     * Add <slot> name prop to Liquid assigns.
+     */
+    if (element.tag === 'slot' && name === 'name') {
+      const snakeCaseName = convertToSnakeCase(value)
+      globalLiquidAssigns.push(`assign ${snakeCaseName} = 'TODO'`)
     }
 
     data.props[name] = value
