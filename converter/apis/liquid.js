@@ -164,7 +164,8 @@ function convertToLiquidAst(element, parent) {
      * Handle v-bind/:bind props.
      */
     if (prop.name === 'bind') {
-      // Ignore dynamic classes
+      // TODO: Create assign variable for dynamic classes
+      // Ignore dynamic classes and styles
       if (config.noRenderBoundProps.includes(name)) {
         continue
       }

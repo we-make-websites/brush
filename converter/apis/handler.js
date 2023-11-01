@@ -313,16 +313,22 @@ function validLiquid({
   /**
    * Handle == conditions.
    */
-  if (testCondition) {
+  if (testCondition || part.includes('.size')) {
     const conditionVariable = part.split(testCondition)[0].trim()
 
     if (
       !forloopVariables.includes(conditionVariable.split('.')[0]) &&
       !config.validLiquidObjects.includes(conditionVariable.split('.')[0])
     ) {
-      snakeCasePart = convertToSnakeCase(conditionVariable)
+      snakeCasePart = part.includes('.size')
+        ? `${convertToSnakeCase(conditionVariable.split('.')[0])}.size`
+        : convertToSnakeCase(conditionVariable)
+
       updatedPart = part.replace(conditionVariable, snakeCasePart)
-      globalLiquidAssigns.push(`assign ${snakeCasePart} = 'TODO'`)
+
+      if (!part.includes('.size')) {
+        globalLiquidAssigns.push(`assign ${snakeCasePart} = 'TODO'`)
+      }
     }
 
   } else {
