@@ -2,6 +2,28 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 2.0.2 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 2.0.1 - 2023-10-31
+
+* Fixed broken templates
+
+## 2.0.0 - 2023-10-18
+
+* Added web component support
+
+## 1.9.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
+## 1.8.0 - 2023-09-19
+
+* Added tracking for logging commands and error analytics
+
 ## 1.7.0 - 2023-08-23
 
 * Updated dependencies

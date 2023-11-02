@@ -9,7 +9,7 @@ Node helper function to find all filepaths inside a folder and its sub-folders, 
 * `folder` - String - Path to folder to search in
 * `filetypes` - Array - Filetypes to filter by, e.g. `['liquid']`
 * `config` - Object - Configuration object
-* `filenames` - Boolean - Returns only the filenames instead of full paths
+* `config.filenames` - Boolean - Returns only the filenames (and their extensions) instead of full paths
 
 The function is asynchronous but does not require an `await`.
 

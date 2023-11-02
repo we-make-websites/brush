@@ -1,0 +1,11 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Snippet: <%= name %> (<%= handle %>)
+  - Web component snippet.
+------------------------------------------------------------------------------
+{% endcomment %}
+{{ 'web.<%= handle %>.min.css' | asset_url | stylesheet_tag }}
+{{ 'web.<%= handle %>.min.js' | asset_url | script_tag | replace: '<script', '<script defer' }}
+
+<<%= handle %> class="<%= handle %> liquid">
+</<%= handle %>>

@@ -2,18 +2,18 @@
 # yarn lockfile v1
 
 
-"@we-make-websites/file-sync@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.1.0/c3501a8b6b046a013f02f13657bc794164bef419#c3501a8b6b046a013f02f13657bc794164bef419"
-  integrity sha512-qoNVuwppMLuv7QSJT6YbR7Yd8L/8fZ/6J9zewRaNTlfHyZE5m7UN7da6nbcsqaGWxXwSd7bwEqUR2JW1K6762w==
+"@we-make-websites/file-sync@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.2.1/d1d8e5ae42c5c450e50a03a5142bbc1fc197f0a5#d1d8e5ae42c5c450e50a03a5142bbc1fc197f0a5"
+  integrity sha512-5NxoLKlG3JYHrRg6s04h0vmtPFGHuMjCxInyqD6Tc7l+g0MhKczyi/+z3RNEk8kDGlaXKikqQhWCzPeb80rjcQ==
   dependencies:
     fs-extra "11.1.1"
     path "0.12.7"
 
-"@we-make-websites/tannoy@1.13.0":
-  version "1.13.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.13.0/d48632beacbbf116450e1f06b26e0f96c63a86d6#d48632beacbbf116450e1f06b26e0f96c63a86d6"
-  integrity sha512-BeeLkF6psjPODJSKOW/woExHPCW26LhxrV54yNELF9YvSdjOO6j/zSUzMaDnIueXB9n+JIqYTi4a10GsMX2i+g==
+"@we-make-websites/tannoy@1.14.1":
+  version "1.14.1"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.14.1/7cc1d6cd8959ec9ae5d1ac31b1583ed992d2e70c#7cc1d6cd8959ec9ae5d1ac31b1583ed992d2e70c"
+  integrity sha512-Xw3wsR+B424Yh5IPXdM9fVgQZLp/2mmir+UIMcaID5pgQMgUGxLWlCXWPaet/Gi3M95Dj9einAJ4oDL6JPLv7Q==
   dependencies:
     console-clear "1.1.1"
 
