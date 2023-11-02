@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/file-sync",
-  "version": "2.0.0-beta.0",
+  "version": "2.0.0-beta.1",
   "description": "Node helper function to find all filepaths inside a folder and its sub-folders.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/file-sync",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",

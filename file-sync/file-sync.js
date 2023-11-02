@@ -69,7 +69,13 @@ function *walkSync(folderPaths, options) {
     }
 
     if (options.return === 'parse') {
-      yield path.parse(combinedPath)
+      const parsedPath = path.parse(combinedPath)
+
+      yield {
+        ...parsedPath,
+        path: combinedPath,
+      }
+
       continue
     }
 

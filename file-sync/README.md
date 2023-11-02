@@ -53,8 +53,9 @@ const filepaths = fileSync('folder/path', {
 
 ### `options.return`
 
-* Use `options.return` to change the type of data returned.
-* Note in the below examples the path separate (`\\`) will be different depending on your OS. Use `path.sep` for a cross-platform path separator.
+* Use `options.return` to change the type of data returned
+* Note in the below examples the path separate (`\\`) will be different depending on your OS
+* Use `path.sep` for a cross-platform path separator
 
 ```js
 const filepaths = fileSync('folder/path', {
@@ -83,11 +84,13 @@ const filepaths = fileSync('folder/path', {
 //     dir: 'C:\\Users\\craig\\Documents\\Websites\\library-monorepo\\packages\\animate-number',
 //     ext: '.json',
 //     name: 'package'
+//     path: 'C:\\Users\\craig\\Documents\\Websites\\library-monorepo\\packages\\animate-number\\package.json',
 //     root: 'C:\\',
 //   },
 // ]
 ```
 
+* Note that the data returned from `'parse'` features an additional `path` property which is not part of the default `path.parse()` implementation
 
 ## 📅 Changelog
 
