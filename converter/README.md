@@ -2,6 +2,8 @@
 
 Converter is a CLI tool for converting Vue template files into Liquid.
 
+It is currently in beta.
+
 ## 📅 Changelog
 
 See *CHANGELOG.md* for a history of changes.
