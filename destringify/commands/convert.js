@@ -54,15 +54,26 @@ async function init() {
   /**
    * Convert each section settings into plain string JSON object.
    */
-  const localesPath = path.join(projectPath, 'locales', 'en.default.schema.json')
+  const localePrefix = argv.language ? argv.language : 'en.default'
+  const localesPath = path.join(projectPath, 'locales', `${localePrefix}.schema.json`)
   const locales = await fs.readJson(localesPath)
 
+  await fs.emptyDir('dist')
+
   for (const section of sections) {
-    const schema = await getSectionSchema(section)
-    const formattedSchema = await convertApi.convertSchema(schema, locales)
     const file = path.parse(section)
-    const writePath = path.resolve('debug', `${file.name}.json`)
+    const schema = await getSectionSchema(section)
+
+    if (!schema) {
+      messages.push(Tny.colour('red', `❌ ${file.name}.liquid failed (no schema found)`))
+      continue
+    }
+
+    const formattedSchema = await convertApi.convertSchema(schema, locales)
+
+    const writePath = path.resolve('dist', `${file.name}.json`)
     fs.writeJSON(writePath, formattedSchema, { spaces: 2 })
+
     messages.push(Tny.colour('green', `🧪 ${file.name}.json converted`))
   }
 

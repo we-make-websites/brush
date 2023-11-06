@@ -12,6 +12,7 @@ Unlike other Brush packages, Destringify is not published to npm as Dawn project
 2. Navigate to the _brush/destringify/_ folder in terminal
 3. Run `yarn install`
 4. Run `yarn destringify` and follow the prompts
+5. Converted schema is exported to _brush/destringify/dist/_
 
 ### Flags
 
@@ -19,6 +20,7 @@ Unlike other Brush packages, Destringify is not published to npm as Dawn project
 * `--all-sections` - Convert all sections settings at once instead of a single section
 * `--project=[project-folder]` - Skip project folder question by providing project name
 * `--section=[section-handle]` - Skip section question by providing section handle
+* `--language=[language-prefix]` - By default Destringify uses _en.default.schema.json_, use this flag to use another language
 
 ## 📅 Changelog
 

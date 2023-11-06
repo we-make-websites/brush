@@ -7,7 +7,6 @@
  * @return {Promise}
  */
 const fs = require('fs-extra')
-const Tny = require('@we-make-websites/tannoy')
 
 module.exports = (sectionPath) => {
   return new Promise(async(resolve) => {
@@ -16,10 +15,10 @@ module.exports = (sectionPath) => {
     const schema = regex.exec(contents)
 
     if (!schema) {
-      Tny.message(Tny.colour('red', '❌ No {% schema %} found'))
-      process.exit()
+      resolve(false)
+      return
     }
 
-    resolve(JSON.parse(schema.groups.schema))
+    resolve(JSON.parse(schema?.groups?.schema))
   })
 }
