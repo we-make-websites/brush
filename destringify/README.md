@@ -4,10 +4,12 @@ Destringify is a CLI tool for converting Dawn section setting locale strings int
 
 It expects the Dawn-based project to be in the same root folder as the Brush/Destringify repo.
 
+Unlike other Brush packages, Destringify is not published to npm as Dawn projects do not come with a _package.json_ file.
+
 ## 👩‍💻 Usage
 
 1. Clone down the Brush repo
-2. Navigate to the _destringify/_ folder in terminal
+2. Navigate to the _brush/destringify/_ folder in terminal
 3. Run `yarn install`
 4. Run `yarn destringify` and follow the prompts
 
