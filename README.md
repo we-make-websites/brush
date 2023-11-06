@@ -19,6 +19,8 @@ Linting is shared across all tools.
 | `@we-make-websites/canvas-storybook-tools` | 🔒 Builds Shopify-compatible Storybook | [README](canvas-storybook-tools/README.md) |
 | `@we-make-websites/communique` | 🔒 Local Shopify notification development | [README](communique/README.md) |
 | `@we-make-websites/copy-component` | Library package installer | [README](copy-component/README.md) |
+| `@we-make-websites/converter` | Convert Vue templates into Liquid | [README](converter/README.md) |
+| `@we-make-websites/destringify` | Convert Dawn section schemas into plain strings | [README](destringify/README.md) |
 | `@we-make-websites/eslint-config` | ESLint config for Webpack projects | [README](eslint-config/README.md) |
 | `@we-make-websites/eslint-config-module` | ESLint config for non-Webpack projects | [README](eslint-config-module/README.md) |
 | `@we-make-websites/file-sync` | Finds filepaths in folder and sub-folders in Node | [README](file-sync/README.md) |
