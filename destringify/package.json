@@ -1,13 +1,11 @@
 {
   "name": "@we-make-websites/destringify",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.0",
   "description": "Command line tool to convert Vue to Liquid.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/destringify",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
-  "bin": {
-    "destringify-convert": "commands/convert.js"
-  },
+  "main": "commands/convert.js",
   "devDependencies": {},
   "dependencies": {
     "@we-make-websites/file-sync": "2.0.0",
@@ -18,6 +16,6 @@
     "yargs": "17.7.2"
   },
   "scripts": {
-    "destringify": "node ./commands/convert.js"
+    "destringify": "node ./commands/convert.js --local"
   }
 }

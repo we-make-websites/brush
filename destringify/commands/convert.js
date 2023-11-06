@@ -17,6 +17,7 @@ const { hideBin } = require('yargs/helpers')
 const convertApi = require('../apis/convert')
 
 const getSectionSchema = require('../helpers/get-section-schema')
+const Paths = require('../helpers/paths')
 
 /**
  * Set variables.
@@ -32,15 +33,19 @@ async function init() {
   const messages = []
 
   /**
-   * Determine component path to convert.
+   * Determine section path to convert.
    */
-  const rootPath = argv.path
-    ? path.join('../../', argv.path)
-    : '../../'
+  let projectPath = Paths.root
 
-  const projectPath = argv.project
-    ? path.join(rootPath, argv.project)
-    : await askProjectPathQuestion(rootPath)
+  if (argv.local) {
+    const rootPath = argv.path
+      ? path.join('../../', argv.path)
+      : '../../'
+
+    projectPath = argv.project
+      ? path.join(rootPath, argv.project)
+      : await askProjectPathQuestion(rootPath)
+  }
 
   /**
    * Determine section to convert.
@@ -55,10 +60,14 @@ async function init() {
    * Convert each section settings into plain string JSON object.
    */
   const localePrefix = argv.language ? argv.language : 'en.default'
-  const localesPath = path.join(projectPath, 'locales', `${localePrefix}.schema.json`)
+
+  const localesPath = argv.local
+    ? path.join(projectPath, 'locales', `${localePrefix}.schema.json`)
+    : path.join(Paths.locales, `${localePrefix}.schema.json`)
+
   const locales = await fs.readJson(localesPath)
 
-  await fs.emptyDir('dist')
+  await fs.emptyDir(Paths.output)
 
   for (const section of sections) {
     const file = path.parse(section)
@@ -71,7 +80,7 @@ async function init() {
 
     const formattedSchema = await convertApi.convertSchema(schema, locales)
 
-    const writePath = path.resolve('dist', `${file.name}.json`)
+    const writePath = path.resolve(Paths.output, `${file.name}.json`)
     fs.writeJSON(writePath, formattedSchema, { spaces: 2 })
 
     messages.push(Tny.colour('green', `🧪 ${file.name}.json converted`))
