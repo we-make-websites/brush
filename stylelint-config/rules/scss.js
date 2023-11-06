@@ -73,7 +73,7 @@ module.exports = {
   // Disallow duplicate dollar variables within a stylesheet
   'scss/no-duplicate-dollar-variables': null,
   // Disallow linebreaks after Sass operators
-  'scss/operator-no-newline-after': true,
+  'scss/operator-no-newline-after': null,
   // Disallow linebreaks before Sass operators
   'scss/operator-no-newline-before': true,
   // Disallow unspaced operators in Sass operations

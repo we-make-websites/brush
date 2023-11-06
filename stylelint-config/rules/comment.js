@@ -2,11 +2,7 @@
 
 module.exports = {
   // Require or disallow an empty line before comments
-  'comment-empty-line-before': [
-    'always', {
-      ignore: ['stylelint-commands'],
-    },
-  ],
+  'comment-empty-line-before': 'never',
   // Disallow empty comments, disabled to use SCSS plugin
   'comment-no-empty': null,
   // Require a single space or disallow whitespace on the inside of comment markers
