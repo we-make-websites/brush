@@ -1,4 +1,4 @@
-# 📚 Converter Changelog
+# 📅 Converter Changelog
 
 Converter uses [semantic versioning](https://semver.org/).
 

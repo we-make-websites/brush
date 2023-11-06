@@ -63,3 +63,5 @@ secrets.json
 .ruby-version
 TODO*
 converter/debug
+destringify/converted
+destringify/dist
