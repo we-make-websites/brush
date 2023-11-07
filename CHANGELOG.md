@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.9.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
 ## 1.9.0 - 2023-10-31
 
 * Updated Node version
