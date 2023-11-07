@@ -33,13 +33,19 @@ class <%= namePascalCase %> extends HTMLElement {
 
   computed(component) {
     return {
-      // Computed property
+      // Computed properties
+      // computedProp() {
+      //   return ''
+      // },
     }
   }
 
   watch(component) {
     return {
-      // Watch function (newValue, oldValue)
+      // Watch functions
+      // watchedProp(newValue, oldValue) {
+      //   // Not empty
+      // },
     }
   }
 
@@ -49,22 +55,31 @@ class <%= namePascalCase %> extends HTMLElement {
    */
   constructor() {
     super()
-    this.$data = this.data(this)
-    helpers.buildAttributes(this)
-    helpers.buildComputed(this)
-    helpers.buildWatch(this)
+    this.$data = {}
   }
 
   /**
    * Component mounted.
    */
   connectedCallback() {
+    this.$data = this.data(this)
+    helpers.buildAttributes(this)
+    helpers.buildComputed(this)
+    helpers.buildWatch(this)
+
     this.setEventListeners()
   }
 
   /**
+   * Component unmounted.
+   */
+  disconnectedCallback() {
+    // Remove event listeners
+  }
+
+  /**
    * Set event listeners.
-   * - Must pass 'this' as argument for function to have access.
+   * - Must pass 'this' as argument for function to have access to component.
    */
   setEventListeners() {
     this.$data.selectors.example.addEventListener('click', () => {
