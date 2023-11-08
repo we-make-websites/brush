@@ -2,6 +2,10 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 2.0.4 - 2023-11-08
+
+* Fixed observed attributes not triggering watchers when updated externally
+
 ## 2.0.3 - 2023-11-07
 
 * Fixed data issues with web component template
