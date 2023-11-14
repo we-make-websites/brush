@@ -2,6 +2,19 @@
 
 File Sync uses [semantic versioning](https://semver.org/).
 
+## 2.0.0 - 2023-11-02
+
+* Added `ignore` option to ignore filepaths
+* Added `return` option to control returned data (filepath, filename, or parsed)
+* Added `array` option to return data as an array or generator
+* Updated `folderPaths` to support array of folder paths to find files in
+* Replaced `filetypes` with `filter` option with support for full filename filtering
+* Removed `filename` option (use `return: 'name'` instead)
+
+## 1.2.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
 ## 1.2.0 - 2023-10-16
 
 * Updated Node version

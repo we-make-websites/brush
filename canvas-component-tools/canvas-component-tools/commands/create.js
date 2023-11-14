@@ -141,11 +141,15 @@ async function nameQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Name is required')
+          error.push('Name is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Name is too short')
+          error.push('Name is too short (less then 4 characters)')
+        }
+
+        if (answer.trim().length > 25) {
+          error.push('Name is too long for Shopify settings schema name value (more than 25 characters)')
         }
 
         if (answer.slice(0, 1).match(/^\s$/g)) {
@@ -161,7 +165,7 @@ async function nameQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -231,11 +235,11 @@ async function handleQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Handle is required')
+          error.push('Handle is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Handle is too short')
+          error.push('Handle is too short (less than 4 characters)')
         }
 
         if (answer.split('-').length < 2) {
@@ -263,7 +267,7 @@ async function handleQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -303,11 +307,11 @@ async function descriptionQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Description is required')
+          error.push('Description is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Description is too short')
+          error.push('Description is too short (less than 4 characters)')
         }
 
         if (answer.slice(0, 1).match(/^\s$/g)) {
@@ -319,7 +323,7 @@ async function descriptionQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -473,7 +477,9 @@ async function webComponentTemplateQuestion() {
     process.exit()
   }
 
-  component.template = question.answer ? question.answer : 'template'
+  if (question.answer) {
+    component.template = question.answer
+  }
 
   return new Promise((resolve) => {
     complete = true

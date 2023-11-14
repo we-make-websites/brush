@@ -319,25 +319,25 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.1.tgz#d3357479a0fdfdd5907fe67e17e0a85c906e1301"
   integrity sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==
 
-"@we-make-websites/commitlint-config@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/commitlint-config/1.2.0/91cb0427ffc59aabcaebeee3cdea38be05967181#91cb0427ffc59aabcaebeee3cdea38be05967181"
-  integrity sha512-CrSadt3Wsf0p9tWZO8BpMMZi2QlhYO333UCA0wCtMm2hWAbUfXiPHg+JPPTRXTWdlBqqwxjLA6oqola6pz3VLA==
+"@we-make-websites/commitlint-config@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/commitlint-config/1.2.1/8c412c6ef2c63f3e30fc986c8b5e081d3d02536f#8c412c6ef2c63f3e30fc986c8b5e081d3d02536f"
+  integrity sha512-FN8TyWJKgI159dQUo8pZi7tNvw7sZlhe6buNwmSiKd7xi3HShhQm29O45EIJwhzdjtWFd+PVktGlYvP0W4cmrg==
 
-"@we-make-websites/eslint-config-module@3.10.0":
-  version "3.10.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/eslint-config-module/3.10.0/53108bb3fa0bcb44a29dc14bc6f5f7a13f278566#53108bb3fa0bcb44a29dc14bc6f5f7a13f278566"
-  integrity sha512-8WJJ8Yymy8k15JCFJ4vwTTDPxEXBELqsFhn07Qv3PLeABtTZDv1/LyzokJ9K57vWHxDg2PNApaXWzxAcr4Savg==
+"@we-make-websites/eslint-config-module@3.10.1":
+  version "3.10.1"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/eslint-config-module/3.10.1/d1f7b468c021300d4c34f48c902dec89c87a24be#d1f7b468c021300d4c34f48c902dec89c87a24be"
+  integrity sha512-xWg9Dw826GFL5jLi8yRhPaahBSDSQOnnfO8+KOkVvAFb5SGvNEN0Aux55yAG1CeQXbeAlW6bb05YHGaiHivCzQ==
   dependencies:
     eslint-plugin-import "2.28.1"
     eslint-plugin-vue "9.17.0"
     eslint-plugin-vuejs-accessibility "2.2.0"
     merge "2.1.1"
 
-"@we-make-websites/tannoy@1.14.0":
-  version "1.14.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.14.0/50bc795469613cdd25a752a0910a77faac847603#50bc795469613cdd25a752a0910a77faac847603"
-  integrity sha512-IlrGWACDvcGU7qXed4Jq/fwGQcIvzX13s5VhPXxXYqKQjL0xljJ7XHkaV4xkaJbJtKT7OMI9g7AiUDBl/K3Xgw==
+"@we-make-websites/tannoy@1.14.1":
+  version "1.14.1"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.14.1/7cc1d6cd8959ec9ae5d1ac31b1583ed992d2e70c#7cc1d6cd8959ec9ae5d1ac31b1583ed992d2e70c"
+  integrity sha512-Xw3wsR+B424Yh5IPXdM9fVgQZLp/2mmir+UIMcaID5pgQMgUGxLWlCXWPaet/Gi3M95Dj9einAJ4oDL6JPLv7Q==
   dependencies:
     console-clear "1.1.1"
 

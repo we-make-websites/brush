@@ -2,6 +2,10 @@
 
 Theme Currency uses [semantic versioning](https://semver.org/).
 
+## 4.5.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
 ## 4.5.0 - 2023-10-16
 
 * Updated Node version

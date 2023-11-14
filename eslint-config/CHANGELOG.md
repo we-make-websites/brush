@@ -2,6 +2,10 @@
 
 Eslint Config uses [semantic versioning](https://semver.org/).
 
+## 3.10.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
 ## 3.10.0 - 2023-10-16
 
 * Updated Node version
