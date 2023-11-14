@@ -2,6 +2,10 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.9.0 - 2023-11-14
+
+* Added support for importing web components
+
 ## 1.8.1 - 2023-11-01
 
 * Fixed Node version issues by removing `engines` property
