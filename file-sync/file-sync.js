@@ -44,7 +44,7 @@ function *walkSync(folderPaths, options) {
     }
 
     /**
-     * Match filters and ignores.
+     * Determine if file should be returned based on filter/ignore options.
      */
     const matchesFilter = options.filter?.some((value) => {
       const formattedValue = value.replaceAll('/', path.sep)
@@ -56,7 +56,17 @@ function *walkSync(folderPaths, options) {
       return combinedPath.includes(formattedValue)
     })
 
-    if (!matchesFilter || matchesIgnore) {
+    let returnFile = true
+
+    if (options.filter?.length && !matchesFilter) {
+      returnFile = false
+    }
+
+    if (options.ignore?.length && matchesIgnore) {
+      returnFile = false
+    }
+
+    if (!returnFile) {
       continue
     }
 

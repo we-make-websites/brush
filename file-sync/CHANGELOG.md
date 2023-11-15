@@ -2,6 +2,10 @@
 
 File Sync uses [semantic versioning](https://semver.org/).
 
+## 2.0.1 - 2023-11-15
+
+* Fixed helper returning no files if `filter` isn't provided
+
 ## 2.0.0 - 2023-11-02
 
 * Added `ignore` option to ignore filepaths
