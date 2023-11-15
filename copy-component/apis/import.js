@@ -29,6 +29,7 @@ function importComponents(imports) {
       }
 
       if (
+        !fs.existsSync(Paths.src.canvasConfig) ||
         !fs.existsSync(Paths.src.canvasImports) ||
         !fs.existsSync(Paths.src.themeStyles)
       ) {
@@ -43,8 +44,10 @@ function importComponents(imports) {
         async: [],
         global: [],
         stores: [],
+        web: [],
       }
 
+      let updatedConfig = false
       let updatedStylesheet = false
 
       imports.forEach((importName) => {
@@ -56,11 +59,16 @@ function importComponents(imports) {
         ...formatImports(types.async, 'async'),
         ...formatImports(types.global, 'global'),
         ...formatImports(types.stores, 'stores'),
+        ...formatImports(types.web, 'web'),
       ]
 
+      let config = await fs.readFile(Paths.src.canvasConfig, 'utf-8')
       let scripts = await fs.readFile(Paths.src.canvasImports, 'utf-8')
       let styles = await fs.readFile(Paths.src.themeStyles, 'utf-8')
 
+      /**
+       * Go through components and import.
+       */
       for (const component of components) {
         scripts = await importComponent(component, scripts)
 
@@ -69,7 +77,17 @@ function importComponents(imports) {
           Paths.libraryLog,
         )
 
-        if (component.folder === 'global') {
+        if (component.type === 'web') {
+          config = await addCustomElement(component, config)
+          updatedConfig = true
+
+          await Tny.write(
+            `importComponents - Added "${component.handle}" to custom elements config`,
+            Paths.libraryLog,
+          )
+        }
+
+        if (component.type === 'global') {
           styles = await importStylesheet(component, styles)
           updatedStylesheet = true
 
@@ -81,10 +99,15 @@ function importComponents(imports) {
       }
 
       /**
-       * Write file.
+       * Write files.
        */
       await fs.writeFile(Paths.src.canvasImports, scripts, 'utf-8')
       await Tny.write('importComponents - Updated Canvas imports', Paths.libraryLog)
+
+      if (updatedConfig) {
+        await fs.writeFile(Paths.src.canvasConfig, config, 'utf-8')
+        await Tny.write('importComponents - Updated canvas.config.js', Paths.libraryLog)
+      }
 
       if (updatedStylesheet) {
         await fs.writeFile(Paths.src.themeStyles, styles, 'utf-8')
@@ -102,10 +125,10 @@ function importComponents(imports) {
 /**
  * Formats the component import.
  * @param {Array} imports - Import array of certain type.
- * @param {String} folder - Folder of import.
+ * @param {String} type - Type of import.
  * @returns {Array}
  */
-function formatImports(imports, folder) {
+function formatImports(imports, type) {
   return imports.map((handle) => {
     let pascalCase = handle
       .replace(
@@ -117,14 +140,14 @@ function formatImports(imports, folder) {
       .replace(/-/g, '')
       .replace(/\s/g, '')
 
-    if (folder === 'stores') {
+    if (type === 'stores') {
       pascalCase = `${pascalCase}Store`
     }
 
     return {
-      folder,
       handle,
       pascalCase,
+      type,
     }
   })
 }
@@ -133,31 +156,23 @@ function formatImports(imports, folder) {
  * Add component to canvas-imports.js.
  * - If global then add to stylesheet too.
  * @param {Object} component - Component object.
- * @param {String} scripts - canvas-imports.js contents.
+ * @param {String} contents - canvas-imports.js contents.
  * @returns {Promise}
  */
-function importComponent(component, scripts) {
+function importComponent(component, contents) {
   return new Promise((resolve, reject) => {
     try {
-      let localScripts = scripts
+      let localContent = contents
 
       const comments = {
         import: {
-          end: `// canvas-${component.folder}-import-end`,
-          start: `// canvas-${component.folder}-import-start`,
+          end: `// canvas-${component.type}-import-end`,
+          start: `// canvas-${component.type}-import-start`,
         },
         object: {
-          end: `// canvas-${component.folder}-object-end`,
-          start: `// canvas-${component.folder}-object-start`,
+          end: `// canvas-${component.type}-object-end`,
+          start: `// canvas-${component.type}-object-start`,
         },
-      }
-
-      if (
-        !localScripts.includes(comments.object.start) ||
-        !localScripts.includes(comments.object.end)
-      ) {
-        reject('Can\'t import files as object marker comments are missing')
-        return
       }
 
       /**
@@ -165,55 +180,65 @@ function importComponent(component, scripts) {
        * - Add new component to objects.
        * - Sort alphabetically.
        */
-      const objects = localScripts
-        .split(comments.object.start)[1]
-        .split(comments.object.end)[0]
-        .split('\n')
-        .filter((line) => {
-          return line.match(/\w/)
+      if (component.type !== 'web') {
+        if (
+          !localContent.includes(comments.object.start) ||
+          !localContent.includes(comments.object.end)
+        ) {
+          reject('Can\'t import files as object marker comments are missing')
+          return
+        }
+
+        const objects = localContent
+          .split(comments.object.start)[1]
+          .split(comments.object.end)[0]
+          .split('\n')
+          .filter((line) => {
+            return line.match(/\w/)
+          })
+
+        const objectTemplate = component.type === 'async'
+          ? `    '${component.handle}': defineAsyncComponent({ loader: () => import(/* webpackChunkName: 'component.${component.handle}' */'~async/${component.handle}/${component.handle}') }),`
+          : `    '${component.handle}': ${component.pascalCase},`
+
+        /**
+         * Early return if component has already been imported.
+         */
+        const matchedImport = objects.find((line) => {
+          return line.includes(objectTemplate.trim())
         })
 
-      const objectTemplate = component.folder === 'async'
-        ? `    '${component.handle}': defineAsyncComponent({ loader: () => import(/* webpackChunkName: 'component.${component.handle}' */'~async/${component.handle}/${component.handle}') }),`
-        : `    '${component.handle}': ${component.pascalCase},`
+        if (matchedImport) {
+          resolve(localContent)
+          return
+        }
 
-      /**
-       * Early return if component has already been imported.
-       */
-      const matchedImport = objects.find((line) => {
-        return line.includes(objectTemplate.trim())
-      })
+        objects.push(objectTemplate)
+        objects.sort()
 
-      if (matchedImport) {
-        resolve(localScripts)
-        return
+        /**
+         * Replace objects in canvas-import.js with new content.
+         */
+        const objectsRegex = new RegExp(`${comments.object.start}(?<replace>.+)${comments.object.end}`, 'gs')
+        let objectsTemplate = `${comments.object.start}\n`
+        objectsTemplate += `${objects.join('\n')}\n`
+        objectsTemplate += `    ${comments.object.end}`
+        localContent = localContent.replace(objectsRegex, objectsTemplate)
       }
 
-      objects.push(objectTemplate)
-      objects.sort()
-
       /**
-       * Replace objects in canvas-import.js with new content.
+       * Handle global, stores, and web component import.
        */
-      const objectsRegex = new RegExp(`${comments.object.start}(?<replace>.+)${comments.object.end}`, 'gs')
-      let objectsTemplate = `${comments.object.start}\n`
-      objectsTemplate += `${objects.join('\n')}\n`
-      objectsTemplate += `    ${comments.object.end}`
-      localScripts = localScripts.replace(objectsRegex, objectsTemplate)
-
-      /**
-       * Handle global and stores component import.
-       */
-      if (component.folder !== 'async') {
+      if (component.type !== 'async') {
         if (
-          !localScripts.includes(comments.import.start) ||
-          !localScripts.includes(comments.import.end)
+          !localContent.includes(comments.import.start) ||
+          !localContent.includes(comments.import.end)
         ) {
           reject('Can\'t import files as import marker comments are missing')
           return
         }
 
-        const imports = localScripts
+        const imports = localContent
           .split(comments.import.start)[1]
           .split(comments.import.end)[0]
           .split('\n')
@@ -221,9 +246,18 @@ function importComponent(component, scripts) {
             return line.match(/\w/)
           })
 
-        const importTemplate = component.folder === 'global'
-          ? `import ${component.pascalCase} from '~${component.folder}/${component.handle}/${component.handle}'`
-          : `import ${component.pascalCase} from '~${component.folder}/${component.handle}'`
+        let importTemplate = ''
+
+        switch (component.type) {
+          case 'stores':
+            importTemplate = `import ${component.pascalCase} from '~${component.type}/${component.handle}'`
+            break
+          case 'web':
+            importTemplate = `import(/* webpackChunkName: 'web.${component.handle}' */'~async/${component.handle}/${component.handle}')`
+            break
+          default:
+            importTemplate = `import ${component.pascalCase} from '~${component.type}/${component.handle}/${component.handle}'`
+        }
 
         imports.push(importTemplate)
         imports.sort()
@@ -232,10 +266,66 @@ function importComponent(component, scripts) {
         let importsTemplate = `${comments.import.start}\n`
         importsTemplate += `${imports.join('\n')}\n`
         importsTemplate += comments.import.end
-        localScripts = localScripts.replace(importsRegex, importsTemplate)
+        localContent = localContent.replace(importsRegex, importsTemplate)
       }
 
-      resolve(localScripts)
+      resolve(localContent)
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Add custom element handle to canvas.config.js.
+ * @param {Object} component - Component answer object.
+ * @param {String} contents - canvas.config.js contents.
+ * @returns {Promise}
+ */
+function addCustomElement(component, contents) {
+  return new Promise((resolve, reject) => {
+    try {
+      let localContent = contents
+
+      const comments = {
+        end: '// canvas-custom-elements-end',
+        start: '// canvas-custom-elements-start',
+      }
+
+      if (
+        !localContent.includes(comments.start) ||
+        !localContent.includes(comments.end)
+      ) {
+        reject('Can\'t import files as custom element marker comments are missing')
+        return
+      }
+
+      /**
+       * Split custom elements into an array and remove empty items.
+       * - Add new component to custom elements.
+       * - Sort alphabetically.
+       */
+      const customElements = localContent
+        .split(comments.start)[1]
+        .split(comments.end)[0]
+        .split(',\n')
+        .filter((line) => line.match(/\w/))
+        .map((line) => line.trim())
+
+      customElements.push(`'${component.handle}'`)
+      customElements.sort()
+
+      /**
+       * Replace custom elements in canvas.config.js with new content.
+       */
+      const customElementsRegex = new RegExp(`${comments.start}(?<replace>.+)${comments.end}`, 'gs')
+      let customElementsTemplate = `${comments.start}\n`
+      customElementsTemplate += `    ${customElements.join(',\n    ')},\n    `
+      customElementsTemplate += comments.end
+      localContent = localContent.replace(customElementsRegex, customElementsTemplate)
+
+      resolve(localContent)
 
     } catch (error) {
       reject(error)
@@ -246,16 +336,16 @@ function importComponent(component, scripts) {
 /**
  * Import global stylesheet into theme.scss.
  * @param {Object} component - Component answer object.
- * @param {String} styles - theme.scss contents.
+ * @param {String} contents - theme.scss contents.
  * @returns {Promise}
  */
-function importStylesheet(component, styles) {
+function importStylesheet(component, contents) {
   return new Promise((resolve, reject) => {
     try {
-      let localStyles = styles
+      let localContents = contents
 
       if (!fs.existsSync(path.resolve(Paths.src.components.global, component.handle, `${component.handle}.scss`))) {
-        resolve(localStyles)
+        resolve(localContents)
         return
       }
 
@@ -265,8 +355,8 @@ function importStylesheet(component, styles) {
       }
 
       if (
-        !localStyles.includes(comments.start) ||
-        !localStyles.includes(comments.end)
+        !localContents.includes(comments.start) ||
+        !localContents.includes(comments.end)
       ) {
         reject('Can\'t import files as stylesheet marker comments are missing')
         return
@@ -277,7 +367,7 @@ function importStylesheet(component, styles) {
        * - Add new component to stylesheets.
        * - Sort alphabetically.
        */
-      const stylesheets = localStyles
+      const stylesheets = localContents
         .split(comments.start)[1]
         .split(comments.end)[0]
         .split('\n')
@@ -295,9 +385,9 @@ function importStylesheet(component, styles) {
       let stylesheetsTemplate = `${comments.start}\n`
       stylesheetsTemplate += `${stylesheets.join('\n')}\n`
       stylesheetsTemplate += comments.end
-      localStyles = localStyles.replace(stylesheetsRegex, stylesheetsTemplate)
+      localContents = localContents.replace(stylesheetsRegex, stylesheetsTemplate)
 
-      resolve(localStyles)
+      resolve(localContents)
 
     } catch (error) {
       reject(error)

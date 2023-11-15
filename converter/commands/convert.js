@@ -2,7 +2,7 @@
 /**
  * Converter: Convert
  * -----------------------------------------------------------------------------
- * Converts Vue template into Liquid
+ * Converts Vue template into Liquid.
  *
  */
 /* eslint-disable no-await-in-loop */

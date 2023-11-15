@@ -8,7 +8,7 @@
 import './<%= handle %>.scss'
 
 import { vueReady } from '~/core/runners'
-import * as helpers from '~/helpers/web-components'
+import * as webComponent from '~/helpers/web-components'
 
 /**
  * DOM selectors.
@@ -23,6 +23,10 @@ const selectors = {
 class <%= namePascalCase %> extends HTMLElement {
   static observedAttributes = []
 
+  attributeChangedCallback(name, oldValue, newValue) {
+    webComponent.handleAttributeUpdate(this, name, newValue, oldValue)
+  }
+
   data(component) {
     return {
       selectors: {
@@ -33,40 +37,56 @@ class <%= namePascalCase %> extends HTMLElement {
 
   computed(component) {
     return {
-      // Computed property
+      // Computed properties
+      // computedProp() {
+      //   return ''
+      // },
     }
   }
 
   watch(component) {
     return {
-      // Watch function (newValue, oldValue)
+      // Watch functions
+      // watchedProp(newValue, oldValue) {
+      //   // Not empty
+      // },
     }
   }
 
   /**
-   * Component before mount.
-   * - Always call super first in constructor.
+   * Component lifecycle - before mount.
    */
   constructor() {
     super()
-    this.$data = this.data(this)
-    helpers.buildAttributes(this)
-    helpers.buildComputed(this)
-    helpers.buildWatch(this)
+    this.$data = {}
   }
 
   /**
-   * Component mounted.
+   * Component lifecycle - mounted.
    */
   connectedCallback() {
+    this.$data = this.data(this)
+    webComponent.setup(this)
+
     this.setEventListeners()
   }
 
   /**
+   * Component lifecycle - unmounted.
+   */
+  disconnectedCallback() {
+    // Remove event listeners
+  }
+
+  /**
    * Set event listeners.
-   * - Must pass 'this' as argument for function to have access.
+   * - Must pass 'this' as argument for function to have access to component.
    */
   setEventListeners() {
+    if (!this.$data.selectors.example) {
+      return
+    }
+
     this.$data.selectors.example.addEventListener('click', () => {
       this.handleClick(this)
     })
