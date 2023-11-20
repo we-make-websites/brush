@@ -2,6 +2,10 @@
 
 File Sync uses [semantic versioning](https://semver.org/).
 
+## 2.0.2 - 2023-11-20
+
+* Fixed error when Webpack config is accessed through eslint
+
 ## 2.0.1 - 2023-11-15
 
 * Fixed helper returning no files if `filter` isn't provided

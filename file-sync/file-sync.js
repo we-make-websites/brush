@@ -36,6 +36,10 @@ function *walkSync(folderPaths, options) {
    * Go through each file and output, or recursively run function if folder.
    */
   for (const file of files) {
+    if (!file.path) {
+      continue
+    }
+
     const combinedPath = path.join(file.path, file.name)
 
     if (file.isDirectory()) {
