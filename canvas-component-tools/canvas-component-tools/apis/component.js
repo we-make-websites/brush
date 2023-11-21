@@ -54,8 +54,8 @@ function getComponentTemplate(component, filename) {
         .replaceAll('<%= load %>', component.load)
         .replaceAll('<%= name %>', component.name)
         .replaceAll('<%= nameLowerCase %>', component.formatted.lowerCase)
+        .replaceAll('<%= namePascalCase %>', component.formatted.pascalCase)
         .replaceAll('<%= nameTitleCase %>', component.formatted.titleCase)
-        .replaceAll('<%= pascalCase %>', component.formatted.pascalCase)
 
       resolve(template)
 
@@ -114,48 +114,50 @@ function importComponent(component) {
         },
       }
 
-      if (
-        !contents.includes(comments.object.start) ||
-        !contents.includes(comments.object.end)
-      ) {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject('Can\'t import files as object marker comments are missing')
-        return
+      if (component.folder !== 'web') {
+        if (
+          !contents.includes(comments.object.start) ||
+          !contents.includes(comments.object.end)
+        ) {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          reject('Can\'t import files as object marker comments are missing')
+          return
+        }
+
+        /**
+         * Split object into an array and remove empty items.
+         * - Add new component to objects.
+         * - Sort alphabetically.
+         */
+        const objects = contents
+          .split(comments.object.start)[1]
+          .split(comments.object.end)[0]
+          .split('\n')
+          .filter((line) => {
+            return line.match(/\w/)
+          })
+
+        const objectTemplate = component.folder === 'async'
+          ? `    '${component.handle}': defineAsyncComponent({ loader: () => import(/* webpackChunkName: 'component.${component.handle}' */'~async/${component.handle}/${component.handle}') }),`
+          : `    '${component.handle}': ${component.formatted.pascalCase},`
+
+        objects.push(objectTemplate)
+        objects.sort()
+
+        /**
+         * Replace objects in canvas-import.js with new content.
+         */
+        const objectsRegex = new RegExp(`${comments.object.start}(?<replace>.+)${comments.object.end}`, 'gs')
+        let objectsTemplate = `${comments.object.start}\n`
+        objectsTemplate += `${objects.join('\n')}\n`
+        objectsTemplate += `    ${comments.object.end}`
+        contents = contents.replace(objectsRegex, objectsTemplate)
       }
-
-      /**
-       * Split object into an array and remove empty items.
-       * - Add new component to objects.
-       * - Sort alphabetically.
-       */
-      const objects = contents
-        .split(comments.object.start)[1]
-        .split(comments.object.end)[0]
-        .split('\n')
-        .filter((line) => {
-          return line.match(/\w/)
-        })
-
-      const objectTemplate = component.folder === 'async'
-        ? `    '${component.handle}': defineAsyncComponent({ loader: () => import(/* webpackChunkName: 'component.${component.handle}' */'~async/${component.handle}/${component.handle}') }),`
-        : `    '${component.handle}': ${component.formatted.pascalCase},`
-
-      objects.push(objectTemplate)
-      objects.sort()
-
-      /**
-       * Replace objects in canvas-import.js with new content.
-       */
-      const objectsRegex = new RegExp(`${comments.object.start}(?<replace>.+)${comments.object.end}`, 'gs')
-      let objectsTemplate = `${comments.object.start}\n`
-      objectsTemplate += `${objects.join('\n')}\n`
-      objectsTemplate += `    ${comments.object.end}`
-      contents = contents.replace(objectsRegex, objectsTemplate)
 
       /**
        * Handle global component import.
        */
-      if (component.folder === 'global') {
+      if (component.folder !== 'async') {
         if (
           !contents.includes(comments.import.start) ||
           !contents.includes(comments.import.end)
@@ -173,7 +175,12 @@ function importComponent(component) {
             return line.match(/\w/)
           })
 
-        imports.push(`import ${component.formatted.pascalCase} from '~global/${component.handle}/${component.handle}'`)
+        if (component.folder === 'web') {
+          imports.push(`import(/* webpackChunkName: 'web.${component.handle}' */'~async/${component.handle}/${component.handle}')`)
+        } else {
+          imports.push(`import ${component.formatted.pascalCase} from '~global/${component.handle}/${component.handle}'`)
+        }
+
         imports.sort()
 
         const importsRegex = new RegExp(`${comments.import.start}(?<replace>.+)${comments.import.end}`, 'gs')
@@ -182,7 +189,11 @@ function importComponent(component) {
         importsTemplate += comments.import.end
         contents = contents.replace(importsRegex, importsTemplate)
 
-        await importStylesheet(component)
+        if (component.folder === 'web') {
+          await addCustomElement(component)
+        } else {
+          await importStylesheet(component)
+        }
       }
 
       /**
@@ -256,6 +267,72 @@ function importStylesheet(component) {
        * Write file.
        */
       await fs.writeFile(Paths.styles.theme, contents, 'utf-8')
+      resolve()
+
+    } catch (error) {
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Add web component custom element to config.
+ * @param {Object} component - Component answer object.
+ * @returns {Promise}
+ */
+function addCustomElement(component) {
+  return new Promise(async(resolve, reject) => {
+    try {
+      if (!fs.existsSync(Paths.canvasConfig)) {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        reject('Can\'t add custom element as canvas.config.js is missing')
+        return
+      }
+
+      let contents = await fs.readFile(Paths.canvasConfig, 'utf-8')
+
+      const comments = {
+        end: '// canvas-custom-elements-end',
+        start: '// canvas-custom-elements-start',
+      }
+
+      if (
+        !contents.includes(comments.start) ||
+        !contents.includes(comments.end)
+      ) {
+        // eslint-disable-next-line prefer-promise-reject-errors
+        reject('Can\'t add custom elements as marker comments are missing')
+        return
+      }
+
+      /**
+       * Split custom elements into an array and remove empty items.
+       * - Add new custom element to array.
+       * - Sort alphabetically.
+       */
+      const customElements = contents
+        .split(comments.start)[1]
+        .split(comments.end)[0]
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.match(/\w/))
+
+      customElements.push(`'${component.handle}'`)
+      customElements.sort()
+
+      /**
+       * Replace custom elements in canvas.config.js with new content.
+       */
+      const customElementsRegex = new RegExp(`${comments.start}(?<replace>.+)${comments.end}`, 'gs')
+      let configTemplate = `${comments.start}\n`
+      configTemplate += `    ${customElements.join('\n    ')},\n`
+      configTemplate += `    ${comments.end}`
+      contents = contents.replace(customElementsRegex, configTemplate)
+
+      /**
+       * Write file.
+       */
+      await fs.writeFile(Paths.canvasConfig, contents, 'utf-8')
       resolve()
 
     } catch (error) {

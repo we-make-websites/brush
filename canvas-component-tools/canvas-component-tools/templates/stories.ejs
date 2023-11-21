@@ -1,10 +1,10 @@
 /**
  * Storybook: <%= name %> (<%= handle %>)
  * -----------------------------------------------------------------------------
- * Configure storybook controls and stories.
+ * Configure Storybook controls and stories.
  *
  */
-import <%= pascalCase %> from './<%= handle %>'
+import <%= namePascalCase %> from './<%= handle %>'
 
 /**
  * Write component description for docs tab.
@@ -14,11 +14,11 @@ const component = `
 `
 
 /**
- * Export storybook configuration.
+ * Export Storybook configuration.
  */
 export default {
   title: '<%= folderTitleCase %>/<%= nameTitleCase %>',
-  component: <%= pascalCase %>,
+  component: <%= namePascalCase %>,
   args: {
     // Add args
   },
@@ -46,7 +46,7 @@ export default {
  * Setup shared template.
  */
 const Template = (args) => ({
-  components: { <%= pascalCase %> },
+  components: { <%= namePascalCase %> },
   setup() {
     return { args }
   },

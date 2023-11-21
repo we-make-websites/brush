@@ -25,7 +25,13 @@ module.exports = {
   // Disallow longhand properties that can be combined into one shorthand property
   'declaration-block-no-redundant-longhand-properties': [
     true, {
-      ignoreShorthands: ['/^grid.*/'],
+      ignoreShorthands: [
+        '/^grid.*/',
+        'margin-block',
+        'margin-inline',
+        'padding-block',
+        'padding-inline',
+      ],
     },
   ],
   // Disallow shorthand properties that override related longhand properties within declaration blocks

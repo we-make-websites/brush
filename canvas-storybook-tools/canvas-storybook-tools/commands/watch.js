@@ -9,6 +9,7 @@
  *
  */
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -31,6 +32,9 @@ let version = '{{canvas version}}'
  * Initialises the storybook watch functionality.
  */
 async function init() {
+  await Track.init()
+  Track.reportMessage('Storybook watch')
+
   version = getPackageVersion()
   const variablesUpdated = await getVariablesUpdated()
   logBanner()

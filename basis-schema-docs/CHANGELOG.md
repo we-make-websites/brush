@@ -2,6 +2,20 @@
 
 Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
+## 1.9.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 1.9.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` property
+
+## 1.8.0 - 2023-09-19
+
+* Added tracking for logging commands and error analytics
+
 ## 1.7.0 - 2023-08-23
 
 * Updated dependencies
