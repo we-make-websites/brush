@@ -2,6 +2,10 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 2.2.0 - 2023-11-28
+
+* Updated dependencies
+
 ## 2.1.0 - 2023-11-09
 
 * Added 25 character limit to name question due to Shopify settings schema limit
