@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/canvas-design-tools",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "Component command line tool to convert tokens into styles.",
   "repository": "https://github.com/we-make-websites/brush/tree/master/canvas-design-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
