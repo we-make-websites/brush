@@ -2,7 +2,7 @@
   "name": "@we-make-websites/tannoy",
   "version": "1.14.1",
   "description": "Simple terminal message outputting tool.",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/tannoy",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/tannoy",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",

@@ -40,7 +40,7 @@ extends: [
   * FEAT - Adds a new feature to store/application
   * FEATURE - Adds a new feature to store/application
   * FIX - Patches a bug in your codebase
-  * MERGE - A branch merge (use MERGE when syncing master branch, e.g. `MERGE: Syncing master`)
+  * MERGE - A branch merge (use MERGE when syncing `main` branch, e.g. `MERGE: Syncing main`)
   * REFACTOR - Update to existing code (including removal)
   * RELEASE - A specific version release
   * REVERT - A git commit revert

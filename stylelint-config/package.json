@@ -2,7 +2,7 @@
   "name": "@we-make-websites/stylelint-config",
   "version": "4.6.0",
   "description": "We Make Website's stylelint rules and config",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/stylelint-config",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/stylelint-config",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
