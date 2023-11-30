@@ -18,7 +18,8 @@ function getTemplates(templatePath, templateFolder) {
   return new Promise(async(resolve, reject) => {
     try {
       const styleFolder = path.join(templatePath, templateFolder)
-      const files = fileSync(styleFolder, ['ejs'])
+      const files = fileSync(styleFolder, { filter: ['.ejs'] })
+
       const templates = {}
 
       for (const filepath of files) {
