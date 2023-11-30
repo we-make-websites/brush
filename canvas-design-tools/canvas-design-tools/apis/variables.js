@@ -715,7 +715,15 @@ function getStylesTemplate(variables, stylesheet) {
         ? variable.replace(config.cssPrefix, '$')
         : variable
 
-      content += `${outputSpacing}${outputVariable}: ${singleValue}${outputUnit};`
+      /**
+       * Output SASS RGB values in CSS colour variables if enabled.
+       */
+      const outputValue = getOutputValue({ key, sassStylesheet, singleValue, variable })
+
+      /**
+       * Write content.
+       */
+      content += `${outputSpacing}${outputVariable}: ${outputValue}${outputUnit};`
 
       /**
        * Add original value as comment if it exists.
@@ -789,6 +797,58 @@ function getBreakpointStylesTemplate(breakpoints) {
 }
 
 /**
+ * Get variable value.
+ * - Handles replacing RGB values with SASS variables.
+ * @param {String} key - Variable key.
+ * @param {Boolean} sassStylesheet - If output is SASS stylesheet.
+ * @param {String} singleValue - Value of variable.
+ * @param {String} variable - Variable name.
+ * @returns {String}
+ */
+function getOutputValue({ key, sassStylesheet, singleValue, variable }) {
+  if (
+    sassStylesheet ||
+    key !== config.special.color ||
+    !singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
+  ) {
+    return singleValue
+  }
+
+  let outputValue = singleValue
+  const matches = singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
+  const uniqueSassVariables = []
+
+  /**
+   * Go through each rgb() color function and replace values with SASS variable
+   * of the same name.
+   * - If value has multiple rgb() functions then ensure each match is unique,
+   *   otherwise use previously assigned SASS variable.
+   */
+  matches.forEach((match, matchIndex) => {
+    const matchingSassVariable = uniqueSassVariables.find((object) => {
+      return object.match === match
+    })
+
+    let sassVariable = variable.replace(config.cssPrefix, '$')
+
+    if (matchingSassVariable) {
+      sassVariable = matchingSassVariable.sassVariable
+    } else if (matches.length > 1) {
+      sassVariable += `-${matchIndex}`
+    }
+
+    outputValue = outputValue.replace(match, `rgb(${sassVariable})`)
+
+    uniqueSassVariables.push({
+      match,
+      sassVariable,
+    })
+  })
+
+  return outputValue
+}
+
+/**
  * Build variables script files from templates.
  * @param {Object} variables - Converted variables object.
  * @returns {Promise}
@@ -851,8 +911,7 @@ function getScriptTemplate(type, variables) {
         .replace(
           /<%= repeat %>(?<group>.*)/g,
           (_, $1) => {
-            const items = variables[type].length
-            const array = Array(...Array(items))
+            const array = Array.from(Array(variables[type].length))
 
             const output = array.map((__, index) => {
               const object = variables[type][index]
