@@ -1,7 +1,6 @@
 <template>
   <div class="<%= handle %> critical-component-clear">
     <h2
-      :id="`section-title-${liquid.sectionId}`"
       class="<%= handle %>__title"
       v-text="$string('general.title')"
     />
@@ -19,15 +18,15 @@
  *
  */
 export default {
-  name: '<%= pascalCase %>',
+  name: '<%= namePascalCase %>',
 
   props: {
-    liquid: {
-      type: Object,
-      default: () => ({
-        sectionId: '',
-      }),
-    },
+    // liquid: {
+    //   type: Object,
+    //   default: () => ({
+    //     sectionId: '',
+    //   }),
+    // },
   },
 
   data() {

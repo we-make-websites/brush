@@ -17,9 +17,6 @@
   "git.autofetch": true,
   "html.validate.scripts": false,
   "html.validate.styles": false,
-  "search.exclude": {
-		"**/canvas/**": true
-	},
   "stylelint.validate": ["css", "scss"],
 	"shopifyLiquid.disableWindowsWarning": true,
   "shopifyLiquid.formatterDevPreview": false,

@@ -1,0 +1,18 @@
+{
+  "name": "@we-make-websites/track",
+  "version": "1.3.0",
+  "description": "Commands and error analytics.",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/track",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "devDependencies": {},
+  "dependencies": {
+    "@sentry/node": "7.82.0",
+    "@sentry/profiling-node": "1.2.6",
+    "fs-extra": "11.2.0",
+    "js-yaml": "4.1.0",
+    "path": "0.12.7",
+    "yargs": "17.7.2"
+  }
+}
