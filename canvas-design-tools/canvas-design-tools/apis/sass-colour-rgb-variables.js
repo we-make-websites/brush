@@ -48,7 +48,7 @@ function getCssVariableValue({ original, value, variable }) {
       variable,
     })
 
-    outputValue = outputValue.replace(getRgbValues(match), sassVariable)
+    outputValue = outputValue.replace(getRgbValues(match), `#{${sassVariable}}`)
 
     uniqueSassVariables.push({
       match,
@@ -126,7 +126,11 @@ function getSassVariable({ index, matches, matchingSassVariable, variable }) {
     sassVariable += `-${index}`
   }
 
-  return `${sassVariable}-rgb`
+  if (!matchingSassVariable) {
+    sassVariable = `${sassVariable}-rgb`
+  }
+
+  return sassVariable
 }
 
 /**
