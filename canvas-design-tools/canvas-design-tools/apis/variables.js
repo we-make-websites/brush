@@ -9,6 +9,8 @@ const path = require('path')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
+const sassRgb = require('../apis/sass-colour-rgb-variables')
+
 const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
 const convertStringToHandle = require('../helpers/convert-string-to-handle')
 const formatAlias = require('../helpers/format-alias')
@@ -677,6 +679,13 @@ function getStylesTemplate(variables, stylesheet) {
   let content = ''
   let count = 0
 
+  /**
+   * Output special RGB SASS variables.
+   */
+  if (sassStylesheet && config.sassColorVariables) {
+    content += sassRgb.getSassTemplate({ outputSpacing, variables })
+  }
+
   if (!sassStylesheet) {
     content += ':root {\n\n'
   }
@@ -718,7 +727,15 @@ function getStylesTemplate(variables, stylesheet) {
       /**
        * Output SASS RGB values in CSS colour variables if enabled.
        */
-      const outputValue = getOutputValue({ key, sassStylesheet, singleValue, variable })
+      let outputValue = singleValue
+
+      if (
+        !sassStylesheet &&
+        key === config.special.color &&
+        singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
+      ) {
+        outputValue = sassRgb.getCssVariableValue({ value: singleValue, variable })
+      }
 
       /**
        * Write content.
@@ -794,58 +811,6 @@ function getBreakpointStylesTemplate(breakpoints) {
   content += ');\n\n'
 
   return content
-}
-
-/**
- * Get variable value.
- * - Handles replacing RGB values with SASS variables.
- * @param {String} key - Variable key.
- * @param {Boolean} sassStylesheet - If output is SASS stylesheet.
- * @param {String} singleValue - Value of variable.
- * @param {String} variable - Variable name.
- * @returns {String}
- */
-function getOutputValue({ key, sassStylesheet, singleValue, variable }) {
-  if (
-    sassStylesheet ||
-    key !== config.special.color ||
-    !singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
-  ) {
-    return singleValue
-  }
-
-  let outputValue = singleValue
-  const matches = singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
-  const uniqueSassVariables = []
-
-  /**
-   * Go through each rgb() color function and replace values with SASS variable
-   * of the same name.
-   * - If value has multiple rgb() functions then ensure each match is unique,
-   *   otherwise use previously assigned SASS variable.
-   */
-  matches.forEach((match, matchIndex) => {
-    const matchingSassVariable = uniqueSassVariables.find((object) => {
-      return object.match === match
-    })
-
-    let sassVariable = variable.replace(config.cssPrefix, '$')
-
-    if (matchingSassVariable) {
-      sassVariable = matchingSassVariable.sassVariable
-    } else if (matches.length > 1) {
-      sassVariable += `-${matchIndex}`
-    }
-
-    outputValue = outputValue.replace(match, `rgb(${sassVariable})`)
-
-    uniqueSassVariables.push({
-      match,
-      sassVariable,
-    })
-  })
-
-  return outputValue
 }
 
 /**
