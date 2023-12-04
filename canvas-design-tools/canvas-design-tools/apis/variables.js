@@ -729,12 +729,8 @@ function getStylesTemplate(variables, stylesheet) {
        */
       let outputValue = singleValue
 
-      if (
-        !sassStylesheet &&
-        key === config.special.color &&
-        singleValue.match(/rgb\(\d+ \d+ \d+\)/g)
-      ) {
-        outputValue = sassRgb.getCssVariableValue({ value: singleValue, variable })
+      if (!sassStylesheet && key === config.special.color) {
+        outputValue = sassRgb.getCssVariableValue({ original, value: singleValue, variable })
       }
 
       /**

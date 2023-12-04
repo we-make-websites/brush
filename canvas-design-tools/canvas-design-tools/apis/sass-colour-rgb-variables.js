@@ -5,6 +5,7 @@
  *
  */
 const getDesignConfig = require('../helpers/get-design-config')
+const hexRgb = require('../helpers/hex-rgb')
 
 /**
  * Set variables.
@@ -14,13 +15,15 @@ const config = getDesignConfig()
 /**
  * Get variable value.
  * - Handles replacing RGB values with SASS variables.
+ * @param {Object} original - Original value before conversion.
  * @param {String} value - Value of variable.
  * @param {String} variable - Variable name.
  * @returns {String}
  */
-function getCssVariableValue({ value, variable }) {
+function getCssVariableValue({ original, value, variable }) {
   let outputValue = value
-  const matches = value.match(/rgb\(\d+ \d+ \d+\)/g)
+  const valueToMatch = original?.value ? original.value : value
+  const matches = valueToMatch.match(/#[\w\d]{6}/g)
   const uniqueSassVariables = []
 
   if (!matches) {
@@ -28,9 +31,9 @@ function getCssVariableValue({ value, variable }) {
   }
 
   /**
-   * Go through each rgb() color function and replace values with SASS variable
-   * of the same name.
-   * - If value has multiple rgb() functions then ensure each match is unique,
+   * Match first six letters of hexadecimal value so we can replace RGB values
+   * inside colours with opacity.
+   * - If value has multiple hex colours then ensure each match is unique,
    *   otherwise use previously assigned SASS variable.
    */
   matches.forEach((match, matchIndex) => {
@@ -38,15 +41,14 @@ function getCssVariableValue({ value, variable }) {
       return object.match === match
     })
 
-    let sassVariable = variable.replace(config.cssPrefix, '$')
+    const sassVariable = getSassVariable({
+      index: matchIndex,
+      matches,
+      matchingSassVariable,
+      variable,
+    })
 
-    if (matchingSassVariable) {
-      sassVariable = matchingSassVariable.sassVariable
-    } else if (matches.length > 1) {
-      sassVariable += `-${matchIndex}`
-    }
-
-    outputValue = outputValue.replace(match, `rgb(${sassVariable})`)
+    outputValue = outputValue.replace(getRgbValues(match), sassVariable)
 
     uniqueSassVariables.push({
       match,
@@ -67,13 +69,19 @@ function getSassTemplate({ outputSpacing, variables }) {
   let content = `${outputSpacing}// Color RGB\n`
 
   variables[config.special.color].forEach(({ original, value, variable }) => {
-    const matches = value.match(/rgb\(\d+ \d+ \d+\)/g)
+    const valueToMatch = original?.value ? original.value : value
+    const matches = valueToMatch.match(/#[\w\d]{6}/g)
     const uniqueSassVariables = []
 
     if (!matches) {
       return
     }
 
+    /**
+     * Go through each hex match and output RGB values.
+     * - Ensure SASS RGB variables are created for each unique hex colour in
+     *   values with multiple hex colours (e.g. gradients).
+     */
     matches.forEach((match, matchIndex) => {
       const matchingSassVariable = uniqueSassVariables.find((object) => {
         return object.match === match
@@ -83,15 +91,13 @@ function getSassTemplate({ outputSpacing, variables }) {
         return
       }
 
-      let sassVariable = variable.replace(config.cssPrefix, '$')
+      const sassVariable = getSassVariable({
+        index: matchIndex,
+        matches,
+        variable,
+      })
 
-      if (matches.length > 1) {
-        sassVariable += `-${matchIndex}`
-      }
-
-      const rgbValue = match.replace('rgb', '').replace('(', '').replace(')', '')
-
-      content += `${sassVariable}: '${rgbValue}'; // ${original.value}${original.unit}\n`
+      content += `${sassVariable}: '${getRgbValues(match)}'; // ${match}\n`
 
       uniqueSassVariables.push({
         match,
@@ -101,6 +107,38 @@ function getSassTemplate({ outputSpacing, variables }) {
   })
 
   return `${content}\n`
+}
+
+/**
+ * Get SASS variable name.
+ * @param {Number} index - Current match index.
+ * @param {Array} matches - Matches array.
+ * @param {Object} [matchingSassVariable] - Matching existing variable.
+ * @param {String} variable - CSS colour variable.
+ * @returns {String}
+ */
+function getSassVariable({ index, matches, matchingSassVariable, variable }) {
+  let sassVariable = variable.replace(config.cssPrefix, '$')
+
+  if (matchingSassVariable) {
+    sassVariable = matchingSassVariable.sassVariable
+  } else if (matches.length > 1) {
+    sassVariable += `-${index}`
+  }
+
+  return `${sassVariable}-rgb`
+}
+
+/**
+ * Get RGB values.
+ * @param {String} match - Matching hexadecimal colour.
+ * @returns {String}
+ */
+function getRgbValues(match) {
+  return hexRgb(match)
+    .replace('rgb', '')
+    .replace('(', '')
+    .replace(')', '')
 }
 
 /**
