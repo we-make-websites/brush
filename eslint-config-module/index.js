@@ -15,6 +15,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:vue/vue3-recommended',
     'plugin:import/recommended',
+    'plugin:vuejs-accessibility/recommended',
   ],
   globals: {
     geoip2: true,
@@ -26,7 +27,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
   },
-  plugins: [],
+  plugins: ['vuejs-accessibility'],
   root: true,
   rules: merge(
     require('./rules/formatting'),
@@ -34,5 +35,6 @@ module.exports = {
     require('./rules/problems'),
     require('./rules/suggestions'),
     require('./rules/vue'),
+    require('./rules/vue-accessibility'),
   ),
 }

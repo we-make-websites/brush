@@ -1,0 +1,53 @@
+/**
+ * Storybook: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * Configure Storybook controls and stories.
+ *
+ */
+import './<%= handle %>'
+
+/**
+ * Write component description for docs tab.
+ */
+const component = `
+  <%= storyDescription %>
+`
+
+/**
+ * Export Storybook configuration.
+ */
+export default {
+  title: '<%= folderTitleCase %>/<%= nameTitleCase %>',
+  args: {},
+  decorators: [
+    () => ({
+      template: '<story />',
+    }),
+  ],
+  parameters: {
+    docs: {
+      description: {
+        component,
+      },
+    },
+  },
+}
+
+/**
+ * Setup shared template.
+ */
+const Template = (args) => ({
+  setup() {
+    return { args }
+  },
+  template: `
+    <<%= handle %> class="<%= handle %> liquid" >
+      <!-- Manually copy template, removing Liquid references -->
+    </<%= handle %>>
+  `,
+})
+
+/**
+ * Primary story.
+ */
+export const Primary = Template.bind({})

@@ -2,6 +2,35 @@
 
 Copy Component uses [semantic versioning](https://semver.org/).
 
+## 1.11.0 - 2023-11-29
+
+* Updated to open _README.md_ on `main` branch
+
+## 1.10.0 - 2023-11-28
+
+* Updated dependencies
+
+## 1.9.0 - 2023-11-14
+
+* Added support for importing web components
+
+## 1.8.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 1.8.0 - 2023-10-19
+* Replaced `openReadme` string setting support with `readmePath` setting
+
+## 1.7.0 - 2023-10-18
+
+* Added support for `copy` setting in package JSON to disable copying files
+* Updated `openReadme` to accept a string to define custom folder that contains _README.md_
+
+## 1.6.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+
 ## 1.5.0 - 2023-08-23
 
 * Updated dependencies

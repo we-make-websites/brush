@@ -2,8 +2,8 @@
   "diffEditor.ignoreTrimWhitespace": false,
   "editor.bracketPairColorization.enabled": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.stylelint": true
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
   },
   "editor.formatOnSave": false,
   "editor.rulers": [80],
@@ -17,9 +17,6 @@
   "git.autofetch": true,
   "html.validate.scripts": false,
   "html.validate.styles": false,
-  "search.exclude": {
-		"**/canvas/**": true
-	},
   "stylelint.validate": ["css", "scss"],
 	"shopifyLiquid.disableWindowsWarning": true,
   "shopifyLiquid.formatterDevPreview": false,

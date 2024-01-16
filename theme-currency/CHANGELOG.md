@@ -2,6 +2,15 @@
 
 Theme Currency uses [semantic versioning](https://semver.org/).
 
+## 4.5.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 4.5.0 - 2023-10-16
+
+* Updated Node version
+* Removed `engineStrict` setting
+
 ## 4.4.0 - 2023-09-20
 
 * Added `amount_no_decimals_with_apostrophe_separator` support

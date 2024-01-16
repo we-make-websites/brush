@@ -2,6 +2,24 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.11.0 - 2023-11-29
+
+* Replaced mentions of `master` with `main`
+
+## 1.10.0 - 2023-11-28
+
+* Updated dependencies
+
+## 1.9.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 1.9.0 - 2023-10-31
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
 ## 1.8.0 - 2023-09-19
 
 * Updated dependencies

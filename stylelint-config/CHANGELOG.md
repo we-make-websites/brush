@@ -1,5 +1,25 @@
 # 📅 Stylelint Config Changelog
 
+Stylelint Config uses [semantic versioning](https://semver.org/).
+
+## 4.6.0 - 2023-11-28
+
+* Updated dependencies
+
+## 4.5.2 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 4.5.1 - 2023-10-23
+
+* Fixed logical block and inline properties being autofixed (Safari 14.1 doesn't support CSS variables for these properties)
+
+## 4.5.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
 ## 4.4.0 - 2023-09-19
 
 * Updated dependencies

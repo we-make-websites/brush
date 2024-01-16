@@ -1,0 +1,50 @@
+/**
+ * Web component: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * <%= description %>
+ *
+ */
+import './<%= handle %>.scss'
+
+import { vueReady } from '~/core/runners'
+
+/**
+ * Create new <<%= handle %>> custom element.
+ */
+class <%= namePascalCase %> extends HTMLElement {
+  static observedAttributes = []
+
+  /**
+   * Custom element constructor.
+   * - Always call super first in constructor.
+   */
+  constructor() {
+    super()
+    this.data = 'example'
+  }
+
+  /**
+   * Lifecycle hook - component is attached to DOM.
+   */
+  connectedCallback() {
+    // Not empty
+  }
+
+  /**
+   * Observed attribute changed.
+   */
+  attributeChangedCallback(name, oldValue, newValue) {
+    window.console.log(`Attribute ${name} has changed`, oldValue, newValue)
+  }
+}
+
+/**
+ * Define web component on Vue initialisation.
+ */
+vueReady(() => {
+  if (customElements.get('<%= handle %>')) {
+    return
+  }
+
+  customElements.define('<%= handle %>', <%= namePascalCase %>)
+})

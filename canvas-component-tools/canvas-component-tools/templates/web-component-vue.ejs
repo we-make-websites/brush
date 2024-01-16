@@ -1,0 +1,105 @@
+/**
+ * Web component: <%= name %> (<%= handle %>)
+ * -----------------------------------------------------------------------------
+ * <%= description %>
+ *
+ */
+/* eslint no-unused-vars: ['error', { 'argsIgnorePattern': 'component' }] */
+import './<%= handle %>.scss'
+
+import { vueReady } from '~/core/runners'
+import * as webComponent from '~/helpers/web-components'
+
+/**
+ * DOM selectors.
+ */
+const selectors = {
+  example: '[js-<%= handle %>="example"]',
+}
+
+/**
+ * Create new <<%= handle %>> custom element.
+ */
+class <%= namePascalCase %> extends HTMLElement {
+  static observedAttributes = []
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    webComponent.handleAttributeUpdate(this, name, newValue, oldValue)
+  }
+
+  data(component) {
+    return {
+      selectors: {
+        example: component.querySelector(selectors.example),
+      },
+    }
+  }
+
+  computed(component) {
+    return {
+      // Computed properties
+      // computedProp() {
+      //   return ''
+      // },
+    }
+  }
+
+  watch(component) {
+    return {
+      // Watch functions
+      // watchedProp(newValue, oldValue) {
+      //   // Not empty
+      // },
+    }
+  }
+
+  /**
+   * Component lifecycle - before mount.
+   */
+  constructor() {
+    super()
+    this.$data = {}
+  }
+
+  /**
+   * Component lifecycle - mounted.
+   */
+  connectedCallback() {
+    this.$data = this.data(this)
+    webComponent.setup(this)
+
+    this.setEventListeners()
+  }
+
+  /**
+   * Component lifecycle - unmounted.
+   */
+  disconnectedCallback() {
+    // Remove event listeners
+  }
+
+  /**
+   * Set event listeners.
+   * - Must pass 'this' as argument for function to have access to component.
+   */
+  setEventListeners() {
+    if (!this.$data.selectors.example) {
+      return
+    }
+
+    this.$data.selectors.example.addEventListener('click', () => {
+      this.handleClick(this)
+    })
+  }
+}
+
+/**
+ * Define web component on Vue initialisation.
+ */
+vueReady(() => {
+  if (customElements.get('<%= handle %>')) {
+    return
+  }
+
+  customElements.define('<%= handle %>', <%= namePascalCase %>)
+})
