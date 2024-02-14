@@ -2,6 +2,10 @@
 
 Branch Naming Check uses [semantic versioning](https://semver.org/).
 
+## 3.7.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 3.6.0 - 2023-11-28
 
 * Updated dependencies
