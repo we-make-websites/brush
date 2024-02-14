@@ -2,6 +2,10 @@
 
 Eslint Config uses [semantic versioning](https://semver.org/).
 
+## 3.12.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 3.11.0 - 2023-11-28
 
 * Updated dependencies

@@ -2,6 +2,10 @@
 
 Track uses [semantic versioning](https://semver.org/).
 
+## 1.4.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 1.3.0 - 2023-11-28
 
 * Updated dependencies
