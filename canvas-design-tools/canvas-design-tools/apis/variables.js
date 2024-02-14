@@ -9,6 +9,8 @@ const path = require('path')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
+const sassRgb = require('../apis/sass-colour-rgb-variables')
+
 const convertCamelCaseToTitleCase = require('../helpers/convert-camelcase-to-title-case')
 const convertStringToHandle = require('../helpers/convert-string-to-handle')
 const formatAlias = require('../helpers/format-alias')
@@ -677,6 +679,13 @@ function getStylesTemplate(variables, stylesheet) {
   let content = ''
   let count = 0
 
+  /**
+   * Output special RGB SASS variables.
+   */
+  if (sassStylesheet && config.sassColorVariables) {
+    content += sassRgb.getSassTemplate({ outputSpacing, variables })
+  }
+
   if (!sassStylesheet) {
     content += ':root {\n\n'
   }
@@ -715,7 +724,19 @@ function getStylesTemplate(variables, stylesheet) {
         ? variable.replace(config.cssPrefix, '$')
         : variable
 
-      content += `${outputSpacing}${outputVariable}: ${singleValue}${outputUnit};`
+      /**
+       * Output SASS RGB values in CSS colour variables if enabled.
+       */
+      let outputValue = singleValue
+
+      if (!sassStylesheet && key === config.special.color) {
+        outputValue = sassRgb.getCssVariableValue({ original, value: singleValue, variable })
+      }
+
+      /**
+       * Write content.
+       */
+      content += `${outputSpacing}${outputVariable}: ${outputValue}${outputUnit};`
 
       /**
        * Add original value as comment if it exists.
@@ -851,8 +872,7 @@ function getScriptTemplate(type, variables) {
         .replace(
           /<%= repeat %>(?<group>.*)/g,
           (_, $1) => {
-            const items = variables[type].length
-            const array = Array(...Array(items))
+            const array = Array.from(Array(variables[type].length))
 
             const output = array.map((__, index) => {
               const object = variables[type][index]
