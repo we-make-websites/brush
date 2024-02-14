@@ -2,6 +2,14 @@
 
 Eslint Config Module uses [semantic versioning](https://semver.org/).
 
+## 3.13.0 - 2024-02-14
+
+* Updated `peerDependencies`
+
+## 3.12.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 3.11.0 - 2023-11-28
 
 * Updated dependencies
