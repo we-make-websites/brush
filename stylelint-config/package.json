@@ -1,8 +1,8 @@
 {
   "name": "@we-make-websites/stylelint-config",
-  "version": "4.5.2",
+  "version": "4.6.0",
   "description": "We Make Website's stylelint rules and config",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/stylelint-config",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/stylelint-config",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
@@ -13,8 +13,8 @@
     "merge": "2.1.1",
     "postcss-scss": "4.0.9",
     "stylelint-config-standard": "34.0.0",
-    "stylelint-config-standard-scss": "11.0.0",
+    "stylelint-config-standard-scss": "11.1.0",
     "stylelint-order": "6.0.3",
-    "stylelint-scss": "5.2.1"
+    "stylelint-scss": "5.3.1"
   }
 }

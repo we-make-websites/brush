@@ -2,6 +2,10 @@
 
 Branch Naming Check uses [semantic versioning](https://semver.org/).
 
+## 3.6.0 - 2023-11-28
+
+* Updated dependencies
+
 ## 3.5.1 - 2023-11-01
 
 * Fixed Node version issues by removing `engines` property

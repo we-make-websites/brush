@@ -9,10 +9,11 @@
  * Format money values based on your shop currency settings.
  * @param  {Number|String} cents - Value in cents or dollar amount e.g. 300
  * cents or 3.00 dollars.
- * @param  {String} [format] - shop money_format setting
+ * @param  {String} [format] - Shop money_format setting.
+ * @param {Boolean} [removeZeros] - Remove trailing zeros from price.
  * @returns {String}
  */
-export function formatMoney(cents, format) {
+export function formatMoney(cents, format, removeZeros) {
   // eslint-disable-next-line no-template-curly-in-string
   const formatString = format || '${{amount}}'
   let formattedCents = cents
@@ -23,49 +24,43 @@ export function formatMoney(cents, format) {
 
   // eslint-disable-next-line prefer-named-capture-group
   const placeholderRegex = /\{\{\s*(\w+)\s*\}\}/
-  let value = ''
+
+  const options = {
+    decimal: '.',
+    precision: 2,
+    removeZeros,
+    thousands: ',',
+  }
+
+  const moneyFormat = formatString.match(placeholderRegex)[1]
 
   /**
    * Determine format based on store setting.
    * - https://help.shopify.com/en/manual/payments/currency-formatting
    */
-  switch (formatString.match(placeholderRegex)[1]) {
-    case 'amount':
-      value = formatWithDelimiters(cents, 2)
-      break
-
-    case 'amount_no_decimals':
-      value = formatWithDelimiters(cents, 0)
-      break
-
+  switch (moneyFormat) {
     case 'amount_with_comma_separator':
-      value = formatWithDelimiters(cents, 2, '.', ',')
-      break
-
     case 'amount_no_decimals_with_comma_separator':
-      value = formatWithDelimiters(cents, 0, '.', ',')
+      options.decimal = ','
+      options.thousands = '.'
       break
 
     case 'amount_with_apostrophe_separator':
-      value = formatWithDelimiters(cents, 2, '\'', '.')
-      break
-
     case 'amount_no_decimals_with_apostrophe_separator':
-      value = formatWithDelimiters(cents, 0, '\'', '.')
+      options.thousands = '\''
       break
 
     case 'amount_with_space_separator':
-      value = formatWithDelimiters(cents, 2, ' ', '.')
-      break
-
     case 'amount_no_decimals_with_space_separator':
-      value = formatWithDelimiters(cents, 0, ' ', '.')
-      break
-
-    default:
-      value = formatWithDelimiters(cents, 2)
+      options.thousands = ' '
       break
   }
+
+  if (moneyFormat.includes('_no_decimals')) {
+    options.precision = 0
+  }
+
+  const value = formatWithDelimiters(cents, options)
 
   return formatString.replace(placeholderRegex, value)
 }
@@ -73,12 +68,14 @@ export function formatMoney(cents, format) {
 /**
  * Format delimiters.
  * @param {Number} number - Number to format.
+ * @param {Object} [options] - Options object
  * @param {Number} [precision] - Decimal places.
  * @param {String} [thousands] - Thousands separator.
  * @param {String} [decimal] - Decimal separator.
+ * @param {Boolean} [zeros] - Display zeroes
  * @returns {String}
  */
-function formatWithDelimiters(number, precision = 2, thousands = ',', decimal = '.') {
+function formatWithDelimiters(number, { decimal, precision, removeZeros, thousands }) {
   if (isNaN(number) || number === null) {
     return 0
   }
@@ -94,7 +91,11 @@ function formatWithDelimiters(number, precision = 2, thousands = ',', decimal = 
     `$1${thousands}`,
   )
 
-  const centsAmount = parts[1] ? decimal + parts[1] : ''
+  let centsAmount = parts[1] ? `${decimal}${parts[1]}` : ''
 
-  return dollarsAmount + centsAmount
+  if (parts[1] === '00' && removeZeros) {
+    centsAmount = ''
+  }
+
+  return `${dollarsAmount}${centsAmount}`
 }

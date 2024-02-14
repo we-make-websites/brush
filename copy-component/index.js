@@ -82,7 +82,7 @@ async function init() {
       folder = packageJson.config.readmePath.replace(/\/$/g, '')
     }
 
-    open(`https://github.com/we-make-websites/library-monorepo/blob/master/${folder}/${name}/README.md`)
+    open(`https://github.com/we-make-websites/library-monorepo/blob/main/${folder}/${name}/README.md`)
   }
 
   await Tny.write('init - Install complete', Paths.libraryLog)

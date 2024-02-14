@@ -142,7 +142,10 @@ function askPathQuestion() {
   return new Promise(async(resolve) => {
     let question = {}
 
-    const filepaths = [...fileSync(Paths.components.root, ['vue'])]
+    const filepaths = fileSync(Paths.components.root, {
+      array: true,
+      filter: ['vue'],
+    })
 
     if (argv.allComponents) {
       // Sort filepaths by filename

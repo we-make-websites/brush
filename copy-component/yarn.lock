@@ -2,12 +2,12 @@
 # yarn lockfile v1
 
 
-"@we-make-websites/file-sync@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/1.2.1/d1d8e5ae42c5c450e50a03a5142bbc1fc197f0a5#d1d8e5ae42c5c450e50a03a5142bbc1fc197f0a5"
-  integrity sha512-5NxoLKlG3JYHrRg6s04h0vmtPFGHuMjCxInyqD6Tc7l+g0MhKczyi/+z3RNEk8kDGlaXKikqQhWCzPeb80rjcQ==
+"@we-make-websites/file-sync@2.1.0":
+  version "2.1.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/2.1.0/b88c7cda2559d89e1e752cdb808d31c20d2012b0#b88c7cda2559d89e1e752cdb808d31c20d2012b0"
+  integrity sha512-Lnjq7vewdfh3uypUGBoOXa0a1Lka5LhEFPUg3021g+W2JeTbJ0fqhL5G2L4nxdQhK72goUpfo5zsmXe9ah1YtQ==
   dependencies:
-    fs-extra "11.1.1"
+    fs-extra "11.2.0"
     path "0.12.7"
 
 "@we-make-websites/tannoy@1.14.1":
@@ -70,10 +70,10 @@ escalade@^3.1.1:
   resolved "https://registry.yarnpkg.com/escalade/-/escalade-3.1.1.tgz#d8cfdc7000965c5a0174b4a82eaa5c0552742e40"
   integrity sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==
 
-fs-extra@11.1.1:
-  version "11.1.1"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.1.1.tgz#da69f7c39f3b002378b0954bb6ae7efdc0876e2d"
-  integrity sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==
+fs-extra@11.2.0:
+  version "11.2.0"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.2.0.tgz#e70e17dfad64232287d01929399e0ea7c86b0e5b"
+  integrity sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==
   dependencies:
     graceful-fs "^4.2.0"
     jsonfile "^6.0.1"

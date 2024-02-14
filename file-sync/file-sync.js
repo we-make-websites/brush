@@ -36,6 +36,10 @@ function *walkSync(folderPaths, options) {
    * Go through each file and output, or recursively run function if folder.
    */
   for (const file of files) {
+    if (!file.path) {
+      continue
+    }
+
     const combinedPath = path.join(file.path, file.name)
 
     if (file.isDirectory()) {
@@ -44,7 +48,7 @@ function *walkSync(folderPaths, options) {
     }
 
     /**
-     * Match filters and ignores.
+     * Determine if file should be returned based on filter/ignore options.
      */
     const matchesFilter = options.filter?.some((value) => {
       const formattedValue = value.replaceAll('/', path.sep)
@@ -56,7 +60,17 @@ function *walkSync(folderPaths, options) {
       return combinedPath.includes(formattedValue)
     })
 
-    if (!matchesFilter || matchesIgnore) {
+    let returnFile = true
+
+    if (options.filter?.length && !matchesFilter) {
+      returnFile = false
+    }
+
+    if (options.ignore?.length && matchesIgnore) {
+      returnFile = false
+    }
+
+    if (!returnFile) {
       continue
     }
 
