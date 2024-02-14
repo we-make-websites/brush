@@ -2,6 +2,10 @@
 
 Stylelint Config uses [semantic versioning](https://semver.org/).
 
+## 4.7.0 - 2023-02-14
+
+* Updated dependencies
+
 ## 4.6.0 - 2023-11-28
 
 * Updated dependencies
