@@ -1,12 +1,14 @@
 {
   "name": "@we-make-websites/tannoy",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "Simple terminal message outputting tool.",
   "repository": "https://github.com/we-make-websites/brush/tree/main/tannoy",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
   "dependencies": {
-    "console-clear": "1.1.1"
+    "console-clear": "1.1.1",
+    "fs-extra": "11.2.0",
+    "path": "0.12.7"
   }
 }

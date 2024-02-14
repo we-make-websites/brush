@@ -2,6 +2,10 @@
 
 Canvas Storybook Tools uses [semantic versioning](https://semver.org/).
 
+## 1.19.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 1.18.0 - 2023-11-28
 
 * Updated dependencies
