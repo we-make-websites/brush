@@ -2,6 +2,10 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.6.1 - 2024-02-20
+
+* Fixed CSS colour variables not respecting `sassColorVariables` config setting
+
 ## 2.6.0 - 2024-02-14
 
 * Added support for the `sassColorVariables` config setting
