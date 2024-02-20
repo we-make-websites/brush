@@ -2,6 +2,10 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.12.0 - 2024-02-14
+
+* Updated dependencies
+
 ## 1.11.0 - 2023-11-29
 
 * Replaced mentions of `master` with `main`

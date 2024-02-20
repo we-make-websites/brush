@@ -28,11 +28,11 @@ async function init() {
 }
 
 /**
- * Run `husky` command.
+ * Run `husky install` command.
  */
 function installHusky() {
   return new Promise(async(resolve) => {
-    childProcess.execSync('husky')
+    childProcess.execSync('husky install')
     await setImmediate(() => {})
 
     Tny.message(message('🐶 Husky installed'), { after: false })
