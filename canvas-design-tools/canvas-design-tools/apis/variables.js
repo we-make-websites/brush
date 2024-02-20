@@ -729,7 +729,11 @@ function getStylesTemplate(variables, stylesheet) {
        */
       let outputValue = singleValue
 
-      if (!sassStylesheet && key === config.special.color) {
+      if (
+        config.sassColorVariables &&
+        !sassStylesheet &&
+        key === config.special.color
+      ) {
         outputValue = sassRgb.getCssVariableValue({ original, value: singleValue, variable })
       }
 
