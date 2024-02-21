@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/branch-naming-check",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "Enforce We Make Website's branch naming conventions.",
   "repository": "https://github.com/we-make-websites/brush/tree/main/branch-naming-check",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -10,7 +10,7 @@
   },
   "devDependencies": {},
   "dependencies": {
-    "@we-make-websites/tannoy": "1.14.1",
+    "@we-make-websites/tannoy": "1.14.2",
     "fs-extra": "11.2.0",
     "path": "0.12.7"
   }

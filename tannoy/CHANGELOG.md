@@ -2,6 +2,10 @@
 
 Tannoy uses [semantic versioning](https://semver.org/).
 
+## 1.14.2 - 2024-02-14
+
+* Fixed missing dependencies
+
 ## 1.14.1 - 2023-11-01
 
 * Fixed Node version issues by removing `engines` property
