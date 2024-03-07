@@ -2,6 +2,12 @@
 
 Stylelint Config uses [semantic versioning](https://semver.org/).
 
+## 4.8.0 - 2024-03-??
+
+* Added `@stylistic/stylelint-plugin` to keep soon to be removed stylistic rules
+* Updated stylelint to version 16
+* Updated dependencies
+
 ## 4.7.0 - 2024-02-14
 
 * Updated dependencies
