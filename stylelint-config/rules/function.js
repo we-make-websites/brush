@@ -26,8 +26,6 @@ module.exports = {
   ],
   // Disallow direction values in linear-gradient() calls that are not valid according to the standard syntax
   'function-linear-gradient-no-nonstandard-direction': true,
-  // Limit the number of adjacent empty lines within functions
-  'function-max-empty-lines': 0,
   // Specify lowercase or uppercase for function names
   'function-name-case': 'lower',
   // Disallow scheme-relative urls

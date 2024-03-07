@@ -66,6 +66,8 @@ const functionRules = {
   '@stylistic/function-comma-space-after': 'always',
   // Require a single space or disallow whitespace before the commas of functions
   '@stylistic/function-comma-space-before': 'never',
+  // Limit the number of adjacent empty lines within functions
+  '@stylistic/function-max-empty-lines': 0,
   // Require a newline or disallow whitespace on the inside of the parentheses of functions
   '@stylistic/function-parentheses-newline-inside': 'never-multi-line',
   // Require a single space or disallow whitespace on the inside of the parentheses of functions
@@ -156,9 +158,9 @@ module.exports = {
   // Specify lowercase or uppercase for hex colors
   '@stylistic/color-hex-case': 'lower',
   // Specify indentation
-  indentation: 2,
+  '@stylistic/indentation': 2,
   // Specify unix or windows linebreak
-  linebreaks: null,
+  '@stylistic/linebreaks': null,
   // Disallow more than a specified number of adjacent empty lines
   '@stylistic/max-empty-lines': 1,
   // Limit the length of a line
