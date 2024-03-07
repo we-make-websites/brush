@@ -20,12 +20,10 @@ module.exports = {
   'scss/at-if-closing-brace-newline-after': 'always-last-in-chain',
   // Require a single space or disallow whitespace after the closing brace of @if statements
   'scss/at-if-closing-brace-space-after': 'always-intermediate',
-  // Disallow leading underscore in partial names in @import
-  'scss/at-import-no-partial-leading-underscore': true,
   // Specify list of disallowed file extensions for partial names in @import commands
-  'scss/at-import-partial-extension-blacklist': ['scss'],
+  'scss/at-import-partial-extension-disallowed-list': ['scss'],
   // Specify list of allowed file extensions for partial names in @import commands
-  'scss/at-import-partial-extension-whitelist': null,
+  'scss/at-import-partial-extension-allowed-list': null,
   // Disallow parentheses in argumentless @mixin calls
   'scss/at-mixin-argumentless-call-parentheses': 'never',
   // Specify a pattern for Sass/SCSS-like mixin names
@@ -66,6 +64,8 @@ module.exports = {
   'scss/declaration-nested-properties': 'never',
   // Disallow nested properties of the same "namespace" be divided into multiple groups
   'scss/declaration-nested-properties-no-divided-groups': true,
+  // Disallow leading underscore in partial names in @import
+  'scss/load-no-partial-leading-underscore': true,
   // Require a media feature value be a $-variable or disallow $-variables in media feature values
   'scss/media-feature-value-dollar-variable': null,
   // Disallow dollar variables within a stylesheet
