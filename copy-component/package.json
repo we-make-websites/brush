@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/copy-component",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "Helper package to copy component from package files.",
   "repository": "https://github.com/we-make-websites/brush/tree/main/copy-component",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
@@ -14,7 +14,7 @@
   "main": "index.js",
   "dependencies": {
     "@we-make-websites/file-sync": "2.1.0",
-    "@we-make-websites/tannoy": "1.14.1",
+    "@we-make-websites/tannoy": "1.14.2",
     "fs-extra": "11.2.0",
     "open": "8.4.2",
     "path": "0.12.7",

@@ -1,14 +1,14 @@
 {
   "name": "@we-make-websites/eslint-config",
-  "version": "3.12.0",
+  "version": "3.13.0",
   "description": "We Make Website's eslint rules and config",
   "repository": "https://github.com/we-make-websites/brush/tree/main/eslint-config",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
   "peerDependencies": {
-    "@babel/core": "7.23.3",
-    "eslint": "8.54.0"
+    "@babel/core": "7.23.9",
+    "eslint": "8.56.0"
   },
   "dependencies": {
     "@babel/eslint-parser": "7.23.10",
