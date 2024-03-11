@@ -4,7 +4,7 @@ Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
 ## 2.6.2 - 2024-03-??
 
-* Fixed `boxShadow` type tokens causing a fatal error
+* Fixed `boxShadow` type tokens causing a fatal error ([CANVAS-610](https://we-make-websites.atlassian.net/browse/CANVAS-610))
 
 ## 2.6.1 - 2024-02-20
 
