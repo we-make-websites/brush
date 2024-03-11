@@ -155,7 +155,7 @@ function importComponent(component) {
       }
 
       /**
-       * Handle global component import.
+       * Handle global and web component import.
        */
       if (component.folder !== 'async') {
         if (
@@ -314,7 +314,7 @@ function addCustomElement(component) {
         .split(comments.start)[1]
         .split(comments.end)[0]
         .split('\n')
-        .map((line) => line.trim())
+        .map((line) => line.trim().replaceAll(',', ''))
         .filter((line) => line.match(/\w/))
 
       customElements.push(`'${component.handle}'`)
@@ -325,7 +325,11 @@ function addCustomElement(component) {
        */
       const customElementsRegex = new RegExp(`${comments.start}(?<replace>.+)${comments.end}`, 'gs')
       let configTemplate = `${comments.start}\n`
-      configTemplate += `    ${customElements.join('\n    ')},\n`
+
+      customElements.forEach((customElement) => {
+        configTemplate += `    ${customElement},\n`
+      })
+
       configTemplate += `    ${comments.end}`
       contents = contents.replace(customElementsRegex, configTemplate)
 
