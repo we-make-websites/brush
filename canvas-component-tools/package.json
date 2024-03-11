@@ -15,6 +15,7 @@
     "@we-make-websites/track": "1.4.0",
     "enquirer": "2.4.1",
     "fs-extra": "11.2.0",
-    "path": "0.12.7"
+    "path": "0.12.7",
+    "yargs": "17.7.2"
   }
 }

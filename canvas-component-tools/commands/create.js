@@ -12,6 +12,8 @@ const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
 const Track = require('@we-make-websites/track')
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 
 const componentApi = require('../apis/component')
 const Paths = require('../helpers/paths')
@@ -20,6 +22,12 @@ const Paths = require('../helpers/paths')
  * Get environment variables for Canvas config.
  */
 process.env.CANVAS = JSON.stringify(true)
+
+/**
+ * Set flags.
+ */
+const argv = yargs(hideBin(process.argv)).argv
+const debug = argv.debug
 
 /**
  * Set default variables object.
@@ -35,7 +43,6 @@ const component = {
     lowerCase: '',
     pascalCase: '',
     titleCase: '',
-    type: '',
   },
   import: false,
   liquid: '',
@@ -139,6 +146,10 @@ async function nameQuestion() {
       },
       type: 'input',
       validate(answer) {
+        if (debug) {
+          return true
+        }
+
         const error = []
 
         if (!answer.trim()) {
@@ -233,6 +244,10 @@ async function handleQuestion() {
       },
       type: 'input',
       validate(answer) {
+        if (debug) {
+          return true
+        }
+
         const error = []
 
         if (!answer.trim()) {
@@ -305,6 +320,10 @@ async function descriptionQuestion() {
       },
       type: 'input',
       validate(answer) {
+        if (debug) {
+          return true
+        }
+
         const error = []
 
         if (!answer.trim()) {
@@ -391,7 +410,7 @@ async function folderQuestion() {
   )
 
   return new Promise((resolve, reject) => {
-    if (fs.existsSync(filepath)) {
+    if (!debug && fs.existsSync(filepath)) {
       const folderFiles = fileSync(filepath, { array: true })
 
       if (folderFiles.length) {
@@ -814,10 +833,16 @@ function getPackageVersion() {
  * Log banner to console.
  */
 function logBanner() {
-  Tny.message([
+  const messages = [
     Tny.colour('bgCyan', `Canvas component tools v${version}`),
     Tny.colour('bgCyan', 'Create command'),
-  ], { empty: true })
+  ]
+
+  if (debug) {
+    messages.push(Tny.colour('bgYellow', 'Restrictions disabled in debug mode'))
+  }
+
+  Tny.message(messages, { empty: true })
 }
 
 /**
