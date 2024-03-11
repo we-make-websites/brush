@@ -2,6 +2,10 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.6.2 - 2024-03-??
+
+* Fixed `boxShadow` type tokens causing a fatal error
+
 ## 2.6.1 - 2024-02-20
 
 * Fixed CSS colour variables not respecting `sassColorVariables` config setting

@@ -348,7 +348,7 @@ function convertValue(valueObject, handle, type) {
   /**
    * If value is a string with 'px' then convert to number.
    */
-  if (value.includes('px')) {
+  if (typeof value === 'string' && value.includes('px')) {
     value = Number(value.replaceAll('px', ''))
   }
 
