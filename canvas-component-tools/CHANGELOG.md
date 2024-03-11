@@ -4,6 +4,7 @@ Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
 ## 2.4.0 - 2024-03-??
 
+* Updated to not error if empty component folder already exists
 * Updated internal folder structure
 
 ## 2.3.0 - 2024-02-14

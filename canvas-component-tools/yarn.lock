@@ -49,6 +49,14 @@
   dependencies:
     "@sentry/types" "7.101.0"
 
+"@we-make-websites/file-sync@2.1.0":
+  version "2.1.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/2.1.0/b88c7cda2559d89e1e752cdb808d31c20d2012b0#b88c7cda2559d89e1e752cdb808d31c20d2012b0"
+  integrity sha512-Lnjq7vewdfh3uypUGBoOXa0a1Lka5LhEFPUg3021g+W2JeTbJ0fqhL5G2L4nxdQhK72goUpfo5zsmXe9ah1YtQ==
+  dependencies:
+    fs-extra "11.2.0"
+    path "0.12.7"
+
 "@we-make-websites/tannoy@1.14.2":
   version "1.14.2"
   resolved "https://npm.pkg.github.com/download/@we-make-websites/tannoy/1.14.2/c41e7e4dd186964256ba4c6c1d72c336fe195a81#c41e7e4dd186964256ba4c6c1d72c336fe195a81"

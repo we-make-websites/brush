@@ -7,6 +7,7 @@
  *
  */
 const { prompt } = require('enquirer')
+const fileSync = require('@we-make-websites/file-sync')
 const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
@@ -391,10 +392,14 @@ async function folderQuestion() {
 
   return new Promise((resolve, reject) => {
     if (fs.existsSync(filepath)) {
-      processError = true
-      // eslint-disable-next-line prefer-promise-reject-errors
-      reject('❌ Component already exists')
-      return
+      const folderFiles = fileSync(filepath, { array: true })
+
+      if (folderFiles.length) {
+        processError = true
+        // eslint-disable-next-line prefer-promise-reject-errors
+        reject('❌ Component already exists')
+        return
+      }
     }
 
     resolve()
@@ -739,7 +744,7 @@ async function buildComponent() {
     /**
      * Create folder.
      */
-    await fs.mkdir(filepath)
+    await fs.ensureDir(filepath)
 
     /**
      * Write templates.
