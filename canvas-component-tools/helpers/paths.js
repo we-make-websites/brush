@@ -10,7 +10,7 @@ const path = require('path')
  * Set variables.
  */
 const rootFolder = path.resolve(path.dirname('./'))
-const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-websites', 'canvas-component-tools', 'canvas-component-tools')
+const packageFolder = path.resolve(rootFolder, 'node_modules', '@we-make-websites', 'canvas-component-tools')
 
 /**
  * Export.
