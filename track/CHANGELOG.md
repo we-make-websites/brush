@@ -2,6 +2,10 @@
 
 Track uses [semantic versioning](https://semver.org/).
 
+## 1.4.1 - 2024-03-??
+
+* Fixed error when `process.env.npm_config_argv` is `undefined`
+
 ## 1.4.0 - 2024-02-14
 
 * Updated dependencies

@@ -146,12 +146,15 @@ function getCommandDetails() {
   /**
    * Determine command flags.
    */
-  const argumentFlags = JSON.parse(process.env.npm_config_argv)
+  const argumentFlags = process.env.npm_config_argv
+    ? JSON.parse(process.env.npm_config_argv)
+    : false
+
   const flags = []
   let index = 0
   let lastFlagIndex = 0
 
-  argumentFlags.original.forEach((item) => {
+  argumentFlags?.original.forEach((item) => {
     if (item === process.env.npm_lifecycle_event) {
       return
     }
