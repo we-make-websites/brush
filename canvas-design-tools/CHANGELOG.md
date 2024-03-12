@@ -2,6 +2,34 @@
 
 Canvas Design Tools uses [semantic versioning](https://semver.org/).
 
+## 2.6.1 - 2024-02-20
+
+* Fixed CSS colour variables not respecting `sassColorVariables` config setting
+
+## 2.6.0 - 2024-02-14
+
+* Added support for the `sassColorVariables` config setting
+* Updated dependencies
+
+## 2.5.0 - 2023-11-28
+
+* Updated styles template
+* Updated dependencies
+
+## 2.4.1 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 2.4.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
+## 2.3.0 - 2023-09-19
+
+* Added tracking for logging commands and error analytics
+
 ## 2.2.0 - 2023-08-23
 
 * Updated dependencies

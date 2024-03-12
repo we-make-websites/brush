@@ -1,0 +1,22 @@
+{
+  "name": "@we-make-websites/converter",
+  "version": "0.3.0",
+  "description": "Command line tool to convert Vue to Liquid.",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/converter",
+  "author": "Craig Baldwin <craig@wemakewebsites.com>",
+  "license": "MIT",
+  "bin": {
+    "converter-convert": "commands/convert.js"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@vue/compiler-sfc": "3.4.19",
+    "@we-make-websites/file-sync": "2.1.0",
+    "@we-make-websites/tannoy": "1.14.2",
+    "@we-make-websites/track": "1.4.0",
+    "enquirer": "2.4.1",
+    "fs-extra": "11.2.0",
+    "path": "0.12.7",
+    "yargs": "17.7.2"
+  }
+}

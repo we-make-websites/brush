@@ -1,0 +1,18 @@
+{% comment %}
+------------------------------------------------------------------------------
+  Section: <%= name %> (<%= handle %>)
+  - Web component section.
+------------------------------------------------------------------------------
+{% endcomment %}
+{{ 'web.<%= handle %>.min.css' | asset_url | stylesheet_tag }}
+{{ 'web.<%= handle %>.min.js' | asset_url | script_tag | replace: '<script', '<script defer' }}
+
+<section>
+  <<%= handle %> class="<%= handle %> critical-component-clear liquid">
+    <h2 class="<%= handle %>__title">
+      Title
+    </h2>
+  </<%= handle %>>
+</section>
+
+{% schema '<%= handle %>' %}

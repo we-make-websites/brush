@@ -1,22 +1,19 @@
 {
   "name": "@we-make-websites/canvas-design-tools",
-  "version": "2.2.0",
+  "version": "2.6.1",
   "description": "Component command line tool to convert tokens into styles.",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/canvas-design-tools",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/canvas-design-tools",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
-    "design-convert": "./canvas-design-tools/commands/convert.js"
+    "design-convert": "canvas-design-tools/commands/convert.js"
   },
   "devDependencies": {},
   "dependencies": {
-    "@we-make-websites/tannoy": "1.13.0",
-    "fs-extra": "11.1.1",
+    "@we-make-websites/tannoy": "1.14.2",
+    "@we-make-websites/track": "1.4.0",
+    "fs-extra": "11.2.0",
     "path": "0.12.7",
     "yargs": "17.7.2"
-  },
-  "engineStrict": true,
-  "engines": {
-    "node": "^16.17.0"
   }
 }
