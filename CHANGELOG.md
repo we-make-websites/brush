@@ -2,6 +2,11 @@
 
 Brush uses [semantic versioning](https://semver.org/).
 
+## 1.13.0 - 2024-03-12
+
+* Updated minimum Node version
+* Replaced `GITHUB_TOKEN` with `DEPENDENCY_TOKEN`
+
 ## 1.12.0 - 2024-02-14
 
 * Updated dependencies
