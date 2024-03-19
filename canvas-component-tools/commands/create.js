@@ -697,71 +697,71 @@ function formatAnswers() {
  * Build dynamic component.
  */
 async function buildComponent() {
-  const templateFilepath = {
-    js: false,
-    liquid: false,
-    schema: false,
-    story: false,
-    stylesheet: false,
-  }
+  const templates = {}
 
   /**
    * Output information.
    */
   const start = performance.now()
 
+  /**
+   * Create templates.
+   */
   try {
+    let jsTemplateName = `js-${component.type}-${component.liquid}`
+
+    if (component.type === 'web') {
+      jsTemplateName = `js-${component.type}-${component.liquid}-${component.webTemplate}`
+    } else if (component.load === 'trigger') {
+      jsTemplateName = `js-${component.type}-${component.liquid}-trigger`
+    }
+
+    templates.js = {
+      filename: `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`,
+      templateName: jsTemplateName,
+    }
+
+    templates.liquid = {
+      filename: `${component.handle}.${component.liquid}.liquid`,
+      templateName: component.load === 'trigger'
+        ? `liquid-${component.type}-${component.liquid}-trigger`
+        : `liquid-${component.type}-${component.liquid}`,
+    }
+
+    templates.schema = {
+      filename: `${component.handle}.${component.liquid}.js`,
+      templateName: ['section', 'block'].includes(component.liquid)
+        ? `schema-${component.type}`
+        : false,
+    }
+
+    templates.story = {
+      filename: `${component.handle}.stories.js`,
+      templateName: component.interactivity === 'dynamic'
+        ? `story-${component.type}`
+        : false,
+    }
+
+    templates.stylesheet = {
+      filename: `${component.handle}.scss`,
+      templateName: `stylesheet-${component.liquid}`,
+    }
 
     /**
-     * Create templates.
-     */
-    templateFilepath.stylesheet = `stylesheet-${component.liquid}`
-
-    if (component.interactivity === 'dynamic') {
-      templateFilepath.liquid = `liquid-${component.type}-${component.liquid}`
-      templateFilepath.story = `story-${component.type}`
-      templateFilepath.js = `js-${component.type}-${component.liquid}`
-    }
-
-    if (component.load === 'trigger') {
-      templateFilepath.liquid = `liquid-${component.type}-${component.liquid}-trigger`
-      templateFilepath.js = `js-${component.type}-${component.liquid}-trigger`
-    }
-
-    if (component.liquid === 'section' || component.liquid === 'block') {
-      templateFilepath.schema = `schema-${component.type}`
-    }
-
-    /**
-     * Load templates.
-     */
-    const template = {
-      js: await componentApi.getComponentTemplate(component, templateFilepath.js),
-      liquid: await componentApi.getComponentTemplate(component, templateFilepath.liquid),
-      schema: await componentApi.getComponentTemplate(component, templateFilepath.schema),
-      story: await componentApi.getComponentTemplate(component, templateFilepath.story),
-      stylesheet: await componentApi.getComponentTemplate(component, templateFilepath.stylesheet),
-    }
-
-    /**
-     * Create folder.
+     * Load and write templates.
      */
     const filepath = component.filepath
     await fs.ensureDir(filepath)
 
-    /**
-     * Write templates.
-     */
-    await componentApi.writeTemplate(filepath, `${component.handle}.${component.liquid}.liquid`, template.liquid)
-    await componentApi.writeTemplate(filepath, `${component.handle}.scss`, template.stylesheet)
-    await componentApi.writeTemplate(filepath, `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`, template.js)
+    for (const data of Object.values(templates)) {
+      if (!data || !data.templateName) {
+        return
+      }
 
-    if (component.interactivity === 'dynamic') {
-      await componentApi.writeTemplate(filepath, `${component.handle}.stories.js`, template.story)
-    }
-
-    if (component.liquid === 'section') {
-      await componentApi.writeTemplate(filepath, `${component.handle}.schema.js`, template.schema)
+      // eslint-disable-next-line no-await-in-loop
+      const template = await componentApi.getComponentTemplate(component, data.templateName)
+      // eslint-disable-next-line no-await-in-loop
+      await componentApi.writeTemplate(filepath, data.filename, template)
     }
 
     /**

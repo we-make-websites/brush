@@ -50,7 +50,9 @@ const Template = (args) => ({
   setup() {
     return { args }
   },
-  template: '<<%= handle %> v-bind="args" />',
+  template: `
+    <<%= handle %> v-bind="args" />
+  `,
 })
 
 /**
