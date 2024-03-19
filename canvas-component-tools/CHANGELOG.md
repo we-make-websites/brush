@@ -2,9 +2,11 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
-## 2.4.0 - 2024-03-??
+## 3.0.0 - 2024-03-??
 
+* Added theme blocks support
 * Added `--debug` flag to remove restrictions
+* Updated order of questions and templates
 * Updated to not error if empty component folder already exists
 * Updated internal folder structure
 * Fixed formatting issue when creating multiple web components ([CANVAS-608](https://we-make-websites.atlassian.net/browse/CANVAS-608))
