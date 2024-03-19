@@ -1,16 +1,11 @@
 {% comment %}
 ------------------------------------------------------------------------------
-  Section: <%= name %> (<%= handle %>)
-  - Web component section.
-  - Static section.
+  <%= liquidTitleCase %>: <%= name %> (<%= handle %>)
 ------------------------------------------------------------------------------
 {% endcomment %}
 {{ 'web.<%= handle %>.min.css' | asset_url | stylesheet_tag }}
 
-<section class="<%= handle %> critical-component-clear liquid">
-  <h2 class="<%= handle %>__title">
-    Title
-  </h2>
-</section>
+<div class="<%= handle %> critical-component-clear liquid">
+</div>
 
 {% schema '<%= handle %>' %}

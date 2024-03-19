@@ -47,17 +47,19 @@ function getComponentTemplate(component, filename) {
       template = template
         .replaceAll('<%= customContent %>', replacementTemplate)
         .replaceAll('<%= description %>', component.formatted.description)
-        .replaceAll('<%= storyDescription %>', component.description)
         .replaceAll('<%= folder %>', component.type)
-        .replaceAll('<%= type %>', component.type)
         .replaceAll('<%= folderTitleCase %>', component.formatted.type)
-        .replaceAll('<%= typeTitleCase %>', component.formatted.type)
         .replaceAll('<%= handle %>', component.handle)
+        .replaceAll('<%= liquid %>', component.liquid)
+        .replaceAll('<%= liquidTitleCase %>', component.formatted.liquid)
         .replaceAll('<%= load %>', component.load)
         .replaceAll('<%= name %>', component.name)
         .replaceAll('<%= nameLowerCase %>', component.formatted.lowerCase)
         .replaceAll('<%= namePascalCase %>', component.formatted.pascalCase)
         .replaceAll('<%= nameTitleCase %>', component.formatted.titleCase)
+        .replaceAll('<%= storyDescription %>', component.description)
+        .replaceAll('<%= type %>', component.type)
+        .replaceAll('<%= typeTitleCase %>', component.formatted.type)
 
       resolve(template)
 

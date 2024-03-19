@@ -1,6 +1,6 @@
 {% comment %}
 ------------------------------------------------------------------------------
-  Section: <%= name %> (<%= handle %>)
+  <%= liquidTitleCase %>: <%= name %> (<%= handle %>)
 ------------------------------------------------------------------------------
 {% endcomment %}
 <section <%= customContent %>>
@@ -19,10 +19,7 @@
   {% endcomment %}
   <div v-if="!getComponentActive('<%= handle %>')">
     <div class="<%= handle %> is-loading liquid">
-      <h2
-        id="section-title-{{ section.id }}"
-        class="<%= handle %>__title"
-      >
+      <h2 class="<%= handle %>__title">
         Title
       </h2>
     </div>

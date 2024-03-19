@@ -43,6 +43,7 @@ const component = {
     folder: '', // Async, Global, Web
     lowerCase: '',
     pascalCase: '',
+    liquid: '', // Section, Snippet, Block
     titleCase: '',
   },
   import: false,
@@ -490,7 +491,7 @@ async function webComponentTemplateQuestion() {
       name: 'answer',
       pointer: () => '',
       prefix: symbols.webTemplate,
-      skip: component.type !== 'web',
+      skip: component.interactivity === 'static' || component.type !== 'web',
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -653,6 +654,7 @@ async function importQuestion() {
  * Format answers.
  */
 function formatAnswers() {
+  component.formatted.liquid = `${component.liquid[0].toUpperCase()}${component.liquid.slice(1)}`
   component.formatted.type = `${component.type[0].toUpperCase()}${component.type.slice(1)}`
   component.formatted.lowerCase = component.name.toLowerCase()
 
@@ -698,7 +700,6 @@ function formatAnswers() {
  * Build dynamic component.
  */
 async function buildComponent() {
-  const templates = {}
 
   /**
    * Output information.
@@ -709,29 +710,27 @@ async function buildComponent() {
    * Create templates.
    */
   try {
-    templates.js = {
-      filename: `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`,
-      templateName: getTemplateName('js', component),
-    }
-
-    templates.liquid = {
-      filename: `${component.handle}.${component.liquid}.liquid`,
-      templateName: getTemplateName('liquid', component),
-    }
-
-    templates.schema = {
-      filename: `${component.handle}.${component.liquid}.js`,
-      templateName: getTemplateName('schema', component),
-    }
-
-    templates.story = {
-      filename: `${component.handle}.stories.js`,
-      templateName: getTemplateName('story', component),
-    }
-
-    templates.stylesheet = {
-      filename: `${component.handle}.scss`,
-      templateName: getTemplateName('stylesheet', component),
+    const templates = {
+      js: {
+        filename: `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`,
+        templateName: getTemplateName('js', component),
+      },
+      liquid: {
+        filename: `${component.handle}.${component.liquid}.liquid`,
+        templateName: getTemplateName('liquid', component),
+      },
+      schema: {
+        filename: `${component.handle}.${component.liquid}.js`,
+        templateName: getTemplateName('schema', component),
+      },
+      story: {
+        filename: `${component.handle}.stories.js`,
+        templateName: getTemplateName('story', component),
+      },
+      stylesheet: {
+        filename: `${component.handle}.scss`,
+        templateName: getTemplateName('stylesheet', component),
+      },
     }
 
     /**

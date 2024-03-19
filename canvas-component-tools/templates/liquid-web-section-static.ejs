@@ -1,0 +1,14 @@
+{% comment %}
+------------------------------------------------------------------------------
+  <%= liquidTitleCase %>: <%= name %> (<%= handle %>)
+------------------------------------------------------------------------------
+{% endcomment %}
+{{ 'web.<%= handle %>.min.css' | asset_url | stylesheet_tag }}
+
+<section class="<%= handle %> critical-component-clear liquid">
+  <h2 class="<%= handle %>__title">
+    Title
+  </h2>
+</section>
+
+{% schema '<%= handle %>' %}
