@@ -7,7 +7,6 @@
 const fs = require('fs-extra')
 const path = require('path')
 
-const getCanvasConfig = require('../helpers/get-canvas-config')
 const Paths = require('../helpers/paths')
 
 /**
@@ -33,19 +32,9 @@ function getComponentTemplate(component, filename) {
       let template = await fs.readFile(templatePath, 'utf-8')
 
       /**
-       * Load Canvas config.
-       */
-      const canvasConfig = getCanvasConfig()
-
-      const replacementTemplate = canvasConfig && canvasConfig.customContentTool
-        ? '\n  data-section-schema'
-        : ''
-
-      /**
        * Replace shortcodes.
        */
       template = template
-        .replaceAll('<%= customContent %>', replacementTemplate)
         .replaceAll('<%= description %>', component.formatted.description)
         .replaceAll('<%= folder %>', component.type)
         .replaceAll('<%= folderTitleCase %>', component.formatted.type)
