@@ -112,10 +112,10 @@ async function askQuestions() {
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
+    await liquidQuestion()
     await interactivityQuestion()
     await typeQuestion()
     await webComponentTemplateQuestion()
-    await liquidQuestion()
     await loadQuestion()
     await importQuestion()
 
@@ -368,20 +368,67 @@ async function descriptionQuestion() {
 }
 
 /**
- * Ask interactivity question.
+ * Ask Liquid question.
+ * - No point in a static snippet, just create a snippet from scratch.
  * @returns {Promise}
  */
-async function interactivityQuestion() {
+async function liquidQuestion() {
   let question = {}
 
   try {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'Dynamic',
-        'Limited interactivity',
-        'Static',
+        'Block',
+        'Section',
+        'Snippet',
       ],
+      index: 2,
+      message: 'Liquid',
+      footer,
+      name: 'answer',
+      pointer: () => '',
+      prefix: symbols.liquid,
+      result(answer) {
+        return answer.toLowerCase().trim()
+      },
+      type: 'select',
+    })
+
+  } catch (error) {
+    Tny.message(Tny.colour('red', '⛔ Process exited'))
+    process.exit()
+  }
+
+  component.liquid = question.answer
+
+  return new Promise((resolve) => {
+    resolve()
+  })
+}
+
+/**
+ * Ask interactivity question.
+ * @returns {Promise}
+ */
+async function interactivityQuestion() {
+  let question = {}
+
+  const choices = [
+    { role: 'separator' },
+    'Dynamic',
+    'Limited interactivity',
+    {
+      name: 'Static',
+      disabled: component.liquid === 'snippet'
+        ? '(Create static snippets manually in src/shopify/snippets/)'
+        : false,
+    },
+  ]
+
+  try {
+    question = await prompt({
+      choices,
       footer: ({ index }) => footer('interactivity', index),
       message: 'Interactivity',
       name: 'answer',
@@ -412,19 +459,23 @@ async function interactivityQuestion() {
 async function typeQuestion() {
   let question = {}
 
+  let disabled = false
+
+  if (component.liquid === 'block') {
+    disabled = '(Blocks must use web components)'
+  } else if (component.interactivity !== 'dynamic') {
+    disabled = '(Only use Vue for fully dynamic components)'
+  }
+
   const choices = [
     { role: 'separator' },
     {
       name: 'Async',
-      disabled: component.interactivity === 'dynamic'
-        ? false
-        : '(Vue components must be dynamic)',
+      disabled,
     },
     {
       name: 'Global',
-      disabled: component.interactivity === 'dynamic'
-        ? false
-        : '(Vue components must be dynamic)',
+      disabled,
     },
     'Web',
   ]
@@ -506,61 +557,7 @@ async function webComponentTemplateQuestion() {
   component.webTemplate = question.answer
 
   return new Promise((resolve) => {
-    resolve()
-  })
-}
-
-/**
- * Ask Liquid question.
- * - No point in a static snippet, just create a snippet from scratch.
- * @returns {Promise}
- */
-async function liquidQuestion() {
-  const choices = [
-    { role: 'separator' },
-    'Section',
-    {
-      name: 'Snippet',
-      disabled: component.interactivity === 'dynamic'
-        ? false
-        : '(Only available with dynamic templates)',
-    },
-    {
-      name: 'Block',
-      disabled: component.type === 'web'
-        ? false
-        : '(Only available with web components)',
-    },
-  ]
-
-  let question = {}
-
-  try {
-    question = await prompt({
-      choices,
-      message: 'Liquid type',
-      footer,
-      name: 'answer',
-      pointer: () => '',
-      prefix: symbols.liquid,
-      result(answer) {
-        return answer.toLowerCase().trim()
-      },
-      type: 'select',
-    })
-
-  } catch (error) {
-    Tny.message(Tny.colour('red', '⛔ Process exited'))
-    process.exit()
-  }
-
-  component.liquid = question.answer
-
-  return new Promise((resolve) => {
-    if (skipLoadQuestion() && component.type === 'web') {
-      complete = true
-    }
-
+    complete = true
     resolve()
   })
 }
@@ -603,10 +600,6 @@ async function loadQuestion() {
   component.load = question.answer ? question.answer : 'scroll'
 
   return new Promise((resolve) => {
-    if (component.type === 'web') {
-      complete = true
-    }
-
     resolve()
   })
 }
