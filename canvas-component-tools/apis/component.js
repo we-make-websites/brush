@@ -169,7 +169,7 @@ function importComponent(component) {
           })
 
         if (component.type === 'web') {
-          imports.push(`import(/* webpackChunkName: 'web.${component.handle}' */'~async/${component.handle}/${component.handle}')`)
+          imports.push(`import(/* webpackChunkName: 'web.${component.handle}' */'~web/${component.handle}/${component.handle}')`)
         } else {
           imports.push(`import ${component.formatted.pascalCase} from '~global/${component.handle}/${component.handle}'`)
         }
