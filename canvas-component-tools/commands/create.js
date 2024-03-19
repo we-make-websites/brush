@@ -16,6 +16,7 @@ const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
 const componentApi = require('../apis/component')
+const getTemplateName = require('../helpers/get-template-name')
 const Paths = require('../helpers/paths')
 
 /**
@@ -708,43 +709,29 @@ async function buildComponent() {
    * Create templates.
    */
   try {
-    let jsTemplateName = `js-${component.type}-${component.liquid}`
-
-    if (component.type === 'web') {
-      jsTemplateName = `js-${component.type}-${component.liquid}-${component.webTemplate}`
-    } else if (component.load === 'trigger') {
-      jsTemplateName = `js-${component.type}-${component.liquid}-trigger`
-    }
-
     templates.js = {
       filename: `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`,
-      templateName: jsTemplateName,
+      templateName: getTemplateName('js', component),
     }
 
     templates.liquid = {
       filename: `${component.handle}.${component.liquid}.liquid`,
-      templateName: component.load === 'trigger'
-        ? `liquid-${component.type}-${component.liquid}-trigger`
-        : `liquid-${component.type}-${component.liquid}`,
+      templateName: getTemplateName('liquid', component),
     }
 
     templates.schema = {
       filename: `${component.handle}.${component.liquid}.js`,
-      templateName: ['section', 'block'].includes(component.liquid)
-        ? `schema-${component.type}`
-        : false,
+      templateName: getTemplateName('schema', component),
     }
 
     templates.story = {
       filename: `${component.handle}.stories.js`,
-      templateName: component.interactivity === 'dynamic'
-        ? `story-${component.type}`
-        : false,
+      templateName: getTemplateName('story', component),
     }
 
     templates.stylesheet = {
       filename: `${component.handle}.scss`,
-      templateName: `stylesheet-${component.liquid}`,
+      templateName: getTemplateName('stylesheet', component),
     }
 
     /**
