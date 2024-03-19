@@ -98,16 +98,16 @@ function importComponent(component) {
 
       const comments = {
         import: {
-          end: `// canvas-${component.folder}-import-end`,
-          start: `// canvas-${component.folder}-import-start`,
+          end: `// canvas-${component.type}-import-end`,
+          start: `// canvas-${component.type}-import-start`,
         },
         object: {
-          end: `// canvas-${component.folder}-object-end`,
-          start: `// canvas-${component.folder}-object-start`,
+          end: `// canvas-${component.type}-object-end`,
+          start: `// canvas-${component.type}-object-start`,
         },
       }
 
-      if (component.folder !== 'web') {
+      if (component.type !== 'web') {
         if (
           !contents.includes(comments.object.start) ||
           !contents.includes(comments.object.end)
@@ -130,7 +130,7 @@ function importComponent(component) {
             return line.match(/\w/)
           })
 
-        const objectTemplate = component.folder === 'async'
+        const objectTemplate = component.type === 'async'
           ? `    '${component.handle}': defineAsyncComponent({ loader: () => import(/* webpackChunkName: 'component.${component.handle}' */'~async/${component.handle}/${component.handle}') }),`
           : `    '${component.handle}': ${component.formatted.pascalCase},`
 
@@ -150,7 +150,7 @@ function importComponent(component) {
       /**
        * Handle global and web component import.
        */
-      if (component.folder !== 'async') {
+      if (component.type !== 'async') {
         if (
           !contents.includes(comments.import.start) ||
           !contents.includes(comments.import.end)
@@ -168,7 +168,7 @@ function importComponent(component) {
             return line.match(/\w/)
           })
 
-        if (component.folder === 'web') {
+        if (component.type === 'web') {
           imports.push(`import(/* webpackChunkName: 'web.${component.handle}' */'~async/${component.handle}/${component.handle}')`)
         } else {
           imports.push(`import ${component.formatted.pascalCase} from '~global/${component.handle}/${component.handle}'`)
@@ -182,7 +182,7 @@ function importComponent(component) {
         importsTemplate += comments.import.end
         contents = contents.replace(importsRegex, importsTemplate)
 
-        if (component.folder === 'web') {
+        if (component.type === 'web') {
           await addCustomElement(component)
         } else {
           await importStylesheet(component)
