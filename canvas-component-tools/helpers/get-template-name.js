@@ -67,7 +67,7 @@ function liquid(component) {
  */
 function schema(component) {
   const templateName = ['section', 'block'].includes(component.liquid)
-    ? `schema-${component.type}`
+    ? `schema-${component.type}-${component.liquid}`
     : false
 
   return referenceLookup(templateName)
@@ -145,9 +145,10 @@ function referenceLookup(templateName) {
     'liquid-web-static-block': 'liquid-web-block-static',
     'liquid-web-static-section': 'liquid-web-section-static',
     // Schemas
-    'schema-async': 'schema',
-    'schema-global': 'schema-global',
-    'schema-web': 'schema',
+    'schema-async-section': 'schema',
+    'schema-global-section': 'schema-global',
+    'schema-web-block': 'schema-block',
+    'schema-web-section': 'schema',
     // Stories
     'story-async': 'story',
     'story-global': 'story',
