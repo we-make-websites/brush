@@ -21,6 +21,7 @@ module.exports = {
   components: {
     async: path.resolve(rootFolder, 'src', 'components', 'async'),
     global: path.resolve(rootFolder, 'src', 'components', 'global'),
+    web: path.resolve(rootFolder, 'src', 'components', 'web'),
   },
   config: path.resolve(rootFolder, 'canvas.config.js'),
   scripts: {

@@ -32,35 +32,38 @@ const debug = argv.debug
 /**
  * Set default variables object.
  */
+/* eslint-disable line-comment-position, no-inline-comments */
 const component = {
   description: '',
+  filepath: '',
   handle: '',
-  folder: '',
-  folderPath: '',
   formatted: {
     description: '',
-    folder: '',
+    folder: '', // Async, Global, Web
     lowerCase: '',
     pascalCase: '',
     titleCase: '',
   },
   import: false,
-  liquid: '',
-  load: '',
+  interactivity: '', // dynamic, limited, static
+  liquid: '', // section, snippet, block
+  load: '', // scroll,
   name: '',
-  template: '',
-  webComponent: false,
+  type: '', // async, global, web
+  webTemplate: '', // vanilla, vue
 }
+/* eslint-enable line-comment-position, no-inline-comments */
 
 const symbols = {
   description: '📑',
-  folder: '🌍',
   handle: '📂',
   import: '🚛',
+  interactivity: '🤝',
   liquid: '💧',
   load: '⏳',
   name: '📛',
-  template: '🔳',
+  type: '💬',
+  webTemplate: '🍱',
 }
 
 let complete = false
@@ -107,8 +110,8 @@ async function askQuestions() {
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
-    await folderQuestion()
-    await templateQuestion()
+    await interactivityQuestion()
+    await typeQuestion()
     await webComponentTemplateQuestion()
     await liquidQuestion()
     await loadQuestion()
@@ -363,25 +366,75 @@ async function descriptionQuestion() {
 }
 
 /**
- * Ask type/folder question.
+ * Ask interactivity question.
  * @returns {Promise}
  */
-async function folderQuestion() {
+async function interactivityQuestion() {
   let question = {}
 
   try {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'Async',
-        'Global',
-        'Web',
+        'Dynamic',
+        'Limited interactivity',
+        'Static',
       ],
-      footer: ({ index }) => footer('folder', index),
+      footer: ({ index }) => footer('interactivity', index),
+      message: 'Interactivity',
+      name: 'answer',
+      pointer: () => '',
+      prefix: symbols.interactivity,
+      result(answer) {
+        return answer.toLowerCase().split(' ')[0].trim()
+      },
+      type: 'select',
+    })
+
+  } catch (error) {
+    Tny.message(Tny.colour('red', '⛔ Process exited'))
+    process.exit()
+  }
+
+  component.interactivity = question.answer
+
+  return new Promise((resolve) => {
+    resolve()
+  })
+}
+
+/**
+ * Ask type question.
+ * @returns {Promise}
+ */
+async function typeQuestion() {
+  let question = {}
+
+  const choices = [
+    { role: 'separator' },
+    {
+      name: 'Async',
+      disabled: component.interactivity === 'dynamic'
+        ? false
+        : '(Vue components must be dynamic)',
+    },
+    {
+      name: 'Global',
+      disabled: component.interactivity === 'dynamic'
+        ? false
+        : '(Vue components must be dynamic)',
+    },
+    'Web',
+  ]
+
+  try {
+    question = await prompt({
+      choices,
+      footer: ({ index }) => footer('type', index),
       message: 'Type',
       name: 'answer',
       pointer: () => '',
-      prefix: symbols.folder,
+      prefix: symbols.type,
       result(answer) {
         return answer.toLowerCase()
       },
@@ -393,25 +446,15 @@ async function folderQuestion() {
     process.exit()
   }
 
-  component.folder = question.answer
-  component.folderPath = question.answer
+  component.type = question.answer
+  component.filepath = path.join(Paths.components[component.type], component.handle)
 
   /**
-   * Web component pretends to be async component.
+   * Determine if component folder with files already exists.
    */
-  if (component.folder === 'web') {
-    component.folderPath = 'async'
-    component.webComponent = true
-  }
-
-  const filepath = path.join(
-    Paths.components[component.folderPath],
-    component.handle,
-  )
-
   return new Promise((resolve, reject) => {
-    if (!debug && fs.existsSync(filepath)) {
-      const folderFiles = fileSync(filepath, { array: true })
+    if (!debug && fs.existsSync(component.filepath)) {
+      const folderFiles = fileSync(component.filepath, { array: true })
 
       if (folderFiles.length) {
         processError = true
@@ -421,49 +464,6 @@ async function folderQuestion() {
       }
     }
 
-    resolve()
-  })
-}
-
-/**
- * Ask template question.
- * @returns {Promise}
- */
-async function templateQuestion() {
-  let question = {}
-
-  try {
-    question = await prompt({
-      choices: [
-        { role: 'separator' },
-        'Dynamic',
-        'Limited interactivity',
-        'Static',
-      ],
-      footer: ({ index }) => footer('template', index),
-      message: 'Template',
-      name: 'answer',
-      pointer: () => '',
-      prefix: symbols.template,
-      result(answer) {
-        return answer.toLowerCase().trim().replaceAll(' ', '-')
-      },
-      skip: component.webComponent,
-      type: 'select',
-    })
-
-  } catch (error) {
-    Tny.message(Tny.colour('red', '⛔ Process exited'))
-    process.exit()
-  }
-
-  component.template = question.answer
-
-  if (component.webComponent) {
-    component.template = 'dynamic'
-  }
-
-  return new Promise((resolve) => {
     resolve()
   })
 }
@@ -488,8 +488,8 @@ async function webComponentTemplateQuestion() {
       message: 'Template',
       name: 'answer',
       pointer: () => '',
-      prefix: symbols.template,
-      skip: !component.webComponent,
+      prefix: symbols.webTemplate,
+      skip: component.type !== 'web',
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -501,12 +501,9 @@ async function webComponentTemplateQuestion() {
     process.exit()
   }
 
-  if (question.answer) {
-    component.template = question.answer
-  }
+  component.webTemplate = question.answer
 
   return new Promise((resolve) => {
-    complete = true
     resolve()
   })
 }
@@ -522,9 +519,15 @@ async function liquidQuestion() {
     'Section',
     {
       name: 'Snippet',
-      disabled: component.template === 'dynamic' || component.webComponent
+      disabled: component.interactivity === 'dynamic'
         ? false
         : '(Only available with dynamic templates)',
+    },
+    {
+      name: 'Block',
+      disabled: component.type === 'web'
+        ? false
+        : '(Only available with web components)',
     },
   ]
 
@@ -552,6 +555,10 @@ async function liquidQuestion() {
   component.liquid = question.answer
 
   return new Promise((resolve) => {
+    if (skipLoadQuestion() && component.type === 'web') {
+      complete = true
+    }
+
     resolve()
   })
 }
@@ -594,7 +601,10 @@ async function loadQuestion() {
   component.load = question.answer ? question.answer : 'scroll'
 
   return new Promise((resolve) => {
-    complete = true
+    if (component.type === 'web') {
+      complete = true
+    }
+
     resolve()
   })
 }
@@ -621,6 +631,7 @@ async function importQuestion() {
       result(answer) {
         return answer.toLowerCase().trim()
       },
+      skip: component.type === 'web',
       type: 'select',
     })
 
@@ -629,7 +640,7 @@ async function importQuestion() {
     process.exit()
   }
 
-  component.import = question.answer === 'import'
+  component.import = question.answer === 'import' || component.type === 'web'
 
   return new Promise((resolve) => {
     complete = true
@@ -641,7 +652,7 @@ async function importQuestion() {
  * Format answers.
  */
 function formatAnswers() {
-  component.formatted.folder = `${component.folder[0].toUpperCase()}${component.folder.slice(1)}`
+  component.formatted.type = `${component.type[0].toUpperCase()}${component.type.slice(1)}`
   component.formatted.lowerCase = component.name.toLowerCase()
 
   component.formatted.pascalCase = component.handle
@@ -686,17 +697,12 @@ function formatAnswers() {
  * Build dynamic component.
  */
 async function buildComponent() {
-  const filepath = path.join(
-    Paths.components[component.folderPath],
-    component.handle,
-  )
-
   const templateFilepath = {
+    js: false,
     liquid: false,
     schema: false,
-    stories: false,
-    styles: false,
-    vue: false,
+    story: false,
+    stylesheet: false,
   }
 
   /**
@@ -709,71 +715,49 @@ async function buildComponent() {
     /**
      * Create templates.
      */
-    templateFilepath.styles = `styles-${component.liquid}`
+    templateFilepath.stylesheet = `stylesheet-${component.liquid}`
 
-    if (component.template === 'dynamic') {
-      templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}`
-      templateFilepath.stories = 'stories'
-      templateFilepath.vue = `vue-${component.folder}-${component.liquid}`
-    }
-
-    if (component.template === 'limited-interactivity') {
-      templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-limited-interactivity`
-      templateFilepath.vue = `vue-${component.folder}-limited-interactivity`
-    }
-
-    if (component.template === 'static') {
-      templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-static`
-      templateFilepath.vue = 'vue-static'
+    if (component.interactivity === 'dynamic') {
+      templateFilepath.liquid = `liquid-${component.type}-${component.liquid}`
+      templateFilepath.story = `story-${component.type}`
+      templateFilepath.js = `js-${component.type}-${component.liquid}`
     }
 
     if (component.load === 'trigger') {
-      templateFilepath.liquid = `liquid-${component.folder}-${component.liquid}-trigger`
-      templateFilepath.vue = `vue-${component.folder}-${component.liquid}-trigger`
+      templateFilepath.liquid = `liquid-${component.type}-${component.liquid}-trigger`
+      templateFilepath.js = `js-${component.type}-${component.liquid}-trigger`
     }
 
-    if (component.liquid === 'section') {
-      templateFilepath.schema = `schema-${component.folder}`
-    }
-
-    if (component.liquid === 'snippet') {
-      templateFilepath.liquid = 'liquid-snippet'
-    }
-
-    /**
-     * Web component overrides.
-     */
-    if (component.folder === 'web') {
-      templateFilepath.liquid = `liquid-web-${component.liquid}`
-      templateFilepath.stories = 'stories-web'
-      templateFilepath.vue = `web-component-${component.template}`
+    if (component.liquid === 'section' || component.liquid === 'block') {
+      templateFilepath.schema = `schema-${component.type}`
     }
 
     /**
      * Load templates.
      */
     const template = {
+      js: await componentApi.getComponentTemplate(component, templateFilepath.js),
       liquid: await componentApi.getComponentTemplate(component, templateFilepath.liquid),
       schema: await componentApi.getComponentTemplate(component, templateFilepath.schema),
-      stories: await componentApi.getComponentTemplate(component, templateFilepath.stories),
-      styles: await componentApi.getComponentTemplate(component, templateFilepath.styles),
-      vue: await componentApi.getComponentTemplate(component, templateFilepath.vue),
+      story: await componentApi.getComponentTemplate(component, templateFilepath.story),
+      stylesheet: await componentApi.getComponentTemplate(component, templateFilepath.stylesheet),
     }
 
     /**
      * Create folder.
      */
+    const filepath = component.filepath
     await fs.ensureDir(filepath)
 
     /**
      * Write templates.
      */
     await componentApi.writeTemplate(filepath, `${component.handle}.${component.liquid}.liquid`, template.liquid)
-    await componentApi.writeTemplate(filepath, `${component.handle}.scss`, template.styles)
-    await componentApi.writeTemplate(filepath, `${component.handle}.${component.webComponent ? 'js' : 'vue'}`, template.vue)
+    await componentApi.writeTemplate(filepath, `${component.handle}.scss`, template.stylesheet)
+    await componentApi.writeTemplate(filepath, `${component.handle}.${component.type === 'web' ? 'js' : 'vue'}`, template.js)
 
-    if (component.template === 'dynamic' || component.webComponent) {
-      await componentApi.writeTemplate(filepath, `${component.handle}.stories.js`, template.stories)
+    if (component.interactivity === 'dynamic') {
+      await componentApi.writeTemplate(filepath, `${component.handle}.stories.js`, template.story)
     }
 
     if (component.liquid === 'section') {
@@ -858,20 +842,20 @@ function footer(type, index) {
    * Documentation links.
    */
   const links = {
-    folder: {
-      async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
-      global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
-      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
+    interactivity: {
+      dynamic: '',
+      limited: 'https://we-make-websites.gitbook.io/canvas/components/other-types/limited-interactivity-components',
+      static: 'https://we-make-websites.gitbook.io/canvas/components/other-types/static-components',
     },
     load: {
       load: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
       scroll: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
       trigger: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
     },
-    template: {
-      dynamic: '',
-      'limited-interactivity': 'https://we-make-websites.gitbook.io/canvas/components/other-types/limited-interactivity-components',
-      static: 'https://we-make-websites.gitbook.io/canvas/components/other-types/static-components',
+    type: {
+      async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
+      global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
+      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
     },
   }
 
@@ -922,9 +906,8 @@ function footer(type, index) {
  */
 function skipLoadQuestion() {
   return (
-    component.webComponent ||
-    (component.folder && component.folder !== 'async') ||
-    (component.template && component.template !== 'dynamic') ||
+    (component.interactivity && component.interactivity !== 'dynamic') ||
+    (component.type && component.type !== 'async') ||
     (component.liquid && component.liquid !== 'section')
   )
 }
