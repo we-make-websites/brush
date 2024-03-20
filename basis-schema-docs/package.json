@@ -1,15 +1,15 @@
 {
   "name": "@we-make-websites/basis-schema-docs",
-  "version": "1.11.0",
+  "version": "1.12.0-beta.0",
   "description": "Create documentation from section schemas automatically.",
   "repository": "https://github.com/we-make-websites/brush/tree/main/basis-schema-docs",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
-    "basis-schema-docs": "basis-schema-docs/commands/create.js"
+    "basis-schema-docs": "commands/create.js"
   },
   "dependencies": {
-    "@we-make-websites/file-sync": "2.1.0",
+    "@we-make-websites/file-sync": "2.1.1-beta.0",
     "@we-make-websites/tannoy": "1.14.2",
     "@we-make-websites/track": "1.4.0",
     "enquirer": "2.4.1",

@@ -6,7 +6,7 @@
  */
 const fileSync = require('@we-make-websites/file-sync')
 
-const Paths = require('../helpers/paths')
+const Paths = require('./paths')
 
 /**
  * Export.

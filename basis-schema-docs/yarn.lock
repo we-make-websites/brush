@@ -49,10 +49,10 @@
   dependencies:
     "@sentry/types" "7.101.0"
 
-"@we-make-websites/file-sync@2.1.0":
-  version "2.1.0"
-  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/2.1.0/b88c7cda2559d89e1e752cdb808d31c20d2012b0#b88c7cda2559d89e1e752cdb808d31c20d2012b0"
-  integrity sha512-Lnjq7vewdfh3uypUGBoOXa0a1Lka5LhEFPUg3021g+W2JeTbJ0fqhL5G2L4nxdQhK72goUpfo5zsmXe9ah1YtQ==
+"@we-make-websites/file-sync@2.1.1-beta.0":
+  version "2.1.1-beta.0"
+  resolved "https://npm.pkg.github.com/download/@we-make-websites/file-sync/2.1.1-beta.0/051ea2704013a6f311f73ac905e1b47162844c42#051ea2704013a6f311f73ac905e1b47162844c42"
+  integrity sha512-IgMBovTmIC1CDzuhRGKdeXl4js6OQVye07swSDFuInn7cUPZDSjwmv2nDQSZnkKzjgHKtb/dfydG1/nSHJVmeA==
   dependencies:
     fs-extra "11.2.0"
     path "0.12.7"
