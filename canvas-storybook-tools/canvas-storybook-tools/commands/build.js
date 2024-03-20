@@ -9,6 +9,7 @@
 const fileSync = require('@we-make-websites/file-sync')
 const fs = require('fs-extra')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 
@@ -44,6 +45,9 @@ const frames = ['🕛', '🕐', '🕑', '🕒', '🕓', '🕔', '🕕', '🕖', 
  * Initialises the storybook build functionality.
  */
 async function init() {
+  await Track.init()
+  Track.reportMessage('Storybook build')
+
   const start = performance.now()
   const variablesUpdated = await getVariablesUpdated()
   version = getPackageVersion()
@@ -103,6 +107,7 @@ async function init() {
   } catch (error) {
     Tny.spinner.stop('error')
     Tny.message(error)
+    Track.reportError(new Error(error))
   }
 }
 

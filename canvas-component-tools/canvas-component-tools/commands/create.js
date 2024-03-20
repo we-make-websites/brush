@@ -10,6 +10,7 @@ const { prompt } = require('enquirer')
 const fs = require('fs-extra')
 const path = require('path')
 const Tny = require('@we-make-websites/tannoy')
+const Track = require('@we-make-websites/track')
 
 const componentApi = require('../apis/component')
 const Paths = require('../helpers/paths')
@@ -26,6 +27,7 @@ const component = {
   description: '',
   handle: '',
   folder: '',
+  folderPath: '',
   formatted: {
     description: '',
     folder: '',
@@ -39,6 +41,7 @@ const component = {
   load: '',
   name: '',
   template: '',
+  webComponent: false,
 }
 
 const symbols = {
@@ -90,17 +93,22 @@ async function init() {
  */
 async function askQuestions() {
   try {
+    await Track.init()
+    Track.reportMessage('Component command')
+
     await nameQuestion()
     await handleQuestion()
     await descriptionQuestion()
     await folderQuestion()
     await templateQuestion()
+    await webComponentTemplateQuestion()
     await liquidQuestion()
     await loadQuestion()
     await importQuestion()
 
-  } catch (promiseError) {
-    Tny.message(Tny.colour('red', promiseError), { before: true })
+  } catch (error) {
+    Tny.message(Tny.colour('red', error), { before: true })
+    Track.reportError(new Error(error))
   }
 }
 
@@ -133,11 +141,15 @@ async function nameQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Name is required')
+          error.push('Name is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Name is too short')
+          error.push('Name is too short (less then 4 characters)')
+        }
+
+        if (answer.trim().length > 25) {
+          error.push('Name is too long for Shopify settings schema name value (more than 25 characters)')
         }
 
         if (answer.slice(0, 1).match(/^\s$/g)) {
@@ -153,7 +165,7 @@ async function nameQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -223,11 +235,11 @@ async function handleQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Handle is required')
+          error.push('Handle is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Handle is too short')
+          error.push('Handle is too short (less than 4 characters)')
         }
 
         if (answer.split('-').length < 2) {
@@ -255,7 +267,7 @@ async function handleQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -295,11 +307,11 @@ async function descriptionQuestion() {
         const error = []
 
         if (!answer.trim()) {
-          return Tny.colour('red', '❌ Description is required')
+          error.push('Description is required')
         }
 
         if (answer.trim().length < 4) {
-          error.push('Description is too short')
+          error.push('Description is too short (less than 4 characters)')
         }
 
         if (answer.slice(0, 1).match(/^\s$/g)) {
@@ -311,7 +323,7 @@ async function descriptionQuestion() {
         }
 
         const formattedError = error.length
-          ? `${error[0].slice(0, 1)}${error.join(', ').toLowerCase().slice(1)}`
+          ? error[0]
           : ''
 
         return error.length ? Tny.colour('red', `❌ ${formattedError}`) : true
@@ -343,6 +355,7 @@ async function folderQuestion() {
         { role: 'separator' },
         'Async',
         'Global',
+        'Web',
       ],
       footer: ({ index }) => footer('folder', index),
       message: 'Type',
@@ -361,9 +374,18 @@ async function folderQuestion() {
   }
 
   component.folder = question.answer
+  component.folderPath = question.answer
+
+  /**
+   * Web component pretends to be async component.
+   */
+  if (component.folder === 'web') {
+    component.folderPath = 'async'
+    component.webComponent = true
+  }
 
   const filepath = path.join(
-    Paths.components[component.folder],
+    Paths.components[component.folderPath],
     component.handle,
   )
 
@@ -402,6 +424,7 @@ async function templateQuestion() {
       result(answer) {
         return answer.toLowerCase().trim().replaceAll(' ', '-')
       },
+      skip: component.webComponent,
       type: 'select',
     })
 
@@ -412,7 +435,54 @@ async function templateQuestion() {
 
   component.template = question.answer
 
+  if (component.webComponent) {
+    component.template = 'dynamic'
+  }
+
   return new Promise((resolve) => {
+    resolve()
+  })
+}
+
+/**
+ * Ask web component template question.
+ * - Skip if not web component.
+ * @returns {Promise}
+ */
+async function webComponentTemplateQuestion() {
+  let question = {}
+
+  try {
+    question = await prompt({
+      choices: [
+        { role: 'separator' },
+        'Vanilla',
+        'Vue',
+      ],
+      hint: '(Select Vue for a Vue-inspired template with helpers)',
+      index: 2,
+      message: 'Template',
+      name: 'answer',
+      pointer: () => '',
+      prefix: symbols.template,
+      skip: !component.webComponent,
+      result(answer) {
+        return answer.toLowerCase().trim()
+      },
+      type: 'select',
+    })
+
+  } catch (error) {
+    Tny.message(Tny.colour('red', '⛔ Process exited'))
+    process.exit()
+  }
+
+  if (question.answer) {
+    component.template = question.answer
+  }
+
+  return new Promise((resolve) => {
+    complete = true
     resolve()
   })
 }
@@ -428,7 +498,7 @@ async function liquidQuestion() {
     'Section',
     {
       name: 'Snippet',
-      disabled: component.template === 'dynamic'
+      disabled: component.template === 'dynamic' || component.webComponent
         ? false
         : '(Only available with dynamic templates)',
     },
@@ -485,7 +555,7 @@ async function loadQuestion() {
       name: 'answer',
       pointer: () => '',
       prefix: symbols.load,
-      skip,
+      skip: skipLoadQuestion(),
       result(answer) {
         return answer.toLowerCase().trim()
       },
@@ -593,7 +663,7 @@ function formatAnswers() {
  */
 async function buildComponent() {
   const filepath = path.join(
-    Paths.components[component.folder],
+    Paths.components[component.folderPath],
     component.handle,
   )
 
@@ -639,11 +709,20 @@ async function buildComponent() {
     }
 
     if (component.liquid === 'section') {
-      templateFilepath.schema = `${component.folder}-schema`
+      templateFilepath.schema = `schema-${component.folder}`
     }
 
     if (component.liquid === 'snippet') {
       templateFilepath.liquid = 'liquid-snippet'
+    }
+
+    /**
+     * Web component overrides.
+     */
+    if (component.folder === 'web') {
+      templateFilepath.liquid = `liquid-web-${component.liquid}`
+      templateFilepath.stories = 'stories-web'
+      templateFilepath.vue = `web-component-${component.template}`
     }
 
     /**
@@ -667,9 +746,9 @@ async function buildComponent() {
      */
     await componentApi.writeTemplate(filepath, `${component.handle}.${component.liquid}.liquid`, template.liquid)
     await componentApi.writeTemplate(filepath, `${component.handle}.scss`, template.styles)
-    await componentApi.writeTemplate(filepath, `${component.handle}.vue`, template.vue)
+    await componentApi.writeTemplate(filepath, `${component.handle}.${component.webComponent ? 'js' : 'vue'}`, template.vue)
 
-    if (component.template === 'dynamic') {
+    if (component.template === 'dynamic' || component.webComponent) {
       await componentApi.writeTemplate(filepath, `${component.handle}.stories.js`, template.stories)
     }
 
@@ -752,6 +831,7 @@ function footer(type, index) {
     folder: {
       async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
       global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
+      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
     },
     load: {
       load: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
@@ -776,11 +856,20 @@ function footer(type, index) {
     /**
      * Ignore load type if not applicable.
      */
-    if (key === 'load' && skip()) {
+    if (key === 'load' && skipLoadQuestion()) {
       return
     }
 
-    message += `${symbols[key]} ${links[key][value]}\n`
+    /**
+     * Override documentation URL for web components.
+     */
+    let docUrl = links[key][value]
+
+    if (component.webComponent && value === 'async') {
+      docUrl = links[key].web
+    }
+
+    message += `${symbols[key]} ${docUrl}\n`
   })
 
   /**
@@ -801,8 +890,9 @@ function footer(type, index) {
  * Skip load question?
  * @returns {Boolean}
  */
-function skip() {
+function skipLoadQuestion() {
   return (
+    component.webComponent ||
     (component.folder && component.folder !== 'async') ||
     (component.template && component.template !== 'dynamic') ||
     (component.liquid && component.liquid !== 'section')

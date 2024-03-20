@@ -9,54 +9,106 @@ const path = require('path')
 
 /**
  * Walk through files in folders.
- * @param {String} folder - Path of folder to look in.
- * @param {Array} filetypes - Filetypes to filter.
- * @param {Object|Boolean} config - Config object, if boolean then it sets the
- * value of config.filenames.
- * @param {Boolean} config.filenames - Return only the filename and extension.
+ * @param {Array|String} folderPaths - Paths of folders to look in.
+ * @param {Object} [options] - Options object.
+ * @param {Array} options.filter - Only return these files or types.
+ * @param {Array} options.ignore - Filepaths to ignore.
+ * @param {String} options.return - How to return data, either `path`, `name`,
+ * or `parse` to use path.parse.
  * @returns {Array}
  */
-function *walkSync(folder, filetypes = [], config = {}) {
-  const files = fs.readdirSync(folder, { withFileTypes: true })
-  let localConfig = {}
+function *walkSync(folderPaths, options) {
+  const localeFolderPaths = typeof folderPaths === 'string'
+    ? [folderPaths]
+    : folderPaths
 
-  if (typeof config === 'boolean') {
-    localConfig.filenames = config
-  } else {
-    localConfig = config
+  const files = []
+
+  /**
+   * Find files/folders in provided folders.
+   */
+  for (const folderPath of localeFolderPaths) {
+    const folderFiles = fs.readdirSync(folderPath, { withFileTypes: true })
+    files.push(...folderFiles)
   }
 
+  /**
+   * Go through each file and output, or recursively run function if folder.
+   */
   for (const file of files) {
-    if (file.isDirectory()) {
-      yield* walkSync(path.join(folder, file.name), filetypes, localConfig)
+    if (!file.path) {
       continue
     }
 
-    const matchesFilter = filetypes?.some((filetype) => {
-      return file.name.includes(`.${filetype}`)
+    const combinedPath = path.join(file.path, file.name)
+
+    if (file.isDirectory()) {
+      yield* walkSync(combinedPath, options)
+      continue
+    }
+
+    /**
+     * Determine if file should be returned based on filter/ignore options.
+     */
+    const matchesFilter = options.filter?.some((value) => {
+      const formattedValue = value.replaceAll('/', path.sep)
+      return file.name.includes(formattedValue)
     })
 
-    if (filetypes.length && !matchesFilter) {
+    const matchesIgnore = options.ignore?.some((value) => {
+      const formattedValue = value.replaceAll('/', path.sep)
+      return combinedPath.includes(formattedValue)
+    })
+
+    let returnFile = true
+
+    if (options.filter?.length && !matchesFilter) {
+      returnFile = false
+    }
+
+    if (options.ignore?.length && matchesIgnore) {
+      returnFile = false
+    }
+
+    if (!returnFile) {
       continue
     }
 
-    if (localConfig.filenames) {
+    /**
+     * Return in correct format.
+     */
+    if (options.return === 'name') {
       yield file.name
       continue
     }
 
-    yield path.join(folder, file.name)
+    if (options.return === 'parse') {
+      const parsedPath = path.parse(combinedPath)
+
+      yield {
+        ...parsedPath,
+        path: combinedPath,
+      }
+
+      continue
+    }
+
+    yield combinedPath
   }
 }
 
 /**
  * Export.
- * @param {String} folder - Path of folder to look in.
- * @param {Array} filetypes - Filetypes to filter.
- * @param {Object|Boolean} config - Config object, if boolean then it sets the
- * value of config.filenames.
+ * @param {Array|String} folderPath - Paths of folders to look in.
+ * @param {Object} [options] - Options object.
+ * @param {Boolean} options.array - Return data as an array instead of a
+ * generator.
  * @returns {Array}
  */
-module.exports = (folder, filetypes, config) => {
-  return walkSync(folder, filetypes, config)
+module.exports = (folderPaths, options = { return: 'path' }) => {
+  const filepaths = walkSync(folderPaths, options)
+
+  return options.array
+    ? [...filepaths]
+    : filepaths
 }

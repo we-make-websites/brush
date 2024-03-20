@@ -2,6 +2,8 @@
 
 We Make Website's stylelint rules and config.
 
+This config supports up to stylelint 15.11.0.
+
 ## Installation
 
 Run the command:
@@ -23,7 +25,7 @@ extends: [
 
 ## Versions
 
-* `4.#.#` - Future support for stylelint 16
+* `4.#.#` - Stylelint 15
 * `3.#.#` - Canvas projects
 * `2.#.#` - Frame projects using stylelint 13 or older
 * `1.#.#` - Do not use
