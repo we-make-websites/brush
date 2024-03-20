@@ -15,20 +15,13 @@ const Paths = require('./paths')
 function getSchemas() {
   return new Promise((resolve, reject) => {
     try {
-      const componentSchemas = fileSync(Paths.components.root, {
+      const schemas = fileSync([
+        Paths.components,
+        Paths.schemas,
+      ], {
         array: true,
-        filter: ['.schema.js'],
+        filter: ['.block.js', '.section.js', 'settings_schema.js'],
       })
-
-      const sectionSchemas = fileSync(Paths.schemas.root, {
-        array: true,
-        filter: ['.js'],
-      })
-
-      const schemas = [
-        ...componentSchemas,
-        ...sectionSchemas,
-      ]
 
       resolve(schemas)
 

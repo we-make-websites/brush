@@ -4,6 +4,7 @@ Basis Schema Docs uses [semantic versioning](https://semver.org/).
 
 ## 1.12.0 - 2024-03-??
 
+* Added support for theme blocks
 * Updated internal folder structure
 
 ## 1.11.0 - 2024-02-14
