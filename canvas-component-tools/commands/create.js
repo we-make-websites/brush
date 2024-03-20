@@ -48,6 +48,7 @@ const component = {
   },
   import: false,
   interactivity: '', // dynamic, limited, static
+  key: '', // List of options used to create component
   liquid: '', // section, snippet, block
   load: '', // scroll,
   name: '',
@@ -687,6 +688,14 @@ function formatAnswers() {
   })
 
   component.formatted.description = description.join('')
+
+  component.key = `${component.liquid} / ${component.interactivity} / ${component.type}`
+
+  if (component.type === 'async') {
+    component.key = `${component.liquid} / ${component.interactivity} / ${component.type} / ${component.load}`
+  } else if (component.type === 'web') {
+    component.key = `${component.liquid} / ${component.interactivity} / ${component.type} / ${component.webTemplate}`
+  }
 }
 
 /**

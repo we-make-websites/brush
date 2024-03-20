@@ -39,6 +39,7 @@ function getComponentTemplate(component, filename) {
         .replaceAll('<%= folder %>', component.type)
         .replaceAll('<%= folderTitleCase %>', component.formatted.type)
         .replaceAll('<%= handle %>', component.handle)
+        .replaceAll('<%= key %>', component.key)
         .replaceAll('<%= liquid %>', component.liquid)
         .replaceAll('<%= liquidTitleCase %>', component.formatted.liquid)
         .replaceAll('<%= load %>', component.load)
