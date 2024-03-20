@@ -2,6 +2,14 @@
 
 Stylelint Config uses [semantic versioning](https://semver.org/).
 
+## 4.7.0 - 2024-02-14
+
+* Updated dependencies
+
+## 4.6.0 - 2023-11-28
+
+* Updated dependencies
+
 ## 4.5.2 - 2023-11-01
 
 * Fixed Node version issues by removing `engines` property
