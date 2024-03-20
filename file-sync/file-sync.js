@@ -28,6 +28,10 @@ function *walkSync(folderPaths, options) {
    * Find files/folders in provided folders.
    */
   for (const folderPath of localeFolderPaths) {
+    if (!fs.existsSync(folderPath)) {
+      continue
+    }
+
     const folderFiles = fs.readdirSync(folderPath, { withFileTypes: true })
     files.push(...folderFiles)
   }

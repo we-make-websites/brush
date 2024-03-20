@@ -2,6 +2,10 @@
 
 File Sync uses [semantic versioning](https://semver.org/).
 
+## 2.1.1 - 2023-03-??
+
+* Fixed throwing an error when provided filepath doesn't exist
+
 ## 2.1.0 - 2023-11-28
 
 * Updated dependencies
