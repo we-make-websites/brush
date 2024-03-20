@@ -521,6 +521,10 @@ async function typeQuestion() {
       }
     }
 
+    if (component.interactivity === 'static') {
+      complete = true
+    }
+
     resolve()
   })
 }
@@ -696,7 +700,7 @@ function formatAnswers() {
 
   if (component.type === 'async') {
     component.key = `${component.liquid} / ${component.interactivity} / ${component.type} / ${component.load}`
-  } else if (component.type === 'web') {
+  } else if (component.type === 'web' && component.interactivity !== 'static') {
     component.key = `${component.liquid} / ${component.interactivity} / ${component.type} / ${component.webTemplate}`
   }
 }
@@ -746,7 +750,7 @@ async function buildComponent() {
 
     for (const data of Object.values(templates)) {
       if (!data || !data.templateName) {
-        return
+        continue
       }
 
       // eslint-disable-next-line no-await-in-loop

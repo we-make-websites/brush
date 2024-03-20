@@ -38,7 +38,7 @@ module.exports = (filetype, component) => {
 function js(component) {
   let templateName = `js-${component.type}-${component.interactivity}-${component.liquid}`
 
-  if (component.type === 'web') {
+  if (component.type === 'web' && component.interactivity !== 'static') {
     templateName = `js-${component.type}-${component.interactivity}-${component.liquid}-${component.webTemplate}`
   } else if (component.load === 'trigger') {
     templateName = `js-${component.type}-${component.interactivity}-${component.liquid}-trigger`
@@ -124,12 +124,9 @@ function referenceLookup(templateName) {
     'js-web-limited-section-vue': 'js-web-vue',
     'js-web-limited-snippet-vanilla': 'js-web-vanilla',
     'js-web-limited-snippet-vue': 'js-web-vue',
-    'js-web-static-block-vanilla': 'js-web-static',
-    'js-web-static-block-vue': 'js-web-static',
-    'js-web-static-section-vanilla': 'js-web-static',
-    'js-web-static-section-vue': 'js-web-static',
-    'js-web-static-snippet-vanilla': 'js-web-static',
-    'js-web-static-snippet-vue': 'js-web-static',
+    'js-web-static-block': 'js-web-static',
+    'js-web-static-section': 'js-web-static',
+    'js-web-static-snippet': 'js-web-static',
     // Liquid
     'liquid-async-dynamic-section': 'liquid-async-section',
     'liquid-async-dynamic-section-trigger': 'liquid-async-section-trigger',
