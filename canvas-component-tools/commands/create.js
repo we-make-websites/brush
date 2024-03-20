@@ -839,7 +839,6 @@ function footer(type, index) {
   const links = {
     interactivity: {
       dynamic: '',
-      limited: 'https://we-make-websites.gitbook.io/canvas/components/other-types/limited-interactivity-components',
       static: 'https://we-make-websites.gitbook.io/canvas/components/other-types/static-components',
     },
     load: {
