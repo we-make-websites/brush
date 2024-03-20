@@ -44,7 +44,7 @@ function js(component) {
     templateName = `js-${component.type}-${component.interactivity}-${component.liquid}-trigger`
   }
 
-  return templateName
+  return referenceLookup(templateName)
 }
 
 /**
