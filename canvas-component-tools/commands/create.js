@@ -211,6 +211,9 @@ async function nameQuestion() {
 async function handleQuestion() {
   const tempHandle = component.name
     .toLowerCase()
+    .replace(/\s(?<number>\d+)/g, (_, $1) => {
+      return $1
+    })
     .replace(/\//g, '-')
     .replace(/&/g, '')
     .replace(/\s{2,}/g, ' ')
@@ -268,8 +271,8 @@ async function handleQuestion() {
           error.push('Handle must be at least two words')
         }
 
-        if (!answer.slice(0, 1).match(/^[a-z]{1}$/giu)) {
-          error.push('Handle must start with a letter')
+        if (!answer.split('-').every((part) => part.slice(0, 1).match(/^[a-z]{1}$/gi))) {
+          error.push('All handle parts must start with a letter')
         }
 
         if (!answer.slice(-1).match(/^\w$/g)) {
