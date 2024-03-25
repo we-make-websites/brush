@@ -63,7 +63,7 @@ module.exports = {
   'lines-around-comment': [
     'error', {
       beforeBlockComment: true,
-      ignorePattern: 'webpack',
+      ignorePattern: 'webpack|@type',
     },
   ],
   'lines-between-class-members': ['error', 'always'],

@@ -2,6 +2,10 @@
 
 Eslint Config Module uses [semantic versioning](https://semver.org/).
 
+## 3.14.0 - 2024-03-??
+
+* Added support for `@type` comments
+
 ## 3.13.0 - 2024-02-14
 
 * Updated `peerDependencies`
