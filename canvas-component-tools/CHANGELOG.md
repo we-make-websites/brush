@@ -2,6 +2,45 @@
 
 Canvas Component Tools uses [semantic versioning](https://semver.org/).
 
+## 2.3.0 - 2024-02-14
+
+* Updated dependencies
+
+## 2.2.0 - 2023-11-28
+
+* Updated dependencies
+
+## 2.1.0 - 2023-11-09
+
+* Added 25 character limit to name question due to Shopify settings schema limit
+* Updated error messaging
+
+## 2.0.4 - 2023-11-08
+
+* Fixed observed attributes not triggering watchers when updated externally
+
+## 2.0.3 - 2023-11-07
+
+* Fixed data issues with web component template
+
+## 2.0.2 - 2023-11-01
+
+* Fixed Node version issues by removing `engines` property
+
+## 2.0.1 - 2023-10-31
+
+* Fixed broken templates
+
+## 2.0.0 - 2023-10-18
+
+* Added web component support
+
+## 1.9.0 - 2023-10-16
+
+* Updated Node version
+* Updated dependencies
+* Removed `engineStrict` setting
+
 ## 1.8.0 - 2023-09-19
 
 * Added tracking for logging commands and error analytics

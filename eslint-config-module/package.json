@@ -1,22 +1,18 @@
 {
   "name": "@we-make-websites/eslint-config-module",
-  "version": "3.9.0",
+  "version": "3.13.0",
   "description": "We Make Website's eslint rules and config for non-Webpack projects.",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/eslint-config-module",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/eslint-config-module",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "main": "index.js",
   "peerDependencies": {
-    "eslint": "8.49.0"
+    "eslint": "8.56.0"
   },
   "dependencies": {
-    "eslint-plugin-import": "2.28.1",
-    "eslint-plugin-vue": "9.17.0",
-    "eslint-plugin-vuejs-accessibility": "2.2.0",
+    "eslint-plugin-import": "2.29.1",
+    "eslint-plugin-vue": "9.21.1",
+    "eslint-plugin-vuejs-accessibility": "2.2.1",
     "merge": "2.1.1"
-  },
-  "engineStrict": true,
-  "engines": {
-    "node": "^16.17.0"
   }
 }

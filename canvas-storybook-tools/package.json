@@ -1,13 +1,13 @@
 {
   "name": "@we-make-websites/canvas-storybook-tools",
-  "version": "1.16.0",
+  "version": "1.19.0",
   "description": "Canvas Storybook tools for building Shopify compatible stories.",
-  "repository": "https://github.com/we-make-websites/brush/tree/master/canvas-storybook-tools/",
+  "repository": "https://github.com/we-make-websites/brush/tree/main/canvas-storybook-tools/",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
   "license": "MIT",
   "bin": {
-    "storybook-build": "./canvas-storybook-tools/commands/build.js",
-    "storybook-watch": "./canvas-storybook-tools/commands/watch.js"
+    "storybook-build": "canvas-storybook-tools/commands/build.js",
+    "storybook-watch": "canvas-storybook-tools/commands/watch.js"
   },
   "devDependencies": {},
   "dependencies": {
@@ -23,25 +23,21 @@
     "@storybook/manager-webpack5": "6.5.16",
     "@storybook/theming": "6.5.16",
     "@storybook/vue3": "6.5.16",
-    "@we-make-websites/file-sync": "1.1.0",
-    "@we-make-websites/tannoy": "1.13.0",
-    "@we-make-websites/track": "1.1.0",
-    "css-loader": "6.8.1",
-    "cssnano": "6.0.1",
-    "fs-extra": "11.1.1",
+    "@we-make-websites/file-sync": "1.2.1",
+    "@we-make-websites/tannoy": "1.14.2",
+    "@we-make-websites/track": "1.4.0",
+    "css-loader": "6.10.0",
+    "cssnano": "6.0.3",
+    "fs-extra": "11.2.0",
     "js-yaml": "4.1.0",
     "path": "0.12.7",
-    "postcss": "8.4.30",
-    "postcss-loader": "7.3.3",
-    "postcss-preset-env": "9.1.4",
-    "sass": "1.62.1",
-    "sass-loader": "13.3.2",
+    "postcss": "8.4.35",
+    "postcss-loader": "8.1.0",
+    "postcss-preset-env": "9.3.0",
+    "sass": "1.70.0",
+    "sass-loader": "14.1.0",
     "svg64": "2.0.0",
-    "webpack": "5.88.2",
+    "webpack": "5.90.1",
     "yargs": "17.7.2"
-  },
-  "engineStrict": true,
-  "engines": {
-    "node": "^16.17.0"
   }
 }
