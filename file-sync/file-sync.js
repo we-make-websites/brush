@@ -18,7 +18,7 @@ const path = require('path')
  * @returns {Array}
  */
 function *walkSync(folderPaths, options) {
-  const localeFolderPaths = typeof folderPaths === 'string'
+  const localFolderPaths = typeof folderPaths === 'string'
     ? [folderPaths]
     : folderPaths
 
@@ -27,7 +27,7 @@ function *walkSync(folderPaths, options) {
   /**
    * Find files/folders in provided folders.
    */
-  for (const folderPath of localeFolderPaths) {
+  for (const folderPath of localFolderPaths) {
     if (!fs.existsSync(folderPath)) {
       continue
     }
