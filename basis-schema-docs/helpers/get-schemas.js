@@ -20,7 +20,7 @@ function getSchemas() {
         Paths.schemas,
       ], {
         array: true,
-        filter: ['.block.js', '.section.js', 'settings_schema.js'],
+        filter: ['.block.schema.js', '.section.schema.js', 'settings_schema.js'],
       })
 
       resolve(schemas)

@@ -1,6 +1,6 @@
 {
   "name": "@we-make-websites/basis-schema-docs",
-  "version": "1.12.0-beta.1",
+  "version": "1.12.0-beta.2",
   "description": "Create documentation from section schemas automatically.",
   "repository": "https://github.com/we-make-websites/brush/tree/main/basis-schema-docs",
   "author": "Craig Baldwin <craig@wemakewebsites.com>",
