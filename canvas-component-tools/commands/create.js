@@ -389,7 +389,6 @@ async function liquidQuestion() {
       ],
       index: 2,
       message: 'Liquid',
-      footer,
       name: 'answer',
       pointer: () => '',
       prefix: symbols.liquid,
@@ -495,6 +494,7 @@ async function typeQuestion() {
       result(answer) {
         return answer.toLowerCase()
       },
+      skip: component.liquid === 'block' || component.interactivity !== 'dynamic',
       type: 'select',
     })
 
@@ -503,7 +503,7 @@ async function typeQuestion() {
     process.exit()
   }
 
-  component.type = question.answer
+  component.type = question.answer ? question.answer : 'web'
   component.filepath = path.join(Paths.components[component.type], component.handle)
 
   /**
@@ -544,6 +544,7 @@ async function webComponentTemplateQuestion() {
         'Vanilla',
         'Vue',
       ],
+      footer,
       hint: '(Select Vue for a Vue-inspired template with helpers)',
       index: 2,
       message: 'Template',
@@ -837,19 +838,20 @@ function footer(type, index) {
    * Documentation links.
    */
   const links = {
+    type: {
+      async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
+      global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
+      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
+    },
     interactivity: {
       dynamic: '',
+      limited: '',
       static: 'https://we-make-websites.gitbook.io/canvas/components/other-types/static-components',
     },
     load: {
       load: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
       scroll: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
       trigger: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components#data-component-type',
-    },
-    type: {
-      async: 'https://we-make-websites.gitbook.io/canvas/components/overview/async-components',
-      global: 'https://we-make-websites.gitbook.io/canvas/components/overview/global-components',
-      web: 'https://we-make-websites.gitbook.io/canvas/components/overview/web-components',
     },
   }
 
