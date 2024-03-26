@@ -729,7 +729,7 @@ async function buildComponent() {
         templateName: getTemplateName('liquid', component),
       },
       schema: {
-        filename: `${component.handle}.${component.liquid}.js`,
+        filename: `${component.handle}.${component.liquid}.schema.js`,
         templateName: getTemplateName('schema', component),
       },
       story: {
