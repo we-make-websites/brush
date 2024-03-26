@@ -542,18 +542,18 @@ async function webComponentTemplateQuestion() {
       choices: [
         { role: 'separator' },
         'Vanilla',
-        'Vue',
+        'Vue-inspired',
       ],
       footer,
       hint: '(Select Vue for a Vue-inspired template with helpers)',
-      index: 2,
+      index: 1,
       message: 'Template',
       name: 'answer',
       pointer: () => '',
       prefix: symbols.webTemplate,
       skip: component.interactivity === 'static' || component.type !== 'web',
       result(answer) {
-        return answer.toLowerCase().trim()
+        return answer.toLowerCase().trim().replace('-inspired', '')
       },
       type: 'select',
     })
