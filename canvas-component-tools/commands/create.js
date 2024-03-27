@@ -461,7 +461,6 @@ async function interactivityQuestion() {
  */
 async function typeQuestion() {
   let question = {}
-
   let disabled = false
 
   if (component.liquid === 'block') {
@@ -483,6 +482,12 @@ async function typeQuestion() {
     'Web',
   ]
 
+  const skip = component.liquid === 'block' || component.interactivity !== 'dynamic'
+
+  if (skip) {
+    Tny.message(`${symbols.type} Type · ${Tny.colour('cyan', 'Web')}`, { after: false })
+  }
+
   try {
     question = await prompt({
       choices,
@@ -494,7 +499,7 @@ async function typeQuestion() {
       result(answer) {
         return answer.toLowerCase()
       },
-      skip: component.liquid === 'block' || component.interactivity !== 'dynamic',
+      skip,
       type: 'select',
     })
 
@@ -536,6 +541,7 @@ async function typeQuestion() {
  */
 async function webComponentTemplateQuestion() {
   let question = {}
+  const skip = component.interactivity === 'static' || component.type !== 'web'
 
   try {
     question = await prompt({
@@ -551,7 +557,7 @@ async function webComponentTemplateQuestion() {
       name: 'answer',
       pointer: () => '',
       prefix: symbols.webTemplate,
-      skip: component.interactivity === 'static' || component.type !== 'web',
+      skip,
       result(answer) {
         return answer.toLowerCase().trim().replace('-inspired', '')
       },
@@ -619,23 +625,28 @@ async function loadQuestion() {
  */
 async function importQuestion() {
   let question = {}
+  const skip = component.type === 'web'
+
+  if (skip) {
+    Tny.message(`${symbols.import} Import · ${Tny.colour('cyan', 'Yes')}`, { after: false })
+  }
 
   try {
     question = await prompt({
       choices: [
         { role: 'separator' },
-        'Import',
-        'Manually import',
+        'Yes',
+        'No',
       ],
       footer,
-      message: 'Import component files',
+      message: 'Import',
       name: 'answer',
       pointer: () => '',
       prefix: symbols.import,
       result(answer) {
         return answer.toLowerCase().trim()
       },
-      skip: component.type === 'web',
+      skip,
       type: 'select',
     })
 
@@ -644,7 +655,7 @@ async function importQuestion() {
     process.exit()
   }
 
-  component.import = question.answer === 'import' || component.type === 'web'
+  component.import = question.answer === 'yes' || component.type === 'web'
 
   return new Promise((resolve) => {
     complete = true
